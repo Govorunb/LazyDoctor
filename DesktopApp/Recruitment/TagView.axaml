@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="DesktopApp.Recruitment.TagView"
+             xmlns:r="using:DesktopApp.Recruitment"
+             x:DataType="r:Tag">
+  <Design.DataContext>
+    <r:DesignTag />
+  </Design.DataContext>
+  <ToggleButton Name="Button"
+                MinWidth="50"
+                ClickMode="Release"
+                IsEnabled="{Binding IsAvailable}"
+                IsChecked="{Binding IsSelected}">
+    <TextBlock Text="{Binding Name}" />
+  </ToggleButton>
+</UserControl>
