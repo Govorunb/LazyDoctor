@@ -2,9 +2,9 @@ using Avalonia.ReactiveUI;
 
 namespace DesktopApp.Recruitment;
 
-public partial class CategoryView : ReactiveUserControl<TagCategory>
+public partial class ResultRowView : ReactiveUserControl<ResultRow>
 {
-    public CategoryView()
+    public ResultRowView()
     {
         InitializeComponent();
     }

@@ -12,6 +12,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="CommunityToolkit.HighPerformance" />
+        <PackageReference Include="FluentAvaloniaUI" />
         <PackageReference Include="HotAvalonia" PrivateAssets="all" />
         <!-- compiles itself out in release mode -->
         <PackageReference Include="HotAvalonia.Extensions" PrivateAssets="all" />
@@ -23,6 +25,7 @@
         <PackageReference Include="Avalonia.Themes.Fluent" />
         <PackageReference Include="Avalonia.Fonts.Inter" />
         <PackageReference Include="Avalonia.ReactiveUI" />
+        <PackageReference Include="JetBrains.Annotations" />
         <PackageReference Include="ReactiveUI" />
         <PackageReference Include="ReactiveUI.Fody" />
         <PackageReference Include="Splat.DependencyInjection.SourceGenerator">

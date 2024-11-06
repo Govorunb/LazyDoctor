@@ -1,14 +1,19 @@
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 using DesktopApp.Common.Operators;
 using DesktopApp.ViewModels;
 
 namespace DesktopApp.Recruitment;
 
+[DebuggerDisplay("{Name,nq}")]
 public class Tag(string name, string category) : ViewModelBase
 {
     public string Id { get; } = name.Replace(' ', '-');
     public string Name { get; } = name;
     public string Category { get; } = category;
+
+    [Obsolete("Designer only", true)]
+    internal Tag() : this("", "") { }
 
     [Reactive, JsonIgnore]
     public bool IsAvailable { get; set; } = true;
@@ -22,27 +27,16 @@ public class Tag(string name, string category) : ViewModelBase
             case "Rarity":
                 if (Name is "Robot" or "Starter")
                     return op.TagList?.Contains(Name) ?? false;
-                return (Name switch
+                return Name switch
                 {
-                    "Senior Operator" => "TIER_5",
-                    "Top Operator" => "TIER_6",
+                    "Senior Operator" => 5,
+                    "Top Operator" => 6,
                     _ => throw new InvalidOperationException($"Unknown rarity tag: {Name}"),
-                }).Equals(op.Rarity, StringComparison.OrdinalIgnoreCase);
+                } == op.RarityStars;
             case "Position":
                 return Name.Equals(op.Position, StringComparison.OrdinalIgnoreCase);
             case "Class":
-                return (Name switch
-                {
-                    "Vanguard" => "PIONEER",
-                    "Guard" => "WARRIOR",
-                    "Defender" => "TANK",
-                    "Medic" => "MEDIC",
-                    "Specialist" => "SPECIAL",
-                    "Sniper" => "SNIPER",
-                    "Caster" => "CASTER",
-                    "Supporter" => "SUPPORT",
-                    _ => throw new InvalidOperationException($"Unknown class tag: {Name}"),
-                }).Equals(op.Class, StringComparison.OrdinalIgnoreCase);
+                return Enum.Parse<OperatorClass>(Name).Equals(op.Class);
             case "Affix":
                 return op.TagList?.Contains(Id) ?? false;
             default:
@@ -53,4 +47,4 @@ public class Tag(string name, string category) : ViewModelBase
     public override string ToString() => Name;
 }
 
-public sealed class DesignTag() : Tag("Robot", "Rarity");
+public sealed class DesignTag() : Tag("Test", "Rarity");

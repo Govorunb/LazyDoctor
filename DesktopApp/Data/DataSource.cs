@@ -1,7 +1,14 @@
-namespace DesktopApp.Data;
+﻿using System.Reactive.Subjects;
 
-public abstract class DataSource<T>
+namespace DesktopApp.Data;
+public class DataSource<T> : ReactiveObjectBase, IDataSource<T>
 {
-    protected abstract string DataPath { get; }
-    public abstract T Value { get; }
+    protected ReplaySubject<T> Subject { get; } = new(1);
+    public IObservable<T> Values => Subject;
+
+    protected override void DisposeCore()
+    {
+        Subject.Dispose();
+        base.DisposeCore();
+    }
 }

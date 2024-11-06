@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using DesktopApp.ViewModels;
 using DesktopApp.Views;
+using HotAvalonia;
 
 namespace DesktopApp;
 
@@ -10,6 +11,7 @@ public sealed class App : Application
 {
     public override void Initialize()
     {
+        this.EnableHotReload();
         AvaloniaXamlLoader.Load(this);
     }
 
@@ -23,6 +25,8 @@ public sealed class App : Application
                 DataContext = mwvm,
             };
         }
+
+        _ = new ViewLocator(); // run .cctor
 
         base.OnFrameworkInitializationCompleted();
     }

@@ -1,0 +1,82 @@
+﻿using System.Diagnostics;
+using System.Text.Json.Serialization;
+
+namespace DesktopApp.Data;
+
+internal class GachaTable : ReactiveObjectBase
+{
+    [JsonInclude, JsonPropertyName("recruitDetail")]
+    private string? RecruitDetail { get; set; }
+    public List<string> ParseRecruitDetails()
+        => ParseRecruitDetailsCore(RecruitDetail);
+
+    private List<string> ParseRecruitDetailsCore(string? recruitDetails)
+    {
+        //★★★
+        //<@rc.eml>Exclusive</> / Regular / ... / Regular
+        //--------------------
+        //★★★★
+        //<@rc.eml>Exclusive</> / <@rc.eml>Exclusive</> / Regular / Regular / ...
+        if (string.IsNullOrEmpty(recruitDetails))
+            return [];
+
+        List<string> names = [];
+        ReadOnlySpan<char> span = recruitDetails;
+
+        Span<char> buf = stackalloc char[6];
+        buf.Fill('★');
+
+        const string OpeningTag = "<@rc.eml>"; // exclusive to recruitment
+        const string ClosingTag = "</>";
+        const string Separator = " / ";
+
+        for (var stars = 1; stars <= 6; stars++)
+        {
+            ReadOnlySpan<char> slice = buf[..stars];
+            int starsIdx = span.IndexOf(slice, StringComparison.Ordinal);
+            Debug.Assert(span[starsIdx + stars + 1] != '★', "Found extra stars, this means we skipped a previous iteration");
+            span = span[(starsIdx + stars + 1)..]; // \n (literal)
+
+            while (true)
+            {
+                if (span.StartsWith(Separator))
+                    span = span[Separator.Length..];
+                if (span.StartsWith(OpeningTag))
+                {
+                    // <@rc.eml>THRM-EX</> / ...
+                    // <@rc.eml>12F</>\n----...
+                    span = span[OpeningTag.Length..];
+                    int nameLen = span.IndexOf(ClosingTag, StringComparison.Ordinal);
+                    names.Add(span[..nameLen].ToString());
+                    span = span[(nameLen + ClosingTag.Length)..];
+                }
+                else
+                {
+                    int i = 0;
+                    // consume chars for name until separator/end
+                    for (; i < span.Length; i++)
+                    {
+                        // \n (finished)
+                        if (span[i] == '\n')
+                            break;
+                        // end of whole string
+                        if (span.Length < i + 2)
+                        {
+                            i = span.Length;
+                            break;
+                        }
+                        // separator
+                        if (span[i] == ' ' && span[i+1] == '/' && span[i + 2] == ' ')
+                            break;
+                    }
+                    names.Add(span[..i].ToString());
+                    span = span[i..];
+                }
+
+                if (span.Length == 0 || span[0] == '\n') // \n (finished parsing for this rarity)
+                    break;
+            }
+        }
+        return names;
+    }
+}

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="DesktopApp.App"
              xmlns:local="using:DesktopApp"
+             xmlns:fas="using:FluentAvalonia.Styling"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
@@ -10,7 +11,33 @@
     </Application.DataTemplates>
 
     <Application.Styles>
+        <!-- original Avalonia theme - we use FluentAvalonia instead
         <FluentTheme />
-        <StyleInclude Source="Recruitment/Styles.axaml" />
+        -->
+
+        <fas:FluentAvaloniaTheme PreferUserAccentColor="True" PreferSystemTheme="True" />
+
+        <!-- <StyleInclude Source="Recruitment/Styles.axaml" /> -->
+        <Style Selector="ItemsControl.Horizontal">
+            <Setter Property="ItemsPanel">
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="ItemsControl.Vertical">
+            <Setter Property="ItemsPanel">
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" />
+                </ItemsPanelTemplate>
+            </Setter>
+        </Style>
+        <!-- todo: light/dark theming (resource dictionaries) -->
+        <Style Selector="ToggleButton[IsThreeState=True]:unchecked">
+            <Setter Property="Background" Value="RosyBrown" />
+            <Style Selector="^:pointerover">
+                <Setter Property="Background" Value="Brown"/>
+            </Style>
+        </Style>
     </Application.Styles>
 </Application>

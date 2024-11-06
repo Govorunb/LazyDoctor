@@ -2,22 +2,65 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
              x:Class="DesktopApp.Recruitment.RecruitTabView"
              xmlns:r="using:DesktopApp.Recruitment"
              x:DataType="r:RecruitTabViewModel">
   <Design.DataContext>
     <r:DesignRecruitTabViewModel />
   </Design.DataContext>
-  <StackPanel Spacing="32">
-    <ItemsControl ItemsSource="{Binding Categories}">
-      <ItemsControl.ItemsPanel>
-        <ItemsPanelTemplate>
-          <StackPanel Spacing="16" />
-        </ItemsPanelTemplate>
-      </ItemsControl.ItemsPanel>
-    </ItemsControl>
-    <TextBlock Text="Operators" />
-    <ItemsControl ItemsSource="{Binding AvailableOperators}" />
-  </StackPanel>
+  <Border Padding="8">
+    <ScrollViewer>
+      <StackPanel Orientation="Vertical">
+        <ItemsControl ItemsSource="{Binding Categories}" Margin="0 16" />
+        <WrapPanel Orientation="Horizontal" Margin="0 16">
+          <!-- symbol cache: ★☆ -->
+          <Control.Styles>
+            <Style Selector="Label">
+              <Setter Property="VerticalAlignment" Value="Center" />
+              <Setter Property="HorizontalAlignment" Value="Center" />
+            </Style>
+            <Style Selector="ComboBox">
+              <Setter Property="ItemsSource" Value="{x:Static r:RecruitTabView.FilterTypes}" />
+              <Setter Property="MinWidth" Value="100" />
+              <Setter Property="ToolTip.Tip">
+                <Setter.Value>
+                  <Template>
+                    <TextBlock>
+                      Ignore - no filtering.
+                      <LineBreak />
+                      Hide - operators with this rarity will be dropped from result rows.
+                      <LineBreak/>
+                      Exclude - result rows with at least one operator of this rarity will not show up.
+                      <LineBreak/>
+                      Require - result rows without any operators of this rarity will not show up.
+                    </TextBlock>
+                  </Template>
+                </Setter.Value>
+              </Setter>
+            </Style>
+          </Control.Styles>
+          <Label FontSize="16" Content="Filter:" />
+          <Grid ColumnDefinitions="*,*,*">
+            <StackPanel Grid.Column="0">
+              <Label>★☆☆☆☆☆</Label>
+              <!-- ReSharper disable Xaml.MissingGridIndex [in style above] -->
+              <ComboBox SelectedItem="{Binding Filter1Stars, Mode=TwoWay, FallbackValue=Ignore}" />
+            </StackPanel>
+            <StackPanel Grid.Column="1">
+              <Label>★★☆☆☆☆</Label>
+              <ComboBox SelectedItem="{Binding Filter2Stars, Mode=TwoWay, FallbackValue=Ignore}" />
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+              <Label>★★★☆☆☆</Label>
+              <ComboBox SelectedItem="{Binding Filter3Stars, Mode=TwoWay, FallbackValue=Ignore}" />
+            </StackPanel>
+          </Grid>
+        </WrapPanel>
+
+        <TextBlock Text="Results" FontSize="22" Margin="0 16" />
+        <ItemsControl ItemsSource="{Binding Results}" />
+      </StackPanel>
+    </ScrollViewer>
+  </Border>
 </UserControl>

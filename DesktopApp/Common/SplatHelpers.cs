@@ -20,17 +20,16 @@ internal static class SplatHelpers
 
         LogHost.Default.Warn($"Registering self {nameof(SplatHelpers)}");
 
+        SplatRegistrations.RegisterConstant(new HttpClient());
+
+        SplatRegistrations.RegisterLazySingleton<OperatorRepository>();
+        SplatRegistrations.RegisterLazySingleton<RecruitableOperators>();
         SplatRegistrations.RegisterConstant(
             new JsonDataSource<Tag[]>(new(Path.GetFullPath(@".\data\recruitment\tags.json")))
         );
-        SplatRegistrations.RegisterLazySingleton<OperatorRepository>();
-        SplatRegistrations.RegisterConstant(new HttpClient());
 
-        SplatRegistrations.Register<RecruitTabViewModel>();
-        SplatRegistrations.Register<MainWindowViewModel>();
-
-        SplatRegistrations.Register<IViewFor<Tag>, TagView>();
-        SplatRegistrations.Register<IViewFor<Operator>, OperatorView>();
+        SplatRegistrations.RegisterLazySingleton<RecruitTabViewModel>();
+        SplatRegistrations.RegisterLazySingleton<MainWindowViewModel>();
 
         SplatRegistrations.SetupIOC();
 

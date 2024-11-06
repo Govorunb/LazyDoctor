@@ -7,13 +7,16 @@
              xmlns:r="using:DesktopApp.Recruitment"
              x:DataType="r:Tag">
   <Design.DataContext>
-    <r:DesignTag />
+    <r:Tag Name="Example" Category="Affix" />
   </Design.DataContext>
-  <ToggleButton Name="Button"
-                MinWidth="50"
-                ClickMode="Release"
-                IsEnabled="{Binding IsAvailable}"
-                IsChecked="{Binding IsSelected}">
-    <TextBlock Text="{Binding Name}" />
-  </ToggleButton>
+  <Border Padding="1 0">
+    <ToggleButton Name="Button"
+                  MinWidth="50"
+                  HorizontalContentAlignment="Center"
+                  ClickMode="Release"
+                  IsEnabled="{Binding IsAvailable}"
+                  IsChecked="{Binding IsSelected}">
+      <TextBlock Text="{Binding Name}" />
+    </ToggleButton>
+  </Border>
 </UserControl>

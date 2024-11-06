@@ -4,37 +4,39 @@ namespace DesktopApp.Data;
 
 public sealed class JsonDataSource<T> : DataSource<T>
 {
-    private JsonSerializerOptions? _jsonSerializerOptions;
+    private readonly JsonSerializerOptions? _jsonSerializerOptions;
     private Uri Uri { get; }
-    protected override string DataPath => Uri.AbsolutePath;
-    private readonly Lazy<T> _lazyValue;
-    public override T Value => _lazyValue.Value;
 
     public JsonDataSource(Uri uri, JsonSerializerOptions? options = null)
     {
-        _jsonSerializerOptions = options;
+        _jsonSerializerOptions = options ?? Constants.DefaultJsonSerializerOptions;
         Uri = uri;
-        _lazyValue = new(Load);
+        _ = Reload();
     }
 
-    public T Load()
+    public async Task<T> Reload()
     {
-        _jsonSerializerOptions ??= JsonDataSource.DefaultOptions;
-        var json = Uri.Scheme switch
+        try
         {
-            // todo: cache on client (many tables are several MB each)
-            "http" or "https" => LOCATOR.GetService<HttpClient>()!.GetStringAsync(Uri).Result,
-            "file" => File.ReadAllText(Uri.AbsolutePath),
-            _ => throw new InvalidOperationException($"Unknown URI scheme {Uri.Scheme}"),
-        };
-        return JsonSerializer.Deserialize<T>(json, _jsonSerializerOptions)!;
+            var json = await (Uri.Scheme switch
+            {
+                // todo: cache on client (many tables are several MB each)
+                // "http" or "https" => LOCATOR.GetService<LocalHttpCache>().GetString(Uri),
+                "http" or "https" => LOCATOR.GetService<HttpClient>()!.GetStringAsync(Uri),
+                "file" => File.ReadAllTextAsync(Uri.AbsolutePath),
+                _ => throw new InvalidOperationException($"Unsupported URI scheme {Uri.Scheme}"),
+            });
+            this.Log().Debug($"Loaded {Uri}");
+            var value = JsonSerializer.Deserialize<T>(json, _jsonSerializerOptions)!;
+            Subject.OnNext(value);
+            return value;
+        }
+        catch (Exception e)
+        {
+            this.Log().Error(e, $"Failed to load {Uri}");
+            // an error here isn't fatal and caller can freely ignore/retry
+            // this is why we don't call subject.OnError(e)
+            throw;
+        }
     }
-}
-
-public static class JsonDataSource
-{
-    public static readonly JsonSerializerOptions DefaultOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    };
 }
