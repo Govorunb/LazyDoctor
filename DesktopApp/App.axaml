@@ -17,6 +17,22 @@
 
         <fas:FluentAvaloniaTheme PreferUserAccentColor="True" PreferSystemTheme="True" />
 
-        <!-- <StyleInclude Source="Recruitment/Styles.axaml" /> -->
+        <!-- <StyleInclude Source="Common/Styles.axaml" /> -->
+        <Style Selector="Button.Danger">
+            <Setter Property="Background" Value="Red" />
+            <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="#808b0000" />
+            </Style>
+            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="OrangeRed" />
+            </Style>
+        </Style>
+        <Style Selector="ItemsControl.Virtualizing">
+            <Setter Property="ItemsPanel">
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel />
+                </ItemsPanelTemplate>
+            </Setter>
+        </Style>
     </Application.Styles>
 </Application>

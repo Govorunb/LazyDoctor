@@ -7,5 +7,7 @@
   </Folder>
   <Project Path="DesktopApp.Test\DesktopApp.Test.csproj" />
   <Project Path="DesktopApp\DesktopApp.csproj" />
-  <Project Path="Scratchpad\Scratchpad.csproj" />
+  <Project Path="Scratchpad\Scratchpad.csproj">
+    <Configuration Solution="Debug|Any CPU" Project="Release|Any CPU" />
+  </Project>
 </Solution>

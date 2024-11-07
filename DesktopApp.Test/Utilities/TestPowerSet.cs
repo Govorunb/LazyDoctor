@@ -1,9 +1,8 @@
 using DesktopApp.Utilities;
-using JetBrains.Annotations;
 
-namespace DesktopApp.Test;
+namespace DesktopApp.Test.Utilities;
 
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+[TestClass]
 public sealed class TestPowerSet
 {
     private sealed record TestCase(List<int> Input, List<List<int>> Expected);
@@ -29,6 +28,7 @@ public sealed class TestPowerSet
             [1, 2, 3, 4],
         ]),
     ];
+
     public static IEnumerable<object[]> Cases
         => _cases.Select(c => new object[] { c });
 

@@ -11,18 +11,19 @@ public static class Combinatorics
             yield return Subset(list, i);
         }
 
-        static IEnumerable<T> Subset(IReadOnlyList<T> list, int i)
+        static IEnumerable<T> Subset(IReadOnlyList<T> list, int mask)
         {
             uint j = 0;
-            uint mask = 1;
+            uint indexBit = 1;
             while (j < list.Count)
             {
-                if ((i & mask) != 0)
+                if ((mask & indexBit) != 0)
                 {
                     yield return list[(int)j];
                 }
+
                 j++;
-                mask *= 2;
+                indexBit *= 2;
             }
         }
     }

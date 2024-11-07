@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Reactive;
 using System.Reactive.Linq;
 using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
@@ -11,12 +12,21 @@ namespace DesktopApp.Recruitment;
 
 public class RecruitTabViewModel : ViewModelBase
 {
+    private readonly RecruitableOperators _recruitPool;
+    private static readonly Dictionary<string, List<Operator>> _resultsCache = [];
+
     private SourceList<Tag> Tags { get; } = new();
     private readonly ObservableCollectionExtended<TagCategory> _categories = [];
     public ReadOnlyObservableCollection<TagCategory> Categories { get; }
+
+    private readonly ObservableCollectionExtended<Tag> _selectedTags = [];
+    public ReadOnlyObservableCollection<Tag> SelectedTags { get; }
+    public ReactiveCommand<Unit, Unit> ClearSelectedTags { get; }
+
     private SourceList<ResultRow> AllResults { get; } = new();
     private readonly ObservableCollectionExtended<ResultRow> _filteredResults = [];
     public ReadOnlyObservableCollection<ResultRow> Results { get; }
+
     [Reactive] public int RowsHidden { get; private set; }
 
     // todo: user prefs (these are sensible defaults)
@@ -25,15 +35,23 @@ public class RecruitTabViewModel : ViewModelBase
     [Reactive] public FilterType Filter2Stars { get; set; } = FilterType.Hide;
     [Reactive] public FilterType Filter3Stars { get; set; } = FilterType.Exclude;
 
-    private readonly RecruitableOperators _recruitPool;
-    private static readonly Dictionary<string, List<Operator>> _resultsCache = new();
 
     public RecruitTabViewModel(RecruitableOperators operators, TagsDataSource tagSource)
     {
-        Debug.Assert(operators is {} && tagSource is {}, "DI failure");
+        Debug.Assert(operators is { } && tagSource is { }, "DI failure");
         _recruitPool = operators;
+
         Categories = new(_categories);
+        SelectedTags = new(_selectedTags);
         Results = new(_filteredResults);
+
+        ClearSelectedTags = ReactiveCommand.Create(() =>
+        {
+            foreach (var tag in _selectedTags.ToArray())
+                tag.IsSelected = false;
+        });
+
+        // todo: move to TagDataSource
         tagSource.Values.Subscribe(v => Tags.Edit(l =>
             {
                 l.Clear();
@@ -48,10 +66,12 @@ public class RecruitTabViewModel : ViewModelBase
             .Bind(_categories)
             .Subscribe();
         Tags.Connect()
-            .AutoRefresh(t => t.IsSelected)
+            .AutoRefresh(t => t.IsSelected, changeSetBuffer: TimeSpan.FromMilliseconds(50))
             .Filter(t => t.IsSelected)
             .SortBy(t => t.Name) // tags are sorted to make their order consistent for cache keying
+            .Bind(_selectedTags)
             .ToCollection()
+            .OnMainThread()
             .Subscribe(SelectedTagsUpdated);
         var starFilterChanged = this.WhenAnyValue(t => t.Filter1Stars, t => t.Filter2Stars, t => t.Filter3Stars);
         AllResults.Connect()
@@ -109,7 +129,7 @@ public class RecruitTabViewModel : ViewModelBase
 
     private bool FilterRow(ResultRow row)
     {
-        Span<FilterType> filter = [Filter1Stars, Filter2Stars, Filter3Stars, FilterType.Ignore, FilterType.Ignore, FilterType.Hide];
+        Span<FilterType> filter = [Filter1Stars, Filter2Stars, Filter3Stars, FilterType.Ignore, FilterType.Ignore, FilterType.Ignore];
         List<Operator> hide = [];
 
         // if you explicitly pick Robot/Starter they should always show up
@@ -119,9 +139,8 @@ public class RecruitTabViewModel : ViewModelBase
                 filter[0] = FilterType.Ignore;
             if (filter[1] is FilterType.Hide or FilterType.Exclude && tag.Name == "Starter")
                 filter[1] = FilterType.Ignore;
-            if (tag.Name == "Top Operator")
-                filter[5] = FilterType.Ignore;
         }
+
         foreach (var op in row.Operators)
         {
             switch (filter[op.RarityStars - 1])
@@ -154,8 +173,10 @@ public class RecruitTabViewModel : ViewModelBase
         return true;
     }
 
-    private static bool Match(Operator op, IEnumerable<Tag> tags)
+    private static bool Match(Operator op, List<Tag> tags)
     {
+        if (op.RarityStars == 6 && tags.All(t => t.Name != "Top Operator"))
+            return false;
         return tags.All(t => t.Match(op));
     }
 }

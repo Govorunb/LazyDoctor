@@ -22,13 +22,12 @@ public sealed class TagsDataSource : DataSource<Tag[]>
 
     private static Tag[] Process(GachaTable table)
     {
-        var knownTags = EmbeddedTagsData.GetKnownTags();
         var unknownTags = table.RecruitmentTags?
             .Select(raw => raw.TagName!.Replace('-', ' '))
             .Where(name => !_excludedTags.Contains(name))
             .Select(name => new Tag(name, "Affix"))
             ?? [];
-        return knownTags
+        return EmbeddedTagsData.GetKnownTags()
             .Concat(unknownTags)
             .ToArray();
     }
