@@ -44,7 +44,6 @@
           <Grid ColumnDefinitions="*,*,*">
             <StackPanel Grid.Column="0">
               <Label>★☆☆☆☆☆</Label>
-              <!-- ReSharper disable Xaml.MissingGridIndex [in style above] -->
               <ComboBox SelectedItem="{Binding Filter1Stars, Mode=TwoWay, FallbackValue=Ignore}" />
             </StackPanel>
             <StackPanel Grid.Column="1">
@@ -59,6 +58,8 @@
         </WrapPanel>
 
         <TextBlock Text="Results" FontSize="22" Margin="0 16" />
+        <TextBlock IsVisible="{Binding RowsHidden}"
+          Text="{Binding RowsHidden, StringFormat='{}{0} row(s) excluded by filters.'}" />
         <ItemsControl ItemsSource="{Binding Results}" />
       </StackPanel>
     </ScrollViewer>

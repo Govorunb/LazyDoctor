@@ -1,4 +1,5 @@
 using Avalonia.ReactiveUI;
+using DesktopApp.Data.Operators;
 
 namespace DesktopApp.Common.Operators;
 

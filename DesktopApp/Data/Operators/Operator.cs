@@ -1,23 +1,25 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using DesktopApp.ViewModels;
+using JetBrains.Annotations;
 
-namespace DesktopApp.Common.Operators;
+namespace DesktopApp.Data.Operators;
 
-[SuppressMessage("Naming", "CA1716:Identifiers should not match keywords")]
-public sealed partial class Operator : ViewModelBase
+[SuppressMessage("Naming", "CA1716:Identifiers should not match keywords",
+    Justification = "That's what they're called, I don't make the rules")]
+[JsonClass]
+public sealed class Operator : ViewModelBase
 {
     #region JSON
-    [JsonSerializable(typeof(Operator))]
-    public partial class OperatorJsonContext : JsonSerializerContext;
-
     public string? Id { get; set; }
     public string? Name { get; set; }
     public string? Rarity { get; set; }
     public string? Position { get; set; }
+    public int MaxPotentialLevel { get; set; }
+
     [JsonInclude, JsonPropertyName("profession")]
-    private string? JsonClass { get; set; }
-    public List<string>? TagList { get; set; }
+    internal string? JsonClass { get; set; }
+    public string[]? TagList { get; set; }
     #endregion JSON
 
     [JsonIgnore]
@@ -40,6 +42,7 @@ public sealed partial class Operator : ViewModelBase
     ];
 }
 
+[PublicAPI]
 public enum OperatorClass
 {
     Vanguard,

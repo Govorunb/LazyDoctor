@@ -1,5 +1,6 @@
-using DesktopApp.Common.Operators;
 using DesktopApp.Data;
+using DesktopApp.Data.Operators;
+using DesktopApp.Data.Recruitment;
 using DesktopApp.Recruitment;
 using DesktopApp.ViewModels;
 
@@ -22,11 +23,13 @@ internal static class SplatHelpers
 
         SplatRegistrations.RegisterConstant(new HttpClient());
 
+        SplatRegistrations.RegisterConstant<IDataSource<GachaTable>>(
+            new JsonDataSource<GachaTable>("gacha_table.json")
+        );
+
         SplatRegistrations.RegisterLazySingleton<OperatorRepository>();
         SplatRegistrations.RegisterLazySingleton<RecruitableOperators>();
-        SplatRegistrations.RegisterConstant(
-            new JsonDataSource<Tag[]>(new(Path.GetFullPath(@".\data\recruitment\tags.json")))
-        );
+        SplatRegistrations.RegisterLazySingleton<TagsDataSource>();
 
         SplatRegistrations.RegisterLazySingleton<RecruitTabViewModel>();
         SplatRegistrations.RegisterLazySingleton<MainWindowViewModel>();

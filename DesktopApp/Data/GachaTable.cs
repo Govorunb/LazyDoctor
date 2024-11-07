@@ -1,16 +1,20 @@
 ﻿using System.Diagnostics;
 using System.Text.Json.Serialization;
+using DesktopApp.Data.Recruitment;
 
 namespace DesktopApp.Data;
 
-internal class GachaTable : ReactiveObjectBase
+[JsonClass]
+public sealed class GachaTable
 {
-    [JsonInclude, JsonPropertyName("recruitDetail")]
-    private string? RecruitDetail { get; set; }
+    [JsonInclude, JsonPropertyName("gachaTags")]
+    internal RawTagData[]? RecruitmentTags { get; set; }
+    [JsonInclude]
+    internal string? RecruitDetail { get; set; }
     public List<string> ParseRecruitDetails()
         => ParseRecruitDetailsCore(RecruitDetail);
 
-    private List<string> ParseRecruitDetailsCore(string? recruitDetails)
+    private static List<string> ParseRecruitDetailsCore(string? recruitDetails)
     {
         //★★★
         //<@rc.eml>Exclusive</> / Regular / ... / Regular
@@ -33,7 +37,7 @@ internal class GachaTable : ReactiveObjectBase
         for (var stars = 1; stars <= 6; stars++)
         {
             ReadOnlySpan<char> slice = buf[..stars];
-            int starsIdx = span.IndexOf(slice, StringComparison.Ordinal);
+            var starsIdx = span.IndexOf(slice, StringComparison.Ordinal);
             Debug.Assert(span[starsIdx + stars + 1] != '★', "Found extra stars, this means we skipped a previous iteration");
             span = span[(starsIdx + stars + 1)..]; // \n (literal)
 
@@ -46,13 +50,13 @@ internal class GachaTable : ReactiveObjectBase
                     // <@rc.eml>THRM-EX</> / ...
                     // <@rc.eml>12F</>\n----...
                     span = span[OpeningTag.Length..];
-                    int nameLen = span.IndexOf(ClosingTag, StringComparison.Ordinal);
+                    var nameLen = span.IndexOf(ClosingTag, StringComparison.Ordinal);
                     names.Add(span[..nameLen].ToString());
                     span = span[(nameLen + ClosingTag.Length)..];
                 }
                 else
                 {
-                    int i = 0;
+                    var i = 0;
                     // consume chars for name until separator/end
                     for (; i < span.Length; i++)
                     {

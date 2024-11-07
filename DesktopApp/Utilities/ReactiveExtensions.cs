@@ -1,5 +1,6 @@
 using System.Reactive;
 using System.Reactive.Linq;
+using DynamicData;
 using JetBrains.Annotations;
 
 namespace DesktopApp.Utilities;
@@ -47,8 +48,8 @@ public static class ReactiveExtensions
 
     internal static IObservable<T> LogDebug<T>(this IObservable<T> source, string name, Func<T, string>? formatFunc = null)
     {
-        var logger = Splat.LogHost.Default;
-        if (logger.Level > Splat.LogLevel.Debug)
+        var logger = LogHost.Default;
+        if (logger.Level > LogLevel.Debug)
             return source;
 
         formatFunc ??= x => x?.ToString() ?? "<NULL>";
@@ -62,5 +63,19 @@ public static class ReactiveExtensions
     public static IObservable<T> OnMainThread<T>(this IObservable<T> source)
     {
         return source.ObserveOn(RxApp.MainThreadScheduler);
+    }
+
+    public static IObservable<IChangeSet<TItem>> SortBy<TItem, TComparable>(this IObservable<IChangeSet<TItem>> source, Func<TItem, TComparable> selector)
+        where TItem : notnull
+        where TComparable : IComparable<TComparable>
+    {
+        return source.Sort(Comparer<TItem>.Create((i1, i2) => selector(i1).CompareTo(selector(i2))));
+    }
+
+    public static IObservable<IChangeSet<TItem>> SortByDescending<TItem, TComparable>(this IObservable<IChangeSet<TItem>> source, Func<TItem, TComparable> selector)
+        where TItem : notnull
+        where TComparable : IComparable<TComparable>
+    {
+        return source.Sort(new ReverseComparer<TItem>((i1, i2) => selector(i1).CompareTo(selector(i2))));
     }
 }

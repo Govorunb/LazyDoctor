@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using DesktopApp.Utilities;
+using JetBrains.Annotations;
+
 
 BenchmarkRunner.Run<Benchmarks>();
 
-[ShortRunJob, MemoryDiagnoser]
+// Declare types in namespaces
+#pragma warning disable CA1050
+[ShortRunJob, MemoryDiagnoser, PublicAPI]
 public class Benchmarks
 {
     [Params(1, 5, 10, 15, 20, 25)]

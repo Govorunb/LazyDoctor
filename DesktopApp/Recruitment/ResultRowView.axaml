@@ -10,18 +10,28 @@
     <StackPanel Orientation="Horizontal">
       <ItemsControl DockPanel.Dock="Left"
                     MinWidth="150"
-                    Classes="Vertical"
                     ItemsSource="{Binding Tags}">
         <ItemsControl.Styles>
           <Style Selector="ToggleButton">
             <Setter Property="IsEnabled" Value="False" />
           </Style>
         </ItemsControl.Styles>
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Vertical" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
       </ItemsControl>
-      <ItemsControl Classes="Horizontal"
-                    VerticalAlignment="Center"
-                    ItemsSource="{Binding Operators}"
-                    />
+      <Label IsVisible="{Binding !Operators.Count}" Content="All operators are hidden by filters." />
+      <ItemsControl VerticalAlignment="Center"
+                    IsVisible="{Binding Operators.Count}"
+                    ItemsSource="{Binding Operators}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel Orientation="Horizontal" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+      </ItemsControl>
     </StackPanel>
   </Border>
 </UserControl>

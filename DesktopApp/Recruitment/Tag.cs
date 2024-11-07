@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json.Serialization;
-using DesktopApp.Common.Operators;
+using DesktopApp.Data.Operators;
 using DesktopApp.ViewModels;
 
 namespace DesktopApp.Recruitment;

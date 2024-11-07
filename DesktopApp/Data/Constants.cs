@@ -1,11 +1,7 @@
-using System.Text.Json;
-
 namespace DesktopApp.Data;
 
-internal static class Constants
+public static class Constants
 {
-    public static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    };
+    public const string GameDataBaseUrl = "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData_YoStar/refs/heads/main/en_US/gamedata/excel/";
+    public static readonly string DataCacheBaseDir = Path.GetFullPath("./data/");
 }

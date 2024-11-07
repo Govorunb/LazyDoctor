@@ -8,7 +8,7 @@
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
-        <Content Include="..\data\**\*.*" LinkBase="data" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="..\data_cache\**\*.*" LinkBase="data" CopyToOutputDirectory="PreserveNewest" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>
@@ -17,9 +17,9 @@
         <PackageReference Include="HotAvalonia" PrivateAssets="all" />
         <!-- compiles itself out in release mode -->
         <PackageReference Include="HotAvalonia.Extensions" PrivateAssets="all" />
-        
+
         <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
-        
+
         <PackageReference Include="Avalonia" />
         <PackageReference Include="Avalonia.Desktop" />
         <PackageReference Include="Avalonia.Themes.Fluent" />

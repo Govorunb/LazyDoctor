@@ -1,7 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Reactive.Linq;
-using DesktopApp.Common.Operators;
-using DesktopApp.Data;
+using DesktopApp.Data.Operators;
+using DesktopApp.Data.Recruitment;
 using DesktopApp.ViewModels;
 using DynamicData;
 using DynamicData.Binding;
@@ -16,18 +17,21 @@ public class RecruitTabViewModel : ViewModelBase
     private SourceList<ResultRow> AllResults { get; } = new();
     private readonly ObservableCollectionExtended<ResultRow> _filteredResults = [];
     public ReadOnlyObservableCollection<ResultRow> Results { get; }
+    [Reactive] public int RowsHidden { get; private set; }
 
-    [Reactive] public FilterType Filter1Stars { get; set; }
-    [Reactive] public FilterType Filter2Stars { get; set; }
-    [Reactive] public FilterType Filter3Stars { get; set; }
+    // todo: user prefs (these are sensible defaults)
+    // asssuming >3h50m, which removes 1&2stars from the pool
+    [Reactive] public FilterType Filter1Stars { get; set; } = FilterType.Hide;
+    [Reactive] public FilterType Filter2Stars { get; set; } = FilterType.Hide;
+    [Reactive] public FilterType Filter3Stars { get; set; } = FilterType.Exclude;
 
-    private readonly RecruitableOperators _pool;
+    private readonly RecruitableOperators _recruitPool;
+    private static readonly Dictionary<string, List<Operator>> _resultsCache = new();
 
-    private static readonly Dictionary<string, List<Operator>> _resultsCache = [];
-
-    public RecruitTabViewModel(RecruitableOperators operators, JsonDataSource<Tag[]> tagSource)
+    public RecruitTabViewModel(RecruitableOperators operators, TagsDataSource tagSource)
     {
-        _pool = operators;
+        Debug.Assert(operators is {} && tagSource is {}, "DI failure");
+        _recruitPool = operators;
         Categories = new(_categories);
         Results = new(_filteredResults);
         tagSource.Values.Subscribe(v => Tags.Edit(l =>
@@ -39,56 +43,40 @@ public class RecruitTabViewModel : ViewModelBase
         Tags.Connect()
             .GroupOnProperty(tag => tag.Category)
             .Transform(group => new TagCategory(group.GroupKey, group.List.Items))
-            .Sort(Comparer<TagCategory>.Create((c1, c2) => StringComparer.Ordinal.Compare(c1.Name, c2.Name)))
-            .Reverse()
+            .SortByDescending(c => c.Name)
             .OnMainThread()
             .Bind(_categories)
             .Subscribe();
-        var starFilterChanged = this.WhenAnyValue(t => t.Filter1Stars, t => t.Filter2Stars, t => t.Filter3Stars);
         Tags.Connect()
             .AutoRefresh(t => t.IsSelected)
             .Filter(t => t.IsSelected)
+            .SortBy(t => t.Name) // tags are sorted to make their order consistent for cache keying
             .ToCollection()
-            .CombineLatest(starFilterChanged, (t, _) => t)
-            .Subscribe(t => AllResults.Edit(l =>
-            {
-                l.Clear();
-                l.AddRange(Update([.. t]));
-            }));
+            .Subscribe(SelectedTagsUpdated);
+        var starFilterChanged = this.WhenAnyValue(t => t.Filter1Stars, t => t.Filter2Stars, t => t.Filter3Stars);
         AllResults.Connect()
+            .CombineLatest(starFilterChanged, (t, _) => t)
             .Filter(FilterRow)
-            .Sort(Comparer<ResultRow>.Create((r1, r2) =>
-            {
-                // highest rarity first; then, fewer operators
-                var minRarityComparison = r1.Operators.Min(op => op.RarityStars).CompareTo(r2.Operators.Min(op => op.RarityStars));
-                return minRarityComparison != 0 ? minRarityComparison
-                    : r1.Tags.Count.CompareTo(r2.Tags.Count);
-            }))
-            .Reverse()
+            .SortBy(r => (-r.MinimumRarity, r.Operators.Count)) // highest rarity first; then, fewer operators
             .OnMainThread()
             .Bind(_filteredResults)
             .Subscribe();
-        Tags.Connect()
-            .AutoRefresh(t => t.IsSelected)
-            .Filter(t => t.IsSelected)
-            .ToCollection()
-            .Subscribe(c =>
-            {
-                if (c.Count >= 5)
-                {
-                    foreach (var tag in Tags.Items)
-                    {
-                        tag.IsAvailable = tag.IsSelected;
-                    }
-                }
-                else
-                {
-                    foreach (var tag in Tags.Items)
-                    {
-                        tag.IsAvailable = true;
-                    }
-                }
-            });
+    }
+
+    private void SelectedTagsUpdated(IReadOnlyCollection<Tag> tags)
+    {
+        foreach (var tag in Tags.Items)
+        {
+            // max 5 selected
+            tag.IsAvailable = tags.Count < 5 || tag.IsSelected;
+        }
+
+        AllResults.Edit(l =>
+        {
+            l.Clear();
+            l.AddRange(Update([..tags]));
+        });
+        RowsHidden = AllResults.Count - Results.Count;
     }
 
     private IEnumerable<ResultRow> Update(IReadOnlyList<Tag> tags)
@@ -106,17 +94,34 @@ public class RecruitTabViewModel : ViewModelBase
             return null;
 
         var key = string.Join(',', tagList.Select(t => t.Id));
-        var operators = _resultsCache.GetOrAdd(key, () => _pool.Values.MostRecent(default).First().Where(op => Match(op, tagList)).ToList());
+
+        var operators = _resultsCache.GetOrAdd(key, ValueFactory);
         if (operators.Count == 0)
             return null;
 
-        return new ResultRow { Tags = tagList, Operators = operators };
+        return new ResultRow { Tags = tagList, Operators = operators.ToList() }; // copy so hiding operators doesn't affect the cache
+
+        List<Operator> ValueFactory()
+            => _recruitPool.Values.MostRecent(default).First()
+                .Where(op => Match(op, tagList))
+                .ToList();
     }
 
     private bool FilterRow(ResultRow row)
     {
-        FilterType[] filter = [Filter1Stars, Filter2Stars, Filter3Stars, FilterType.Ignore, FilterType.Ignore, FilterType.Ignore];
+        Span<FilterType> filter = [Filter1Stars, Filter2Stars, Filter3Stars, FilterType.Ignore, FilterType.Ignore, FilterType.Hide];
         List<Operator> hide = [];
+
+        // if you explicitly pick Robot/Starter they should always show up
+        foreach (var tag in row.Tags)
+        {
+            if (filter[0] is FilterType.Hide or FilterType.Exclude && tag.Name == "Robot")
+                filter[0] = FilterType.Ignore;
+            if (filter[1] is FilterType.Hide or FilterType.Exclude && tag.Name == "Starter")
+                filter[1] = FilterType.Ignore;
+            if (tag.Name == "Top Operator")
+                filter[5] = FilterType.Ignore;
+        }
         foreach (var op in row.Operators)
         {
             switch (filter[op.RarityStars - 1])
@@ -140,7 +145,13 @@ public class RecruitTabViewModel : ViewModelBase
             row.Operators.Remove(op);
 
         // any Requires left were not fulfilled
-        return filter.All(f => f != FilterType.Require);
+        foreach (var filterType in filter)
+        {
+            if (filterType == FilterType.Require)
+                return false;
+        }
+
+        return true;
     }
 
     private static bool Match(Operator op, IEnumerable<Tag> tags)
@@ -150,4 +161,4 @@ public class RecruitTabViewModel : ViewModelBase
 }
 
 public sealed class DesignRecruitTabViewModel()
-    : RecruitTabViewModel(LOCATOR.GetService<RecruitableOperators>()!, LOCATOR.GetService<JsonDataSource<Tag[]>>()!);
+    : RecruitTabViewModel(LOCATOR.GetService<RecruitableOperators>()!, LOCATOR.GetService<TagsDataSource>()!);

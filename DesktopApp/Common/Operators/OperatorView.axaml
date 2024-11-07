@@ -3,16 +3,29 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
+             xmlns:opd="using:DesktopApp.Data.Operators"
              xmlns:op="using:DesktopApp.Common.Operators"
-             x:DataType="op:Operator"
+             x:DataType="opd:Operator"
              x:Class="DesktopApp.Common.Operators.OperatorView">
   <Design.DataContext>
-    <op:Operator Name="Beagle" />
+    <opd:Operator Name="Beagle" Rarity="TIER_2" />
   </Design.DataContext>
-  <!-- todo: rarity bg colour -->
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <op:RarityBrushConverter x:Key="RarityBrushConverter" />
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <StaticResource x:Key="TextForeground" ResourceKey="TextFillColorPrimaryBrush" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <StaticResource x:Key="TextForeground" ResourceKey="TextOnAccentFillColorPrimaryBrush" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </UserControl.Resources>
   <Border Padding="4"
-          Background="{DynamicResource ButtonBackground}"
+          Background="{Binding RarityStars, Converter={StaticResource RarityBrushConverter}}"
           CornerRadius="4">
-    <TextBlock Text="{Binding Name}" />
+    <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextForeground}" />
   </Border>
 </UserControl>

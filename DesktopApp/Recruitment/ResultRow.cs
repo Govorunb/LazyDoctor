@@ -1,4 +1,4 @@
-using DesktopApp.Common.Operators;
+using DesktopApp.Data.Operators;
 using DesktopApp.ViewModels;
 
 namespace DesktopApp.Recruitment;
@@ -7,6 +7,8 @@ public class ResultRow : ViewModelBase
 {
     public required List<Tag> Tags { get; set; }
     public required List<Operator> Operators { get; set; }
+
+    public int MinimumRarity => Operators.Count == 0 ? 0 : Operators.Min(o => o.RarityStars);
 }
 
 public sealed class DesignResultRow : ResultRow

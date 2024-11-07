@@ -1,7 +1,9 @@
 using DesktopApp.Utilities;
+using JetBrains.Annotations;
 
 namespace DesktopApp.Test;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed class TestPowerSet
 {
     private sealed record TestCase(List<int> Input, List<List<int>> Expected);

@@ -25,8 +25,7 @@ public sealed class App : Application
                 DataContext = mwvm,
             };
         }
-
-        _ = new ViewLocator(); // run .cctor
+        ViewLocator.RegisterViews();
 
         base.OnFrameworkInitializationCompleted();
     }

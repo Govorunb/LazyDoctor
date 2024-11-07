@@ -1,39 +1,45 @@
 using System.Text.Json;
+using JetBrains.Annotations;
 
 namespace DesktopApp.Data;
 
 public sealed class JsonDataSource<T> : DataSource<T>
 {
-    private readonly JsonSerializerOptions? _jsonSerializerOptions;
-    private Uri Uri { get; }
+    private readonly string _path;
 
-    public JsonDataSource(Uri uri, JsonSerializerOptions? options = null)
+    public JsonDataSource(string path)
     {
-        _jsonSerializerOptions = options ?? Constants.DefaultJsonSerializerOptions;
-        Uri = uri;
+        _path = path;
         _ = Reload();
     }
 
+    [PublicAPI]
     public async Task<T> Reload()
     {
         try
         {
-            var json = await (Uri.Scheme switch
+            string json;
+            // temp for local dev (todo LocalHttpCache)
+            var localPath = Path.Join(Constants.DataCacheBaseDir, _path);
+            if (File.Exists(localPath))
             {
-                // todo: cache on client (many tables are several MB each)
-                // "http" or "https" => LOCATOR.GetService<LocalHttpCache>().GetString(Uri),
-                "http" or "https" => LOCATOR.GetService<HttpClient>()!.GetStringAsync(Uri),
-                "file" => File.ReadAllTextAsync(Uri.AbsolutePath),
-                _ => throw new InvalidOperationException($"Unsupported URI scheme {Uri.Scheme}"),
-            });
-            this.Log().Debug($"Loaded {Uri}");
-            var value = JsonSerializer.Deserialize<T>(json, _jsonSerializerOptions)!;
+                this.Log().Debug($"Using cached {_path} @ {localPath}");
+                json = await File.ReadAllTextAsync(localPath);
+            }
+            else
+            {
+                var uriString = Path.Join(Constants.GameDataBaseUrl, _path);
+                this.Log().Debug($"Downloading {_path} from {uriString}");
+                json = await LOCATOR.GetService<HttpClient>()!.GetStringAsync(new Uri(uriString));
+            }
+            this.Log().Debug($"Loaded {_path}");
+            var value = (T)JsonSerializer.Deserialize(json, typeof(T), JsonSourceGenContext.Default)!;
             Subject.OnNext(value);
             return value;
         }
         catch (Exception e)
         {
-            this.Log().Error(e, $"Failed to load {Uri}");
+            this.Log().Error(e, $"Failed to load {_path}");
             // an error here isn't fatal and caller can freely ignore/retry
             // this is why we don't call subject.OnError(e)
             throw;

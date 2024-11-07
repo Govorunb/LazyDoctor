@@ -18,26 +18,5 @@
         <fas:FluentAvaloniaTheme PreferUserAccentColor="True" PreferSystemTheme="True" />
 
         <!-- <StyleInclude Source="Recruitment/Styles.axaml" /> -->
-        <Style Selector="ItemsControl.Horizontal">
-            <Setter Property="ItemsPanel">
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </Setter>
-        </Style>
-        <Style Selector="ItemsControl.Vertical">
-            <Setter Property="ItemsPanel">
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Vertical" />
-                </ItemsPanelTemplate>
-            </Setter>
-        </Style>
-        <!-- todo: light/dark theming (resource dictionaries) -->
-        <Style Selector="ToggleButton[IsThreeState=True]:unchecked">
-            <Setter Property="Background" Value="RosyBrown" />
-            <Style Selector="^:pointerover">
-                <Setter Property="Background" Value="Brown"/>
-            </Style>
-        </Style>
     </Application.Styles>
 </Application>
