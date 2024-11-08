@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignHeight="200"
+             xmlns:r="using:DesktopApp.Recruitment"
+             x:DataType="r:RarityFilter"
+             x:Class="DesktopApp.Recruitment.RarityFilterView">
+  <Design.DataContext>
+    <r:RarityFilter Stars="3" Filter="Require" />
+  </Design.DataContext>
+  <StackPanel Orientation="Vertical" Margin="4 0">
+    <Label Name="Label" Target="FilterComboBox"
+           VerticalAlignment="Center" HorizontalAlignment="Center" /> <!-- text bound in codebehind -->
+    <ComboBox Name="FilterComboBox"
+              MinWidth="100"
+              ItemsSource="{x:Static r:RecruitTabView.FilterTypes}"
+              ToolTip.Tip="{Binding $self.SelectedItem, Converter={StaticResource EnumDescriptionConverter}}"
+              SelectedItem="{Binding Filter, Mode=TwoWay}">
+      <ComboBox.Styles>
+        <Style Selector="ComboBoxItem">
+          <Setter Property="ToolTip.Tip" Value="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+        </Style>
+      </ComboBox.Styles>
+    </ComboBox>
+  </StackPanel>
+</UserControl>

@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
-using DesktopApp.ViewModels;
+using DesktopApp.Utilities.Attributes;
 using JetBrains.Annotations;
 
 namespace DesktopApp.Data.Operators;

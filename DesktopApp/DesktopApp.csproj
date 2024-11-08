@@ -11,13 +11,16 @@
         <Content Include="..\data_cache\**\*.*" LinkBase="data" CopyToOutputDirectory="PreserveNewest" Visible="false" />
     </ItemGroup>
 
+    <ItemGroup Condition="$(DefineConstants.Contains('ENABLE_XAML_HOT_RELOAD'))">
+        <PackageReference Include="Avalonia.Markup.Xaml.Loader" />
+        <PackageReference Include="HotAvalonia" />
+    </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="CommunityToolkit.HighPerformance" />
         <PackageReference Include="FluentAvaloniaUI" />
-        <PackageReference Include="HotAvalonia" PrivateAssets="all" />
-        <!-- compiles itself out in release mode -->
-        <PackageReference Include="HotAvalonia.Extensions" PrivateAssets="all" />
 
+        <PackageReference Include="HotAvalonia.Extensions" PrivateAssets="all" /> <!-- compiles itself out in release mode -->
         <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
 
         <PackageReference Include="Avalonia" />

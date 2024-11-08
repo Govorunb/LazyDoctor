@@ -3,10 +3,14 @@
              x:Class="DesktopApp.App"
              xmlns:local="using:DesktopApp"
              xmlns:fas="using:FluentAvalonia.Styling"
+             xmlns:conv="using:DesktopApp.Utilities.Converters"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
-    <Application.DataTemplates>
+             <Application.Resources>
+                 <conv:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />
+             </Application.Resources>
+             <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
 
@@ -31,6 +35,24 @@
             <Setter Property="ItemsPanel">
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel />
+                </ItemsPanelTemplate>
+            </Setter>
+            <!--
+            there doesn't seem to be a particularly good way to do this in selectors
+            (to encompass both VirtualizingStackPanel and regular StackPanel)
+            -->
+            <Style Selector="^.Horizontal">
+                <Setter Property="ItemsPanel">
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </Setter>
+            </Style>
+        </Style>
+        <Style Selector="ItemsControl.Horizontal:not(.Virtualizing)">
+            <Setter Property="ItemsPanel">
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
                 </ItemsPanelTemplate>
             </Setter>
         </Style>

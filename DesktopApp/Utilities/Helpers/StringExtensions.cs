@@ -1,4 +1,4 @@
-namespace DesktopApp.Utilities;
+namespace DesktopApp.Utilities.Helpers;
 
 internal static class StringExtensions
 {

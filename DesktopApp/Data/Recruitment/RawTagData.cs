@@ -1,3 +1,5 @@
+using DesktopApp.Utilities.Attributes;
+
 namespace DesktopApp.Data.Recruitment;
 
 /// <summary>

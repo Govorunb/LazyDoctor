@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Reactive.Linq;
+using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Data.Operators;
 
@@ -20,8 +21,9 @@ public sealed class OperatorRepository : DataSource<ImmutableArray<Operator>>
 
     private ImmutableArray<Operator> Process(Dictionary<string, Operator> ops)
     {
-        // remove all scripted/utility entities
+        // filter out scripted/utility entities
         var actualOps = ops.Where(pair => pair.Value.MaxPotentialLevel > 0).ToDictionary();
+
         foreach (var (id, op) in actualOps)
         {
             op.Id = id;

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.Json.Serialization;
 using DesktopApp.Data.Recruitment;
+using DesktopApp.Utilities.Attributes;
 
 namespace DesktopApp.Data;
 

@@ -1,5 +1,4 @@
 using DesktopApp.Data.Operators;
-using DesktopApp.ViewModels;
 
 namespace DesktopApp.Recruitment;
 

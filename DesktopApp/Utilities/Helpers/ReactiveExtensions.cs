@@ -1,9 +1,12 @@
+using System.Collections;
+using System.Collections.Specialized;
 using System.Reactive;
 using System.Reactive.Linq;
 using DynamicData;
+using DynamicData.Binding;
 using JetBrains.Annotations;
 
-namespace DesktopApp.Utilities;
+namespace DesktopApp.Utilities.Helpers;
 
 [PublicAPI]
 public static class ReactiveExtensions
@@ -77,5 +80,14 @@ public static class ReactiveExtensions
         where TComparable : IComparable<TComparable>
     {
         return source.Sort(new ReverseComparer<TItem>((i1, i2) => selector(i1).CompareTo(selector(i2))));
+    }
+
+    public static IObservable<int> WhenCountChanged<TCollection>(this TCollection collection, bool sendInitialValue = true)
+        where TCollection : ICollection, INotifyCollectionChanged
+    {
+        var obs = collection.ObserveCollectionChanges()
+            .Select(_ => collection.Count)
+            .DistinctUntilChanged();
+        return sendInitialValue ? obs.Prepend(collection.Count) : obs;
     }
 }

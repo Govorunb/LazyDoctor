@@ -2,7 +2,6 @@ using System.Reflection;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.ReactiveUI;
-using DesktopApp.ViewModels;
 
 namespace DesktopApp;
 

@@ -1,5 +1,3 @@
-using DesktopApp.ViewModels;
-
 namespace DesktopApp.Recruitment;
 
 public sealed class TagCategory(string name, IEnumerable<Tag> tags) : ViewModelBase

@@ -2,6 +2,7 @@
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using DesktopApp.Data.Operators;
+using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Data.Recruitment;
 

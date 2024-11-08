@@ -13,55 +13,18 @@
     <ScrollViewer>
       <StackPanel Orientation="Vertical">
         <ItemsControl ItemsSource="{Binding Categories}" Margin="0 16" />
-        <Button Name="ClearButton"
-                Classes="Danger" Margin="8 0"
-                IsEnabled="{Binding SelectedTags.Count}"
-                Content="Clear" Command="{Binding ClearSelectedTags}" />
         <WrapPanel Orientation="Horizontal" Margin="0 16">
-          <!-- symbol cache: ★☆ -->
-          <Control.Styles>
-            <Style Selector="Label">
-              <Setter Property="VerticalAlignment" Value="Center" />
-              <Setter Property="HorizontalAlignment" Value="Center" />
-            </Style>
-            <Style Selector="ComboBox">
-              <Setter Property="ItemsSource" Value="{x:Static r:RecruitTabView.FilterTypes}" />
-              <Setter Property="MinWidth" Value="100" />
-              <Setter Property="ToolTip.Tip">
-                <Setter.Value>
-                  <Template>
-                    <TextBlock>
-                      Ignore - no filtering.
-                      <LineBreak />
-                      Hide - operators with this rarity will be dropped from result rows.
-                      <LineBreak />
-                      Exclude - result rows with at least one operator of this rarity will not show up.
-                      <LineBreak />
-                      Require - result rows without any operators of this rarity will not show up.
-                    </TextBlock>
-                  </Template>
-                </Setter.Value>
-              </Setter>
-            </Style>
-          </Control.Styles>
-          <TextBlock FontSize="16" Text="Filter:" VerticalAlignment="Center" />
-          <Grid ColumnDefinitions="*,*,*">
-            <StackPanel Grid.Column="0">
-              <Label Target="Cb1Stars">★☆☆☆☆☆</Label>
-              <ComboBox Name="Cb1Stars" SelectedItem="{Binding Filter1Stars, Mode=TwoWay}" />
-            </StackPanel>
-            <StackPanel Grid.Column="1">
-              <Label Target="Cb2Stars">★★☆☆☆☆</Label>
-              <ComboBox Name="Cb2Stars" SelectedItem="{Binding Filter2Stars, Mode=TwoWay}" />
-            </StackPanel>
-            <StackPanel Grid.Column="2">
-              <Label Target="Cb3Stars">★★★☆☆☆</Label>
-              <ComboBox Name="Cb3Stars" SelectedItem="{Binding Filter3Stars, Mode=TwoWay}" />
-            </StackPanel>
-          </Grid>
+          <TextBlock FontSize="16" Text="Filter:" VerticalAlignment="Bottom" Padding="16 8" />
+          <ItemsControl Classes="Horizontal"
+            ItemsSource="{Binding RarityFilters}" />
+          <Button Name="ClearButton"
+                  Classes="Danger" Margin="16 0"
+                  IsEnabled="{Binding SelectedTags.Count}"
+                  VerticalAlignment="Bottom"
+                  Content="Clear selected tags" Command="{Binding ClearSelectedTags}" />
         </WrapPanel>
 
-        <TextBlock Text="Results" FontSize="22" Margin="0 16" />
+        <TextBlock Text="Results" FontSize="24" Margin="8 16" />
         <TextBlock IsVisible="{Binding RowsHidden}"
                    Text="{Binding RowsHidden, StringFormat='{}{0} row(s) excluded by filters.'}" />
         <ScrollViewer HorizontalScrollBarVisibility="Auto">

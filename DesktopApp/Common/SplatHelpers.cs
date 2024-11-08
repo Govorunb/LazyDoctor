@@ -2,7 +2,6 @@ using DesktopApp.Data;
 using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
 using DesktopApp.Recruitment;
-using DesktopApp.ViewModels;
 
 namespace DesktopApp.Common;
 
@@ -30,6 +29,7 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<OperatorRepository>();
         SplatRegistrations.RegisterLazySingleton<RecruitableOperators>();
         SplatRegistrations.RegisterLazySingleton<TagsDataSource>();
+        SplatRegistrations.RegisterLazySingleton<RecruitmentFilter>();
 
         SplatRegistrations.RegisterLazySingleton<RecruitTabViewModel>();
         SplatRegistrations.RegisterLazySingleton<MainWindowViewModel>();

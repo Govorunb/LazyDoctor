@@ -1,12 +1,12 @@
 ﻿using DesktopApp.Recruitment;
 
-namespace DesktopApp.ViewModels;
+namespace DesktopApp;
 
 public sealed class MainWindowViewModel : ViewModelBase
 {
-    public MainWindowViewModel(RecruitTabViewModel recruitVm)
+    public MainWindowViewModel(RecruitTabViewModel recruitTab)
     {
-        RecruitTab = recruitVm;
+        RecruitTab = recruitTab;
     }
 
     public RecruitTabViewModel RecruitTab { get; }

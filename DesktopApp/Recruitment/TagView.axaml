@@ -9,7 +9,7 @@
   <Design.DataContext>
     <r:Tag Name="Example" Category="Affix" />
   </Design.DataContext>
-  <Border Padding="1 0">
+  <Border Padding="2">
     <ToggleButton Name="Button"
                   MinWidth="50"
                   HorizontalContentAlignment="Center"

@@ -1,4 +1,4 @@
-﻿namespace DesktopApp.ViewModels;
+﻿namespace DesktopApp;
 
 public class ViewModelBase : ReactiveObjectBase
 {
