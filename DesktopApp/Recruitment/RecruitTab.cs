@@ -6,7 +6,7 @@ using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Recruitment;
 
-public class RecruitTabViewModel : ViewModelBase
+public class RecruitTab : ViewModelBase
 {
     private readonly TagsDataSource _tagSource;
     private readonly RecruitmentFilter _filter;
@@ -19,7 +19,7 @@ public class RecruitTabViewModel : ViewModelBase
 
     public ReactiveCommand<Unit, Unit> ClearSelectedTags { get; }
 
-    public RecruitTabViewModel(TagsDataSource tagSource, RecruitmentFilter filter)
+    public RecruitTab(TagsDataSource tagSource, RecruitmentFilter filter)
     {
         AssertDI(tagSource);
         AssertDI(filter);
@@ -38,5 +38,5 @@ public class RecruitTabViewModel : ViewModelBase
     }
 }
 
-public sealed class DesignRecruitTabViewModel()
-    : RecruitTabViewModel(LOCATOR.GetService<TagsDataSource>()!, LOCATOR.GetService<RecruitmentFilter>()!);
+public sealed class DesignRecruitTab()
+    : RecruitTab(LOCATOR.GetService<TagsDataSource>()!, LOCATOR.GetService<RecruitmentFilter>()!);

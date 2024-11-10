@@ -3,7 +3,7 @@ using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
 using DesktopApp.Recruitment;
 
-namespace DesktopApp.Common;
+namespace DesktopApp.Utilities.Helpers;
 
 internal static class SplatHelpers
 {
@@ -18,7 +18,7 @@ internal static class SplatHelpers
         if (_registered)
             return;
 
-        LogHost.Default.Warn($"Registering self {nameof(SplatHelpers)}");
+        LogHost.Default.Warn($"Registering {nameof(SplatHelpers)}");
 
         SplatRegistrations.RegisterConstant(new HttpClient());
 
@@ -31,7 +31,7 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<TagsDataSource>();
         SplatRegistrations.RegisterLazySingleton<RecruitmentFilter>();
 
-        SplatRegistrations.RegisterLazySingleton<RecruitTabViewModel>();
+        SplatRegistrations.RegisterLazySingleton<RecruitTab>();
         SplatRegistrations.RegisterLazySingleton<MainWindowViewModel>();
 
         SplatRegistrations.SetupIOC();

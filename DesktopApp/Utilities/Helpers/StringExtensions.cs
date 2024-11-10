@@ -4,15 +4,14 @@ internal static class StringExtensions
 {
     public static string Repeat(this string template, int times)
     {
-        return string.Create(template.Length * times, template, (span, toCopy) =>
+        return string.Create(template.Length * times, template, (copyTo, toCopy) =>
         {
-            for (var i = 0; i < span.Length; i += toCopy.Length)
+            for (var i = 0; i < copyTo.Length; i += toCopy.Length)
             {
-                for (var j = 0; j < toCopy.Length; j++)
-                {
-                    span[i + j] = toCopy[j];
-                }
+                toCopy.CopyTo(copyTo[i..]);
             }
         });
     }
+
+    public static string Repeat(this char c, int times) => new string(c, times);
 }

@@ -7,7 +7,6 @@ namespace DesktopApp.Recruitment;
 [DebuggerDisplay("{Name,nq}")]
 public class Tag(string name, string category) : ViewModelBase
 {
-    public string Id { get; } = name.Replace(' ', '-');
     public string Name { get; } = name;
     public string Category { get; } = category;
 
@@ -37,7 +36,7 @@ public class Tag(string name, string category) : ViewModelBase
             case "Class":
                 return Enum.Parse<OperatorClass>(Name).Equals(op.Class);
             case "Affix":
-                return op.TagList?.Contains(Id) ?? false;
+                return op.TagList?.Contains(Name) ?? false;
             default:
                 throw new InvalidOperationException($"Unknown special tag category: {Category}");
         }
@@ -46,4 +45,4 @@ public class Tag(string name, string category) : ViewModelBase
     public override string ToString() => Name;
 }
 
-public sealed class DesignTag() : Tag("Test", "Rarity");
+public sealed class DesignTag() : Tag("Test", "Example");

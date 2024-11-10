@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignHeight="200"
              xmlns:r="using:DesktopApp.Recruitment"
+             xmlns:conv="using:DesktopApp.Utilities.Converters"
              x:DataType="r:RarityFilter"
              x:Class="DesktopApp.Recruitment.RarityFilterView">
   <Design.DataContext>
@@ -11,7 +12,8 @@
   </Design.DataContext>
   <StackPanel Orientation="Vertical" Margin="4 0">
     <Label Name="Label" Target="FilterComboBox"
-           VerticalAlignment="Center" HorizontalAlignment="Center" /> <!-- text bound in codebehind -->
+           Content="{Binding Stars, Converter={x:Static conv:FuncConverters.RarityStars}}"
+           VerticalAlignment="Center" HorizontalAlignment="Center" />
     <ComboBox Name="FilterComboBox"
               MinWidth="100"
               ItemsSource="{x:Static r:RecruitTabView.FilterTypes}"

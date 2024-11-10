@@ -11,7 +11,7 @@ public static class EmbeddedTagsData
         ["Rarity"] = ["Robot", "Starter", "Senior Operator", "Top Operator"],
         ["Position"] = ["Melee", "Ranged"],
         ["Class"] = ["Vanguard", "Guard", "Defender", "Sniper", "Caster", "Medic", "Supporter", "Specialist"],
-        ["Affix"] = ["AoE", "Crowd Control", "Debuff", "Defense", "DP Recovery", "DPS", "Elemental", "Fast Redeploy", "Healing", "Nuker", "Shift", "Slow", "Summon", "Support", "Survival"],
+        ["Affix"] = ["AoE", "Crowd-Control", "Debuff", "Defense", "DP-Recovery", "DPS", "Elemental", "Fast-Redeploy", "Healing", "Nuker", "Shift", "Slow", "Summon", "Support", "Survival"],
     };
 
     private static readonly Tag[] _knownTags = _knownTagsRaw

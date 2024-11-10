@@ -10,7 +10,7 @@ namespace DesktopApp.Data.Recruitment;
 
 public sealed class TagsDataSource : DataSource<Tag[]>
 {
-    private SourceList<Tag> _tags = new();
+    private readonly SourceList<Tag> _tags = new();
     public IObservableList<Tag> Tags => _tags.AsObservableList();
     private readonly ObservableCollectionExtended<TagCategory> _categories = [];
     public ReadOnlyObservableCollection<TagCategory> Categories { get; }
@@ -44,7 +44,7 @@ public sealed class TagsDataSource : DataSource<Tag[]>
     private static Tag[] Process(GachaTable table)
     {
         var unknownTags = table.RecruitmentTags?
-            .Select(raw => raw.TagName!.Replace('-', ' '))
+            .Select(raw => raw.TagName!)
             .Where(name => !_excludedTags.Contains(name))
             .Select(name => new Tag(name, "Affix"))
             ?? [];

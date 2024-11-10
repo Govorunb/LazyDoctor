@@ -4,10 +4,10 @@ namespace DesktopApp;
 
 public sealed class MainWindowViewModel : ViewModelBase
 {
-    public MainWindowViewModel(RecruitTabViewModel recruitTab)
+    public MainWindowViewModel(RecruitTab recruitTab)
     {
         RecruitTab = recruitTab;
     }
 
-    public RecruitTabViewModel RecruitTab { get; }
+    public RecruitTab RecruitTab { get; }
 }

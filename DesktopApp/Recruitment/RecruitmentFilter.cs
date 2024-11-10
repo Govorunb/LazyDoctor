@@ -145,7 +145,7 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
         if (tagList.Count == 0)
             return null;
 
-        var key = string.Join(',', tagList.Select(t => t.Id));
+        var key = string.Join(',', tagList.Select(t => t.Name));
 
         var operators = _resultsCache.GetOrAdd(key, ValueFactory);
         if (operators.Count == 0)
@@ -163,6 +163,13 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
     {
         if (op.RarityStars == 6 && tags.All(t => t.Name != "Top Operator"))
             return false;
-        return tags.All(t => t.Match(op));
+        // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+        // lambda alloc
+        foreach (var t in tags)
+        {
+            if (!t.Match(op)) return false;
+        }
+
+        return true;
     }
 }
