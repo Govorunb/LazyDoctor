@@ -30,7 +30,7 @@ public sealed class ViewLocator : IDataTemplate, IViewLocator
             return null;
 
         var vmType = param.GetType();
-        if (TryGetControl(param, vmType) is { } control)
+        if (TryGetControl(vmType) is { } control)
         {
             control.DataContext = param;
             return control;
@@ -39,26 +39,28 @@ public sealed class ViewLocator : IDataTemplate, IViewLocator
         return new TextBlock { Text = "No view for: " + vmType.Name };
     }
 
-    private static Control? TryGetControl(object param, Type vmType)
+    private static Control? TryGetControl(Type vmType)
     {
         if (_registry.TryGetValue(vmType, out var registered))
             return Activator.CreateInstance(registered) as Control;
 
-        if (LOCATOR.GetService(typeof(ReactiveUserControl<>).MakeGenericType(vmType)) is Control view)
+        var controlBaseType = typeof(ReactiveUserControl<>).MakeGenericType(vmType);
+        if (LOCATOR.GetService(controlBaseType) is Control view)
             return view;
 
-        var name = vmType.FullName!
-            .Replace("ViewModel", "View", StringComparison.Ordinal)
-            .Replace(".Design", ".", StringComparison.Ordinal);
+        var name = vmType.FullName!;
+        if (name.EndsWith("ViewModel", StringComparison.Ordinal))
+            name = name.Replace("ViewModel", "View", StringComparison.Ordinal);
+        else
+            name += "View";
 
-        if (Type.GetType(name) is { } controlType && controlType.IsAssignableTo(typeof(Control)))
-        {
-            var control = (Control)Activator.CreateInstance(controlType)!;
-            control.DataContext = param;
-            return control;
-        }
+        if (vmType.Name.StartsWith("Design", StringComparison.Ordinal))
+            name = name.Replace(".Design", ".", StringComparison.Ordinal);
 
-        return null;
+        var controlType = Type.GetType(name);
+        return controlType?.IsAssignableTo(typeof(Control)) == true
+            ? (Control)Activator.CreateInstance(controlType)!
+            : null;
     }
 
     public bool Match(object? data)

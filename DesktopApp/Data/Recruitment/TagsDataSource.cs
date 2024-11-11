@@ -10,16 +10,21 @@ namespace DesktopApp.Data.Recruitment;
 
 public sealed class TagsDataSource : DataSource<Tag[]>
 {
-    private readonly SourceList<Tag> _tags = new();
-    public IObservableList<Tag> Tags => _tags.AsObservableList();
-    private readonly ObservableCollectionExtended<TagCategory> _categories = [];
-    public ReadOnlyObservableCollection<TagCategory> Categories { get; }
-
     private static readonly FrozenSet<string> _excludedTags =
         EmbeddedTagsData.GetKnownTags()
             .Select(t => t.Name)
             .Concat(["Male", "Female"])
             .ToFrozenSet();
+
+    private readonly SourceList<Tag> _tags = new();
+    public IObservableList<Tag> Tags => _tags.AsObservableList();
+
+    private Dictionary<string, Tag> _byName = [];
+
+    private readonly ObservableCollectionExtended<TagCategory> _categories = [];
+    public ReadOnlyObservableCollection<TagCategory> Categories { get; }
+
+    internal List<Tag> UnknownTags { get; } = [];
 
     public TagsDataSource(IDataSource<GachaTable> gachaTable)
     {
@@ -41,15 +46,25 @@ public sealed class TagsDataSource : DataSource<Tag[]>
             .Subscribe();
     }
 
-    private static Tag[] Process(GachaTable table)
+    private Tag[] Process(GachaTable table)
     {
-        var unknownTags = table.RecruitmentTags?
-            .Select(raw => raw.TagName!)
-            .Where(name => !_excludedTags.Contains(name))
-            .Select(name => new Tag(name, "Affix"))
-            ?? [];
-        return EmbeddedTagsData.GetKnownTags()
-            .Concat(unknownTags)
+        UnknownTags.Clear();
+        UnknownTags.AddRange(
+            table.RecruitmentTags?
+                .Select(raw => raw.TagName!)
+                .Where(name => !_excludedTags.Contains(name))
+                .Select(name => new Tag(name, "Affix"))
+            ?? []
+        );
+
+        var allTags = EmbeddedTagsData.GetKnownTags()
+            .Concat(UnknownTags)
             .ToArray();
+
+        _byName = allTags.ToDictionary(t => t.Name);
+
+        return allTags;
     }
+
+    public Tag? GetByName(string name) => _byName.GetValueOrDefault(name);
 }

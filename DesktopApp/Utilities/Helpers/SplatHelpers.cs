@@ -2,6 +2,7 @@ using DesktopApp.Data;
 using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
 using DesktopApp.Recruitment;
+using DesktopApp.Recruitment.Processing;
 
 namespace DesktopApp.Utilities.Helpers;
 
@@ -26,6 +27,7 @@ internal static class SplatHelpers
             new JsonDataSource<GachaTable>("gacha_table.json")
         );
 
+        SplatRegistrations.RegisterLazySingleton<TagsOCR>();
         SplatRegistrations.RegisterLazySingleton<OperatorRepository>();
         SplatRegistrations.RegisterLazySingleton<RecruitableOperators>();
         SplatRegistrations.RegisterLazySingleton<TagsDataSource>();

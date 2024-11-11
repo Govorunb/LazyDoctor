@@ -6,7 +6,7 @@ using DesktopApp.Utilities.Helpers;
 using DynamicData;
 using DynamicData.Binding;
 
-namespace DesktopApp.Recruitment;
+namespace DesktopApp.Recruitment.Processing;
 
 public sealed class RecruitmentFilter : ReactiveObjectBase
 {
@@ -63,13 +63,13 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
             .OnMainThread()
             .Subscribe(_ => UpdateFilter(_selectedTags));
     }
+    public const int MaxTagsSelected = 5;
 
     private void UpdateFilter(IReadOnlyCollection<Tag> tags)
     {
         foreach (var tag in _tags.Tags.Items)
         {
-            // max 5 selected
-            tag.IsAvailable = tags.Count < 5 || tag.IsSelected;
+            tag.IsAvailable = tags.Count < MaxTagsSelected || tag.IsSelected;
         }
 
         _allResultsList.EditDiff(Update([..tags]));
@@ -122,13 +122,7 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
             row.Operators.Remove(op);
 
         // any Requires left were not fulfilled
-        foreach (var filterType in filter)
-        {
-            if (filterType == FilterType.Require)
-                return false;
-        }
-
-        return true;
+        return !filter.Any(f => f is FilterType.Require);
     }
 
     private IEnumerable<ResultRow> Update(IReadOnlyList<Tag> tags)
@@ -163,13 +157,25 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
     {
         if (op.RarityStars == 6 && tags.All(t => t.Name != "Top Operator"))
             return false;
-        // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
-        // lambda alloc
-        foreach (var t in tags)
+
+        foreach (var t in tags) // hot method, not using .All because of lambda alloc
         {
             if (!t.Match(op)) return false;
         }
 
         return true;
+    }
+
+    public void ClearSelectedTags()
+    {
+        foreach (var tag in SelectedTags.ToArray())
+            tag.IsSelected = false;
+    }
+
+    public void SetSelectedTags(IEnumerable<Tag> tags)
+    {
+        ClearSelectedTags();
+        foreach (var tag in tags.Take(MaxTagsSelected))
+            tag.IsSelected = true;
     }
 }

@@ -2,17 +2,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
-             x:Class="DesktopApp.Recruitment.RecruitTabView"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="800"
+             x:Class="DesktopApp.Recruitment.Views.RecruitTabView"
              xmlns:r="using:DesktopApp.Recruitment"
              x:DataType="r:RecruitTab">
   <Design.DataContext>
-    <r:DesignRecruitTab />
+    <r:DesignRecruitTab PasteError="Erm..." RowsHidden="999" />
   </Design.DataContext>
-  <Border Padding="8">
+  <Border Padding="8 0" IsHitTestVisible="True">
     <ScrollViewer>
       <StackPanel Orientation="Vertical">
         <ItemsControl ItemsSource="{Binding Categories}" Margin="0 16" />
+        <Label Target="PasteTextBox">Paste image or text here</Label>
+        <TextBox Name="PasteTextBox" />
+        <TextBlock Name="PasteError" Text="{Binding PasteError}" Foreground="Salmon" />
         <WrapPanel Orientation="Horizontal" Margin="0 16">
           <TextBlock FontSize="16" Text="Filter:" VerticalAlignment="Bottom" Padding="16 8" />
           <ItemsControl Classes="Horizontal"

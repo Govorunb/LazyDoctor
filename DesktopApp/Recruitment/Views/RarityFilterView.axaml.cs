@@ -1,9 +1,6 @@
-using System.Reactive.Linq;
-using Avalonia;
 using Avalonia.ReactiveUI;
-using DesktopApp.Utilities.Helpers;
 
-namespace DesktopApp.Recruitment;
+namespace DesktopApp.Recruitment.Views;
 
 public sealed partial class RarityFilterView : ReactiveUserControl<RarityFilter>
 {

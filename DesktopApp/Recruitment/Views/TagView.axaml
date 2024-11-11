@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             x:Class="DesktopApp.Recruitment.TagView"
+             x:Class="DesktopApp.Recruitment.Views.TagView"
              xmlns:r="using:DesktopApp.Recruitment"
              x:DataType="r:Tag">
   <Design.DataContext>

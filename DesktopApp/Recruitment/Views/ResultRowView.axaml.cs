@@ -1,6 +1,6 @@
 using Avalonia.ReactiveUI;
 
-namespace DesktopApp.Recruitment;
+namespace DesktopApp.Recruitment.Views;
 
 public partial class ResultRowView : ReactiveUserControl<ResultRow>
 {

@@ -6,12 +6,12 @@
         xmlns:vm="using:DesktopApp"
         x:Class="DesktopApp.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        xmlns:recruit="using:DesktopApp.Recruitment"
+        xmlns:views="using:DesktopApp.Recruitment.Views"
         Icon="/Assets/avalonia-logo.ico"
         Title="DesktopApp">
     <TabControl>
       <TabItem Header="Recruitment">
-        <recruit:RecruitTabView DataContext="{Binding RecruitTab}" />
+        <views:RecruitTabView DataContext="{Binding RecruitTab}" />
       </TabItem>
     </TabControl>
 </Window>

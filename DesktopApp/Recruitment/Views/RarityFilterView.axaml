@@ -5,8 +5,9 @@
              mc:Ignorable="d" d:DesignHeight="200"
              xmlns:r="using:DesktopApp.Recruitment"
              xmlns:conv="using:DesktopApp.Utilities.Converters"
+             xmlns:views="clr-namespace:DesktopApp.Recruitment.Views"
              x:DataType="r:RarityFilter"
-             x:Class="DesktopApp.Recruitment.RarityFilterView">
+             x:Class="DesktopApp.Recruitment.Views.RarityFilterView">
   <Design.DataContext>
     <r:RarityFilter Stars="3" Filter="Require" />
   </Design.DataContext>
@@ -16,7 +17,7 @@
            VerticalAlignment="Center" HorizontalAlignment="Center" />
     <ComboBox Name="FilterComboBox"
               MinWidth="100"
-              ItemsSource="{x:Static r:RecruitTabView.FilterTypes}"
+              ItemsSource="{x:Static views:RecruitTabView.FilterTypes}"
               ToolTip.Tip="{Binding $self.SelectedItem, Converter={StaticResource EnumDescriptionConverter}}"
               SelectedItem="{Binding Filter, Mode=TwoWay}">
       <ComboBox.Styles>

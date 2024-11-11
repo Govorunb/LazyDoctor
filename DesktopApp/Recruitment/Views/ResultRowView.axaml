@@ -5,7 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:r="using:DesktopApp.Recruitment"
              x:DataType="r:ResultRow"
-             x:Class="DesktopApp.Recruitment.ResultRowView">
+             x:Class="DesktopApp.Recruitment.Views.ResultRowView">
   <Border Margin="8 8">
     <StackPanel Orientation="Horizontal">
       <ItemsControl DockPanel.Dock="Left"

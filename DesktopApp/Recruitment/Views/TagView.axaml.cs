@@ -1,6 +1,6 @@
 using Avalonia.ReactiveUI;
 
-namespace DesktopApp.Recruitment;
+namespace DesktopApp.Recruitment.Views;
 
 public sealed partial class TagView : ReactiveUserControl<Tag>
 {

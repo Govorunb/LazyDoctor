@@ -1,14 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net8.0-windows</TargetFramework>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+
+        <!-- trim runtimes -->
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
+        <!-- slimmer builds -->
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+        <UseWindowsForms>true</UseWindowsForms>
     </PropertyGroup>
+
+    <ItemGroup>
+        <!-- implicitly added by UseWindowsForms -->
+        <!-- <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" IsImplicitlyDefined="true" /> -->
+
+        <!-- Remove implicit usings added by Microsoft.NET.Sdk.WindowsDesktop.WindowsForms.props -->
+        <Using Remove="System.Drawing" />
+        <Using Remove="System.Windows.Forms" />
+    </ItemGroup>
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
         <Content Include="..\data_cache\**\*.*" LinkBase="data" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+
+        <AvaloniaResource Remove="Assets\tessdata\*" />
+        <!-- no idea why but this puts everything under Assets\tessdata instead of data\tessdata -->
+        <!-- <Content Include="Assets\tessdata\*.*" LinkBase="data/tessdata" CopyToOutputDirectory="PreserveNewest" />-->
+        <Content Include="Assets\tessdata\eng.traineddata" TargetPath="data/tessdata/eng.traineddata" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup Condition="$(DefineConstants.Contains('ENABLE_XAML_HOT_RELOAD'))">
@@ -29,6 +51,7 @@
         <PackageReference Include="Avalonia.Fonts.Inter" />
         <PackageReference Include="Avalonia.ReactiveUI" />
         <PackageReference Include="JetBrains.Annotations" />
+        <PackageReference Include="OpenCvSharp4.Windows" />
         <PackageReference Include="ReactiveUI" />
         <PackageReference Include="ReactiveUI.Fody" />
         <PackageReference Include="Splat.DependencyInjection.SourceGenerator">
