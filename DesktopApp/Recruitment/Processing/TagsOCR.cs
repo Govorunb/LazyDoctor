@@ -19,6 +19,8 @@ public sealed class TagsOCR(TagsDataSource tagSource) : OCRPipeline<ICollection<
         return image;
     }
 
+    // todo: doesn't deal with background dots on senior/top op very well
+    // also, selected tags get binarized to the opposite side of unselected ones
     protected override Rect[] GetRelevantRegions(Mat image)
     {
         // extract regions of interest (ROIs)
@@ -79,7 +81,7 @@ public sealed class TagsOCR(TagsDataSource tagSource) : OCRPipeline<ICollection<
         {
             if (tags.Count >= RecruitmentFilter.MaxTagsSelected)
                 break;
-            var text = res.FullText?.Trim();
+            var text = res.FullText.Trim();
             if (string.IsNullOrEmpty(text))
                 continue;
 

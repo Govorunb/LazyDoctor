@@ -90,9 +90,9 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
         // if you explicitly pick Robot/Starter they should always show up
         foreach (var tag in row.Tags)
         {
-            if (filter[0] is FilterType.Hide or FilterType.Exclude && tag.Name == "Robot")
+            if (filter[0] is FilterType.Hide or FilterType.Exclude && tag is { Name: "Robot", IsAutoSelected: false })
                 filter[0] = FilterType.Show;
-            if (filter[1] is FilterType.Hide or FilterType.Exclude && tag.Name == "Starter")
+            if (filter[1] is FilterType.Hide or FilterType.Exclude && tag is { Name: "Starter", IsAutoSelected: false })
                 filter[1] = FilterType.Show;
         }
 
@@ -172,10 +172,13 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
             tag.IsSelected = false;
     }
 
-    public void SetSelectedTags(IEnumerable<Tag> tags)
+    public void SetSelectedTags(IEnumerable<Tag> tags, bool autoSelected = true)
     {
         ClearSelectedTags();
         foreach (var tag in tags.Take(MaxTagsSelected))
+        {
+            tag.IsAutoSelected = autoSelected;
             tag.IsSelected = true;
+        }
     }
 }

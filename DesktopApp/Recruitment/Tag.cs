@@ -1,22 +1,34 @@
 using System.Diagnostics;
+using System.Reactive.Linq;
 using System.Text.Json.Serialization;
 using DesktopApp.Data.Operators;
 
 namespace DesktopApp.Recruitment;
 
 [DebuggerDisplay("{Name,nq}")]
-public class Tag(string name, string category) : ViewModelBase
+public class Tag : ViewModelBase
 {
-    public string Name { get; } = name;
-    public string Category { get; } = category;
+    public string Name { get; }
+    public string Category { get; }
 
     [Obsolete("Designer only", true)]
     internal Tag() : this("", "") { }
+
+    public Tag(string name, string category)
+    {
+        Name = name;
+        Category = category;
+        this.WhenAnyValue(t => t.IsSelected)
+            .Where(b => !b)
+            .Subscribe(_ => IsAutoSelected = false);
+    }
 
     [Reactive, JsonIgnore]
     public bool IsAvailable { get; set; } = true;
     [Reactive, JsonIgnore]
     public bool IsSelected { get; set; }
+    [Reactive, JsonIgnore]
+    public bool IsAutoSelected { get; set; }
 
     public bool Match(Operator op)
     {

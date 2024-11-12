@@ -9,7 +9,7 @@
         xmlns:views="using:DesktopApp.Recruitment.Views"
         Icon="/Assets/avalonia-logo.ico"
         Title="DesktopApp">
-    <TabControl>
+    <TabControl SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
       <TabItem Header="Recruitment">
         <views:RecruitTabView DataContext="{Binding RecruitTab}" />
       </TabItem>

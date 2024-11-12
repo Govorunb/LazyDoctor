@@ -2,12 +2,8 @@
 
 namespace DesktopApp;
 
-public sealed class MainWindowViewModel : ViewModelBase
+public sealed class MainWindowViewModel(RecruitTab recruitTab) : ViewModelBase
 {
-    public MainWindowViewModel(RecruitTab recruitTab)
-    {
-        RecruitTab = recruitTab;
-    }
-
-    public RecruitTab RecruitTab { get; }
+    public RecruitTab RecruitTab { get; } = recruitTab;
+    public int SelectedTabIndex { get; set; }
 }

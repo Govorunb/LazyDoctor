@@ -7,7 +7,7 @@ using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Recruitment;
 
-public class RecruitTab : ViewModelBase
+public class RecruitTab : TabViewModel
 {
     private readonly TagsDataSource _tagSource;
     private readonly RecruitmentFilter _filter;
