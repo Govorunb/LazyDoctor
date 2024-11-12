@@ -28,8 +28,9 @@ public sealed partial class RecruitTabView : ReactiveUserControl<RecruitTab>
     private async void HandlePaste(object? sender, KeyEventArgs e)
     {
         var topLevel = TopLevel.GetTopLevel(this)!;
-        if (!topLevel.PlatformSettings!.HotkeyConfiguration.Paste.Any(kg => kg.Matches(e))) return;
-        if (ViewModel is null)
+        if (!topLevel.PlatformSettings!.HotkeyConfiguration.Paste.Any(kg => kg.Matches(e)))
+            return;
+        if (ViewModel is null) // mostly here for the compiler
         {
             LogHost.Default.Error("Can't handle paste without viewmodel");
             return;

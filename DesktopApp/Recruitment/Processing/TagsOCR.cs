@@ -14,25 +14,64 @@ public sealed class TagsOCR(TagsDataSource tagSource) : OCRPipeline<ICollection<
     {
         // crop source image to the portion of the UI that has the recruitment tags
         // to do this, we have to find the visual "signature" of the UI element
-        throw new NotImplementedException();
+
+        // not needed apparently
+        return image;
     }
 
     protected override Rect[] GetRelevantRegions(Mat image)
     {
-        // extract ROIs of text from the buttons
-        throw new NotImplementedException();
+        // extract regions of interest (ROIs)
+        // we're looking for rectangles that correspond to the tag buttons
+        // methodology and code adapted from https://redrainkim.github.io/opencvsharp/opencvsharp-study-12/#
+
+        using var blurred = image.GaussianBlur(new Size(5, 5), 0);
+        using var threshold = blurred.Threshold(60, 255, ThresholdTypes.BinaryInv);
+
+        Cv2.FindContours(threshold, out var contours, out _,
+            RetrievalModes.External, ContourApproximationModes.ApproxSimple);
+        List<Rect> rects = [];
+        foreach (var contour in contours)
+        {
+            if (!IsRectangle(contour, out var poly))
+                continue;
+            rects.Add(Cv2.BoundingRect(poly));
+        }
+#if DEBUG && DEBUG_OPENCV
+        using var highlight = image.CvtColor(ColorConversionCodes.GRAY2RGB, 3);
+        foreach (var rect in rects)
+            Cv2.Rectangle(highlight, rect, Scalar.Blue, 2);
+        try
+        {
+            using var window = new Window("Regions", highlight);
+            using var windThresh = new Window("Threshold", threshold);
+            Cv2.WaitKey();
+        } catch (OpenCVException) { } // throws only when exiting the whole app
+#endif
+        // todo: filter out small rects and rects that don't match the pattern
+        // the buttons are arranged as follows
+        //   [    ] [    ] [    ]
+        //   [    ] [    ]
+        return rects.ToArray();
     }
 
-    protected override ICollection<Tag> ParseResults(OCRResult[] ocrResults)
+    private static bool IsRectangle(Point[] vertices, out Point[] poly)
     {
-        if (ocrResults.Length == 0)
+        var peri = Cv2.ArcLength(vertices, true);
+        poly = Cv2.ApproxPolyDP(vertices, 0.04 * peri, true);
+        return poly.Length == 4;
+    }
+
+    protected override ICollection<Tag> ParseResults(OCRResult[]? ocrResults)
+    {
+        if (ocrResults is not { Length: >0 })
             return [];
 
         ReadOnlySpan<OCRResult> ocrs = ocrResults;
         if (ocrResults.Length > RecruitmentFilter.MaxTagsSelected)
         {
-            this.Log().Warn($"{ocrResults.Length} results from OCR");
-            ocrs = ocrs[..RecruitmentFilter.MaxTagsSelected];
+            this.Log().Warn($"{ocrResults.Length} results from OCR, should be at most {RecruitmentFilter.MaxTagsSelected}");
+            // ocrs = ocrs[..RecruitmentFilter.MaxTagsSelected];
         }
 
         var tags = new List<Tag>(RecruitmentFilter.MaxTagsSelected);
@@ -40,9 +79,14 @@ public sealed class TagsOCR(TagsDataSource tagSource) : OCRPipeline<ICollection<
         {
             if (tags.Count >= RecruitmentFilter.MaxTagsSelected)
                 break;
+            var text = res.FullText?.Trim();
+            if (string.IsNullOrEmpty(text))
+                continue;
 
-            if (tagSource.GetByName(res.FullText) is { } tag)
+            if (tagSource.GetByName(text) is { } tag)
+            {
                 tags.Add(tag);
+            }
             if (res.ComponentConfidences.FirstOrDefault(conf => conf < 80, -1) > -1)
             {
                 this.Log().Warn($"OCR confidence kinda low: {res.FullText}"

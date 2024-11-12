@@ -13,6 +13,10 @@
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
         <UseWindowsForms>true</UseWindowsForms>
     </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+<!--        <DefineConstants>$(DefineConstants);DEBUG_OPENCV</DefineConstants>-->
+    </PropertyGroup>
 
     <ItemGroup>
         <!-- implicitly added by UseWindowsForms -->
