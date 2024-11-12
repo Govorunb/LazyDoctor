@@ -27,15 +27,15 @@ public sealed partial class RecruitTabView : ReactiveUserControl<RecruitTab>
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
-        Debug.Assert(Window is { });
-        Window!.ClipboardUpdated += OnClipboardUpdated;
+        if (Window is { })
+            Window!.ClipboardUpdated += OnClipboardUpdated;
         PasteTextBox.Focus();
     }
 
     protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
     {
-        Debug.Assert(Window is { });
-        Window!.ClipboardUpdated -= OnClipboardUpdated;
+        if (Window is { })
+            Window.ClipboardUpdated += OnClipboardUpdated;
         base.OnDetachedFromLogicalTree(e);
     }
 
