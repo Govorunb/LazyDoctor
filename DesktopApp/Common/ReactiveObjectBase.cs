@@ -11,7 +11,7 @@ public abstract class ReactiveObjectBase : ReactiveObject, ICancelable
     public bool IsDisposed { get; private set; } // CompositeDisposable has IsDisposed but it does not notify
 
     [Conditional("DEBUG")]
-    protected void AssertDI<T>(T thing, [CallerArgumentExpression(nameof(thing))] string? name = null)
+    protected void AssertDI<T>(T? thing, [CallerArgumentExpression(nameof(thing))] string? name = null)
         where T : class
     {
         Debug.Assert(thing is { }, $"DI failure in {GetType().Name}: {name} is null");

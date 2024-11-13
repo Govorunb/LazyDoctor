@@ -45,8 +45,9 @@ public sealed class TagsOCR(TagsDataSource tagSource) : OCRPipeline<ICollection<
             Cv2.Rectangle(highlight, rect, Scalar.Blue, 2);
         try
         {
-            using var window = new Window("Regions", highlight);
-            using var windThresh = new Window("Threshold", threshold);
+            using var window = highlight.ShowWindow();
+            using var windBlurred = blurred.ShowWindow();
+            using var windThresh = threshold.ShowWindow();
             Cv2.WaitKey();
         } catch (OpenCVException) { } // throws only when exiting the whole app
 #endif

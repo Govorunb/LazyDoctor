@@ -62,7 +62,7 @@ public abstract class OCRPipeline<TResult> : ReactiveObjectBase
 
             try
             {
-                using var window = new Window("OCR Result", highlight);
+                using var window = highlight.ShowWindow("OCR Result");
                 Cv2.WaitKey();
             } catch (OpenCVException) { } // throws only when exiting the whole app
         }

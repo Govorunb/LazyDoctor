@@ -18,21 +18,10 @@ public sealed class JsonDataSource<T> : DataSource<T>
     {
         try
         {
-            string json;
-            // temp for local dev (todo LocalHttpCache)
-            var localPath = Path.Join(Constants.DataCacheBaseDir, _path);
-            if (File.Exists(localPath))
-            {
-                this.Log().Debug($"Using cached {_path} @ {localPath}");
-                json = await File.ReadAllTextAsync(localPath);
-            }
-            else
-            {
-                var uriString = Path.Join(Constants.GameDataBaseUrl, _path);
-                this.Log().Debug($"Downloading {_path} from {uriString}");
-                json = await LOCATOR.GetService<HttpClient>()!.GetStringAsync(new Uri(uriString));
-            }
-            this.Log().Debug($"Loaded {_path}");
+            // do not inject the cache in ctor
+            var cache = LOCATOR.GetService<LocalHttpCache>()!;
+            var json = await cache.GetJson(_path);
+            this.Log().Info($"Loaded {_path}");
             var value = (T)JsonSerializer.Deserialize(json, typeof(T), JsonSourceGenContext.Default)!;
             Subject.OnNext(value);
             return value;

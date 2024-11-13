@@ -13,7 +13,7 @@
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
         <UseWindowsForms>true</UseWindowsForms>
     </PropertyGroup>
-    
+
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
 <!--        <DefineConstants>$(DefineConstants);DEBUG_OPENCV</DefineConstants>-->
     </PropertyGroup>
@@ -29,7 +29,6 @@
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
-        <Content Include="..\data_cache\**\*.*" LinkBase="data" CopyToOutputDirectory="PreserveNewest" Visible="false" />
 
         <AvaloniaResource Remove="Assets\tessdata\*" />
         <!-- no idea why but this puts everything under Assets\tessdata instead of data\tessdata -->
