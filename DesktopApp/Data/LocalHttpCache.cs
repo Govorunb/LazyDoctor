@@ -4,12 +4,12 @@ namespace DesktopApp.Data;
 
 public sealed class LocalHttpCache : ReactiveObjectBase
 {
-    private readonly AppData _appData;
+    private readonly IAppData _appData;
     private readonly HttpClient _client;
 
     private static readonly ConcurrentDictionary<string, Task<string>> _openRequests = [];
 
-    public LocalHttpCache(AppData appData, HttpClient client)
+    public LocalHttpCache(IAppData appData, HttpClient client)
     {
         AssertDI(appData);
         AssertDI(client);
@@ -31,17 +31,18 @@ public sealed class LocalHttpCache : ReactiveObjectBase
 
         var uriString = Path.Join(Constants.GameDataBaseUrl, file);
         var mainRequest = false;
-        if (!_openRequests.TryGetValue(uriString, out var task))
+        if (_openRequests.TryGetValue(uriString, out var task))
+        {
+            this.Log().Info($"Waiting for {file} from {uriString}");
+        }
+        else
         {
             this.Log().Info($"Downloading {file} from {uriString}");
             mainRequest = true;
             task = _client.GetStringAsync(new Uri(uriString));
             _openRequests.TryAdd(uriString, task);
         }
-        else
-        {
-            this.Log().Info($"Waiting for {file} from {uriString}");
-        }
+
         var json = await task;
         _openRequests.TryRemove(uriString, out _);
 

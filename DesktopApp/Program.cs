@@ -18,6 +18,7 @@ internal static class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
+            // .LogToTrace(Avalonia.Logging.LogEventLevel.Information)
             .LogToTrace()
             .UseReactiveUI();
 }

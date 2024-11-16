@@ -6,23 +6,23 @@ public static class Combinatorics
     {
         var max = 1 << list.Count;
 
-        for (var i = 0; i < max; i++)
+        for (var mask = 0; mask < max; mask++)
         {
-            yield return Subset(list, i);
+            yield return Subset(list, mask);
         }
 
         static IEnumerable<T> Subset(IReadOnlyList<T> list, int mask)
         {
-            uint j = 0;
+            uint i = 0;
             uint indexBit = 1;
-            while (j < list.Count)
+            while (i < list.Count)
             {
                 if ((mask & indexBit) != 0)
                 {
-                    yield return list[(int)j];
+                    yield return list[(int)i];
                 }
 
-                j++;
+                i++;
                 indexBit *= 2;
             }
         }

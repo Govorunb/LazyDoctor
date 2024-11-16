@@ -27,7 +27,7 @@ public sealed class TagsOCR(TagsDataSource tagSource) : OCRPipeline<ICollection<
         // we're looking for rectangles that correspond to the tag buttons
         // methodology and code adapted from https://redrainkim.github.io/opencvsharp/opencvsharp-study-12/#
 
-        using var blurred = image.GaussianBlur(new Size(5, 5), 0);
+        using var blurred = image.GaussianBlur(new Size(9, 9), 0);
         using var threshold = blurred.Threshold(60, 255, ThresholdTypes.BinaryInv);
 
         Cv2.FindContours(threshold, out var contours, out _,
@@ -52,7 +52,7 @@ public sealed class TagsOCR(TagsDataSource tagSource) : OCRPipeline<ICollection<
         } catch (OpenCVException) { } // throws only when exiting the whole app
 #endif
         // todo: filter out small rects and rects that don't match the pattern
-        // the buttons are arranged as follows
+        // there are 5 buttons arranged as follows:
         //   [    ] [    ] [    ]
         //   [    ] [    ]
         return rects.ToArray();

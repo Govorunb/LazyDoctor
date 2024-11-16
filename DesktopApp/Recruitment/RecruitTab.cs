@@ -18,6 +18,7 @@ public class RecruitTab : TabViewModel
     public ReadOnlyObservableCollection<ResultRow> Results => _filter.Results;
     public IReadOnlyList<RarityFilter> RarityFilters => _filter.RarityFilters;
 
+    public UserPrefs Prefs { get; }
     [Reactive]
     public int RowsHidden { get; private set; }
     [Reactive]
@@ -25,13 +26,14 @@ public class RecruitTab : TabViewModel
 
     public ReactiveCommand<Unit, Unit> ClearSelectedTags { get; }
 
-    public RecruitTab(TagsDataSource tagSource, RecruitmentFilter filter, TagsOCR ocr)
+    public RecruitTab(TagsDataSource tagSource, RecruitmentFilter filter, TagsOCR ocr, UserPrefs prefs)
     {
         AssertDI(tagSource);
         AssertDI(filter);
         _tagSource = tagSource;
         _filter = filter;
         _ocr = ocr;
+        Prefs = prefs;
 
         ClearSelectedTags = ReactiveCommand.Create(filter.ClearSelectedTags);
 
@@ -93,4 +95,9 @@ public class RecruitTab : TabViewModel
 }
 
 public sealed class DesignRecruitTab()
-    : RecruitTab(LOCATOR.GetService<TagsDataSource>()!, LOCATOR.GetService<RecruitmentFilter>()!, LOCATOR.GetService<TagsOCR>()!);
+    : RecruitTab(
+        LOCATOR.GetService<TagsDataSource>()!,
+        LOCATOR.GetService<RecruitmentFilter>()!,
+        LOCATOR.GetService<TagsOCR>()!,
+        LOCATOR.GetService<UserPrefs>()!
+    );

@@ -23,24 +23,35 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
     public ReadOnlyObservableCollection<ResultRow> AllResults { get; }
     public ReadOnlyObservableCollection<ResultRow> Results { get; }
 
-    // todo: user prefs (these are sensible defaults)
-    // asssuming >3h50m, which removes 1&2stars from the pool
-    private static readonly FilterType[] _defaultFilters = [FilterType.Hide, FilterType.Hide, FilterType.Exclude];
-    public IReadOnlyList<RarityFilter> RarityFilters { get; }
+    public IReadOnlyList<RarityFilter> RarityFilters { get; private set; }
 
-    public RecruitmentFilter(RecruitableOperators ops, TagsDataSource tags)
+    public RecruitmentFilter(RecruitableOperators ops, TagsDataSource tags, UserPrefs prefs)
     {
         _recruitPool = ops;
         _tags = tags;
 
-        RarityFilters = [.._defaultFilters.Select((ft, i) => new RarityFilter { Stars = i + 1, Filter = ft })];
+        RarityFilters = [];
+        prefs.Loaded.Subscribe(_ => RarityFilters = prefs.Recruitment!.RarityFilters.Select((ft, i) => new RarityFilter { Stars = i + 1, Filter = ft }).ToList());
+
         SelectedTags = new(_selectedTags);
         Results = new(_filteredResults);
         AllResults = new(_allResults);
 
-        var filtersChanged = RarityFilters
-            .Select(f => f.WhenPropertyChanged(t => t.Filter))
-            .Merge();
+        var filtersChanged =
+            this.WhenAnyValue(t => t.RarityFilters)
+                .Select(rf => rf
+                    .Select(f => f.WhenPropertyChanged(t => t.Filter))
+                    .Merge())
+                .Switch();
+
+        filtersChanged.Subscribe(async f =>
+        {
+            await prefs.Loaded.FirstAsync();
+
+            var i = f.Sender.Stars - 1;
+            prefs.Recruitment!.RarityFilters[i] = f.Value;
+            await prefs.Save();
+        });
 
         _allResultsList.Connect()
             .Bind(_allResults)
@@ -81,18 +92,20 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
         // when switching filter between the two, result row itself (and thus row.Operators) doesn't (and shouldn't) change
         // alternatively, duplicate each ResultRow
         Span<FilterType> filter = stackalloc FilterType[RarityFilters.Count];
-        foreach (var (f, i) in RarityFilters.Select((rf, i) => (rf.Filter, i)))
+        for (var i = 0; i < RarityFilters.Count; i++)
         {
-            filter[i] = f;
+            filter[i] = RarityFilters[i].Filter;
         }
         List<Operator> hide = [];
 
         // if you explicitly pick Robot/Starter they should always show up
         foreach (var tag in row.Tags)
         {
-            if (filter[0] is FilterType.Hide or FilterType.Exclude && tag is { Name: "Robot", IsAutoSelected: false })
+            if (tag.IsAutoSelected)
+                continue;
+            if (filter[0] is FilterType.Hide or FilterType.Exclude && tag.Name == "Robot")
                 filter[0] = FilterType.Show;
-            if (filter[1] is FilterType.Hide or FilterType.Exclude && tag is { Name: "Starter", IsAutoSelected: false })
+            if (filter[1] is FilterType.Hide or FilterType.Exclude && tag.Name == "Starter")
                 filter[1] = FilterType.Show;
         }
 
@@ -121,8 +134,8 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
         foreach (var op in hide)
             row.Operators.Remove(op);
 
-        // any Requires left were not fulfilled
-        return !filter.Any(f => f is FilterType.Require);
+        // remaining Requires must be unfulfilled
+        return row.Operators.Count > 0 && !filter.Any(f => f is FilterType.Require);
     }
 
     private IEnumerable<ResultRow> Update(IReadOnlyList<Tag> tags)

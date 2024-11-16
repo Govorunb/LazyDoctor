@@ -13,6 +13,8 @@ public abstract class OCRPipeline<TResult> : ReactiveObjectBase
 {
     private readonly Dictionary<string, OCRTesseract> _ocrs = [];
 
+    [PublicAPI]
+    // ReSharper disable once ReturnTypeCanBeNotNullable
     protected virtual Mat? ParseImage(ReadOnlySpan<byte> pngData)
     {
         return Cv2.ImDecode(pngData, ImreadModes.Grayscale);

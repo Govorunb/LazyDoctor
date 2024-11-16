@@ -90,4 +90,19 @@ public static class ReactiveExtensions
             .DistinctUntilChanged();
         return sendInitialValue ? obs.Prepend(collection.Count) : obs;
     }
+
+    public static IObservable<TResult> Switch<TSource, TResult>(this IObservable<TSource> source, Func<TSource, IObservable<TResult>> selector)
+        => source
+            .Select(selector)
+            .Switch();
+
+    // https://stackoverflow.com/questions/37129159/subscribing-to-observable-sequence-with-async-function
+    public static IDisposable SubscribeAsync<T>(this IObservable<T> source, Func<T, Task> observer)
+        => source
+            .Select(item => Observable.FromAsync(() => observer(item)))
+            .Concat()
+            .Subscribe();
+
+    public static IObservable<Unit> ToUnit<T>(this IObservable<T> source)
+        => source.Select(_ => Unit.Default);
 }

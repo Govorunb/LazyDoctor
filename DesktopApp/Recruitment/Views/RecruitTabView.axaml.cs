@@ -17,25 +17,32 @@ public sealed partial class RecruitTabView : ReactiveUserControl<RecruitTab>
     public static readonly FilterType[] FilterTypes = Enum.GetValues<FilterType>();
 
     private MainWindow? Window => TopLevel.GetTopLevel(this) as MainWindow;
+    private IDisposable? _pasteHandlerSubscription;
 
     public RecruitTabView()
     {
         InitializeComponent();
-        AddHandler(KeyDownEvent, HandlePasteHotkey, RoutingStrategies.Tunnel);
+        Focusable = true;
+        ParseClipboardButton.Click += (s, e) => _ = OnPaste();
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
-        if (Window is { })
-            Window!.ClipboardUpdated += OnClipboardUpdated;
-        PasteTextBox.Focus();
+        if (Window is null)
+            return;
+
+        Window.ClipboardUpdated += OnClipboardUpdated;
+        _pasteHandlerSubscription = Window.AddDisposableHandler(KeyDownEvent, HandlePasteHotkey, RoutingStrategies.Tunnel);
     }
 
     protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
     {
         if (Window is { })
-            Window.ClipboardUpdated += OnClipboardUpdated;
+        {
+            Window.ClipboardUpdated -= OnClipboardUpdated;
+            _pasteHandlerSubscription?.Dispose();
+        }
         base.OnDetachedFromLogicalTree(e);
     }
 
@@ -47,7 +54,7 @@ public sealed partial class RecruitTabView : ReactiveUserControl<RecruitTab>
 
         if (Window?.PlatformSettings?.HotkeyConfiguration.Paste is not { } paste)
             return;
-        if (!paste.Any(kg => kg.Matches(e)))
+        if (!paste.Any(hotkey => hotkey.Matches(e)))
             return;
 
         e.Handled = true;
@@ -57,6 +64,9 @@ public sealed partial class RecruitTabView : ReactiveUserControl<RecruitTab>
 
     private async void OnClipboardUpdated(object? sender, HandledEventArgs e)
     {
+        if (ViewModel?.Prefs.Recruitment?.MonitorClipboard != true)
+            return;
+
         e.Handled = true;
         await OnPaste();
     }
@@ -94,6 +104,6 @@ public sealed partial class RecruitTabView : ReactiveUserControl<RecruitTab>
             return;
         }
 
-        ViewModel!.PasteError = "Could not find image or text in clipboard";
+        ViewModel.PasteError = "Could not find image or text in clipboard";
     }
 }

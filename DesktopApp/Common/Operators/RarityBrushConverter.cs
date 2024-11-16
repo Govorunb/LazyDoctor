@@ -1,11 +1,10 @@
 using System.Globalization;
-using Avalonia.Data;
-using Avalonia.Data.Converters;
 using Avalonia.Media;
+using DesktopApp.Utilities.Converters;
 
 namespace DesktopApp.Common.Operators;
 
-public sealed class RarityBrushConverter : IValueConverter
+public sealed class RarityBrushConverter : ValueConverterBase
 {
     private static readonly IBrush[] _brushes =
     [
@@ -16,17 +15,17 @@ public sealed class RarityBrushConverter : IValueConverter
         Brushes.Bisque,
         Brushes.Gold,
     ];
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public override object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not int rarity)
-            return new BindingNotification(new ArgumentException("Value must be an integer"), BindingErrorType.DataValidationError);
+            return Error("Value must be an integer");
         return _brushes[rarity - 1];
     }
 
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public override object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not IBrush brush)
-            return new BindingNotification(new ArgumentException("Value must be a brush"), BindingErrorType.DataValidationError);
+            return Error("Value must be a brush");
         return Array.IndexOf(_brushes, brush) + 1;
     }
 }

@@ -23,11 +23,12 @@ internal static class SplatHelpers
 
         SplatRegistrations.RegisterConstant(new HttpClient());
 
-        SplatRegistrations.RegisterLazySingleton<AppData>();
+        SplatRegistrations.RegisterLazySingleton<IAppData, AppData>();
+        SplatRegistrations.RegisterLazySingleton<UserPrefs>();
         SplatRegistrations.RegisterLazySingleton<LocalHttpCache>();
 
         // have to register this one manually, otherwise we resolve recursively
-        Locator.CurrentMutable.Register<IDataSource<GachaTable>>(() => new JsonDataSource<GachaTable>("gacha_table.json"));
+        Locator.CurrentMutable.RegisterLazySingleton<IDataSource<GachaTable>>(() => new JsonDataSource<GachaTable>("gacha_table.json"));
 
         SplatRegistrations.RegisterLazySingleton<TagsOCR>();
         SplatRegistrations.RegisterLazySingleton<OperatorRepository>();

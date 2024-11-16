@@ -12,6 +12,9 @@
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
         <UseWindowsForms>true</UseWindowsForms>
+        <Company>Govorunb</Company>
+        <Product>LazyDoctor</Product>
+        <AssemblyVersion>0.1.0</AssemblyVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
@@ -22,7 +25,10 @@
         <!-- implicitly added by UseWindowsForms -->
         <!-- <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" IsImplicitlyDefined="true" /> -->
 
-        <!-- Remove implicit usings added by Microsoft.NET.Sdk.WindowsDesktop.WindowsForms.props -->
+        <!--
+        Remove implicit usings added by Microsoft.NET.Sdk.WindowsDesktop.WindowsForms.props
+        (they conflict with Avalonia)
+         -->
         <Using Remove="System.Drawing" />
         <Using Remove="System.Windows.Forms" />
     </ItemGroup>

@@ -15,17 +15,29 @@
       <Setter Property="FontSize" Value="22" />
     </Style>
   </Control.Styles>
-  <Border Padding="8 0" IsHitTestVisible="True">
+  <Border Padding="8 0">
     <ScrollViewer>
       <StackPanel Orientation="Vertical">
-        <Expander Name="TagsExpander" Header="Tags" IsExpanded="True"> <!-- todo: prefs -->
+        <Expander Name="TagsExpander" Header="Tags" IsExpanded="{Binding Prefs.Recruitment.TagsExpanded}">
           <ItemsControl ItemsSource="{Binding Categories}" Margin="0 16" />
         </Expander>
         <ItemsControl Classes="Horizontal" ItemsSource="{Binding SelectedTags}"
                       IsVisible="{Binding !#TagsExpander.IsExpanded}"/>
-        <Label Target="PasteTextBox">Paste image or text here</Label>
-        <TextBox Name="PasteTextBox" />
-        <TextBlock Name="PasteError" Text="{Binding PasteError}" Foreground="Salmon" />
+        <StackPanel Orientation="Horizontal" Margin="8 0">
+          <Button Name="ParseClipboardButton"
+                  Classes="accent"
+                  Content="Parse clipboard"
+                  Margin="0 0 16 0" />
+          <Label Target="MonitorClipboardToggle" Content="Monitor clipboard" VerticalAlignment="Center" />
+          <ToggleSwitch Name="MonitorClipboardToggle" DockPanel.Dock="Right"
+                    Margin="8 0"
+                    IsChecked="{Binding Prefs.Recruitment.MonitorClipboard, Mode=TwoWay}"
+                    ToolTip.Tip="Automatically OCR/parse clipboard contents when they change" />
+        </StackPanel>
+        <TextBlock Name="PasteError"
+                   Text="{Binding PasteError}"
+                   Margin="8 0"
+                   Foreground="Salmon" />
         <WrapPanel Orientation="Horizontal" Margin="0 16">
           <TextBlock FontSize="16" Text="Filter:" VerticalAlignment="Bottom" Padding="16 8" />
           <ItemsControl Classes="Horizontal"
