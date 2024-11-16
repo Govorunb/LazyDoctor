@@ -22,10 +22,10 @@
           </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
       </ItemsControl>
-      <Label IsVisible="{Binding !Operators.Count}" Content="All operators are hidden by filters." />
+      <Label IsVisible="{Binding !ShownOperators.Count}" Content="All operators are hidden by filters." />
       <ItemsControl VerticalAlignment="Center"
-                    IsVisible="{Binding Operators.Count}"
-                    ItemsSource="{Binding Operators}">
+                    IsVisible="{Binding ShownOperators.Count}"
+                    ItemsSource="{Binding ShownOperators}">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
             <WrapPanel Orientation="Horizontal" />

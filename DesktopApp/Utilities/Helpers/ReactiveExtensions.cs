@@ -105,4 +105,10 @@ public static class ReactiveExtensions
 
     public static IObservable<Unit> ToUnit<T>(this IObservable<T> source)
         => source.Select(_ => Unit.Default);
+
+    /// <summary>
+    /// Replays notifications like <see cref="System.Reactive.Linq.Observable.Replay{TSource}(IObservable{TSource}, int)"/>, but immediately subscribes to the underlying <paramref name="source" /> - so, no notifications are missed between creation and first subscription.
+    /// </summary>
+    public static IObservable<T> ReplayHot<T>(this IObservable<T> source, int bufferSize)
+        => source.Replay(bufferSize).AutoConnect(0);
 }

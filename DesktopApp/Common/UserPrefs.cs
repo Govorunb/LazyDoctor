@@ -3,6 +3,7 @@ using System.Reactive.Linq;
 using System.Text.Json;
 using DesktopApp.Data;
 using DesktopApp.Recruitment;
+using DesktopApp.Utilities.Attributes;
 using DesktopApp.Utilities.Helpers;
 using JetBrains.Annotations;
 
@@ -14,6 +15,7 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 
     private const string PrefsFileName = "prefs.json";
 
+    [JsonClass]
     public sealed class UserPrefsData : ReactiveObjectBase
     {
         public string Version { get; set; } = typeof(UserPrefs).Assembly.GetName().Version?.ToString() ?? "0.0.0.0";
@@ -25,15 +27,21 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
     [PublicAPI]
     public string? Version => Data?.Version;
     public RecruitmentPrefsData? Recruitment => Data?.Recruitment;
-    public IObservable<Unit> Loaded => this.ObservableForProperty(t => t.Data).ToUnit();
+    public IObservable<Unit> Loaded { get; }
 
     public UserPrefs(IAppData appData)
     {
         AssertDI(appData);
         _appData = appData;
+
+        Loaded = this.ObservableForProperty(t => t.Data)
+            .ToUnit()
+            .ReplayHot(1);
+
         var recruitDataChanged = this.WhenAnyValue(t => t.Data!.Recruitment)
             .Do(_ => this.RaisePropertyChanged(nameof(Recruitment)))
             .Switch(r => r.Changed.ToUnit());
+
         recruitDataChanged
             .Sample(TimeSpan.FromMilliseconds(500))
             .SubscribeAsync(_ => Save());

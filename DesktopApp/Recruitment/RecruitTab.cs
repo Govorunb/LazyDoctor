@@ -3,6 +3,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using DesktopApp.Data.Recruitment;
 using DesktopApp.Recruitment.Processing;
+using DesktopApp.Utilities.Attributes;
 using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Recruitment;
@@ -94,6 +95,7 @@ public class RecruitTab : TabViewModel
     }
 }
 
+[DesignClass]
 public sealed class DesignRecruitTab()
     : RecruitTab(
         LOCATOR.GetService<TagsDataSource>()!,

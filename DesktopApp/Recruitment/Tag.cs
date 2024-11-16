@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Reactive.Linq;
-using System.Text.Json.Serialization;
 using DesktopApp.Data.Operators;
+using DesktopApp.Utilities.Attributes;
 
 namespace DesktopApp.Recruitment;
 
@@ -23,11 +23,11 @@ public class Tag : ViewModelBase
             .Subscribe(_ => IsAutoSelected = false);
     }
 
-    [Reactive, JsonIgnore]
+    [Reactive]
     public bool IsAvailable { get; set; } = true;
-    [Reactive, JsonIgnore]
+    [Reactive]
     public bool IsSelected { get; set; }
-    [Reactive, JsonIgnore]
+    [Reactive]
     public bool IsAutoSelected { get; set; }
 
     public bool Match(Operator op)
@@ -57,4 +57,5 @@ public class Tag : ViewModelBase
     public override string ToString() => Name;
 }
 
+[DesignClass]
 public sealed class DesignTag() : Tag("Test", "Example");

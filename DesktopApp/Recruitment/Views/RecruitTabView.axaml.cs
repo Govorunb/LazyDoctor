@@ -91,7 +91,8 @@ public sealed partial class RecruitTabView : ReactiveUserControl<RecruitTab>
         }
 
         // Avalonia doesn't (yet?) handle image formats like CF_BITMAP ("Unknown_format_2")
-        // and because of their very funny format name handling code, we literally cannot obtain data for those formats
+        // and because of their very funny format name handling code, we literally cannot obtain data for those formats from their clipboard
+        // yes, this is the only reason we reference WinForms
         if (WClipboard.ContainsImage() && WClipboard.GetImage() is { } image)
         {
             using var stream = new MemoryStream();

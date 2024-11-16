@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Reactive.Linq;
 using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
@@ -15,6 +16,7 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
     private readonly RecruitableOperators _recruitPool;
     private readonly TagsDataSource _tags;
     private readonly SourceList<ResultRow> _allResultsList = new();
+    private readonly UserPrefs _prefs;
 
     private readonly ObservableCollectionExtended<Tag> _selectedTags = [];
     private readonly ObservableCollectionExtended<ResultRow> _allResults = [];
@@ -23,15 +25,17 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
     public ReadOnlyObservableCollection<ResultRow> AllResults { get; }
     public ReadOnlyObservableCollection<ResultRow> Results { get; }
 
+    [Reactive]
     public IReadOnlyList<RarityFilter> RarityFilters { get; private set; }
 
     public RecruitmentFilter(RecruitableOperators ops, TagsDataSource tags, UserPrefs prefs)
     {
         _recruitPool = ops;
         _tags = tags;
+        _prefs = prefs;
 
         RarityFilters = [];
-        prefs.Loaded.Subscribe(_ => RarityFilters = prefs.Recruitment!.RarityFilters.Select((ft, i) => new RarityFilter { Stars = i + 1, Filter = ft }).ToList());
+        _prefs.Loaded.Subscribe(_ => SetFilters());
 
         SelectedTags = new(_selectedTags);
         Results = new(_filteredResults);
@@ -46,11 +50,11 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
 
         filtersChanged.Subscribe(async f =>
         {
-            await prefs.Loaded.FirstAsync();
+            await _prefs.Loaded.FirstAsync();
 
             var i = f.Sender.Stars - 1;
-            prefs.Recruitment!.RarityFilters[i] = f.Value;
-            await prefs.Save();
+            _prefs.Recruitment!.RarityFilters[i] = f.Value;
+            await _prefs.Save();
         });
 
         _allResultsList.Connect()
@@ -74,9 +78,15 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
             .OnMainThread()
             .Subscribe(_ => UpdateFilter(_selectedTags));
     }
+
+    private void SetFilters()
+    {
+        RarityFilters = _prefs.Recruitment!.RarityFilters.Select((ft, i) => new RarityFilter { Stars = i + 1, Filter = ft }).ToList();
+    }
+
     public const int MaxTagsSelected = 5;
 
-    private void UpdateFilter(IReadOnlyCollection<Tag> tags)
+    private void UpdateFilter(ObservableCollectionExtended<Tag> tags)
     {
         foreach (var tag in _tags.Tags.Items)
         {
@@ -88,9 +98,8 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
 
     private bool FilterRow(ResultRow row)
     {
-        // todo: show/hide should be on ResultRow
-        // when switching filter between the two, result row itself (and thus row.Operators) doesn't (and shouldn't) change
-        // alternatively, duplicate each ResultRow
+        Debug.Assert(RarityFilters.Count > 0, "empty filters");
+
         Span<FilterType> filter = stackalloc FilterType[RarityFilters.Count];
         for (var i = 0; i < RarityFilters.Count; i++)
         {
@@ -131,11 +140,13 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
             }
         }
 
+        row.ShownOperators = row.Operators.ToList();
+
         foreach (var op in hide)
-            row.Operators.Remove(op);
+            row.ShownOperators.Remove(op);
 
         // remaining Requires must be unfulfilled
-        return row.Operators.Count > 0 && !filter.Any(f => f is FilterType.Require);
+        return row.ShownOperators.Count > 0 && !filter.Any(f => f is FilterType.Require);
     }
 
     private IEnumerable<ResultRow> Update(IReadOnlyList<Tag> tags)
@@ -173,7 +184,8 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
 
         foreach (var t in tags) // hot method, not using .All because of lambda alloc
         {
-            if (!t.Match(op)) return false;
+            if (!t.Match(op))
+                return false;
         }
 
         return true;

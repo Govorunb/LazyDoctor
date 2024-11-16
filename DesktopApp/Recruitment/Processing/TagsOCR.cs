@@ -90,11 +90,11 @@ public sealed class TagsOCR(TagsDataSource tagSource) : OCRPipeline<ICollection<
             {
                 tags.Add(tag);
             }
-            if (res.ComponentConfidences.FirstOrDefault(conf => conf < 80, -1) > -1)
+            if (res.ComponentConfidences.Any(conf => conf < 80))
             {
                 this.Log().Warn($"OCR confidence kinda low: {res.FullText}"
-                              + $" ({string.Join(',', res.ComponentTexts)})"
-                              + $" ({string.Join(',', res.ComponentConfidences)})");
+                              + $"\n\t({string.Join(',', res.ComponentTexts)})"
+                              + $"\n\t({string.Join(',', res.ComponentConfidences)})");
             }
         }
 

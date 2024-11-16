@@ -1,5 +1,8 @@
+using DesktopApp.Utilities.Attributes;
+
 namespace DesktopApp.Recruitment;
 
+[JsonClass]
 public sealed class RecruitmentPrefsData : ReactiveObjectBase
 {
     [Reactive]
