@@ -8,7 +8,7 @@
              x:DataType="opd:Operator"
              x:Class="DesktopApp.Common.Operators.OperatorView">
   <Design.DataContext>
-    <opd:Operator Name="Beagle" Rarity="TIER_2" />
+    <opd:Operator Name="Beagle" Rarity="TIER_2" JsonClass="TANK" />
   </Design.DataContext>
   <UserControl.Resources>
     <ResourceDictionary>
@@ -28,7 +28,10 @@
           Background="{Binding RarityStars, Converter={StaticResource RarityBrushConverter}}"
           CornerRadius="4">
     <ToolTip.Tip>
-      <ItemsControl ItemsSource="{Binding TagList}" />
+      <StackPanel Orientation="Vertical">
+        <TextBlock Text="{Binding Class}" />
+        <ItemsControl ItemsSource="{Binding TagList}" />
+      </StackPanel>
     </ToolTip.Tip>
     <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextForeground}" />
   </Border>
