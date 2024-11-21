@@ -42,10 +42,10 @@ public class RecruitTab : TabViewModel
             .CombineLatest(Results.WhenCountChanged(), (a, b) => a - b)
             .Subscribe(v => RowsHidden = v);
 
-        // reset PasteError after 2 seconds (debounce)
+        // show PasteError only for a few seconds
         this.WhenAnyValue(t => t.PasteError)
             .WhereNotNull()
-            .Throttle(TimeSpan.FromSeconds(2))
+            .Throttle(TimeSpan.FromSeconds(5)) // debounce
             .OnMainThread()
             .Subscribe(_ => PasteError = null);
     }
@@ -58,7 +58,10 @@ public class RecruitTab : TabViewModel
     private void SetTagsFromPaste(ICollection<Tag> tags)
     {
         if (tags.Count == 0)
+        {
             PasteError = "No tags found, try again.";
+            return;
+        }
 
         _filter.SetSelectedTags(tags);
     }
