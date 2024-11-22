@@ -20,7 +20,7 @@ public sealed class AppData : ReactiveObjectBase, IAppData
             var task = OnShutdown();
             if (task.Status == TaskStatus.Created)
                 task.Start();
-            task.Wait(TimeSpan.FromSeconds(5));
+            task.Wait(TimeSpan.FromSeconds(2));
         };
     }
 
@@ -59,10 +59,7 @@ public sealed class AppData : ReactiveObjectBase, IAppData
 
     private async Task OnShutdown()
     {
-        foreach (var cache in _blobCaches.Values)
-        {
-            // sync Dispose does not close connections...
-            await cache.DisposeAsync();
-        }
+        // sync Dispose does not close connections...
+        await Task.WhenAll(_blobCaches.Values.Select(c => c.DisposeAsync().AsTask()));
     }
 }

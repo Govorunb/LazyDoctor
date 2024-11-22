@@ -113,5 +113,7 @@ public sealed class TagsOCR(TagsDataSource tagSource) : OCRPipeline<ICollection<
     }
 
     protected override string? GetAllowedCharacters(string lang)
+        => GetCharacters(lang);
+    public static string? GetCharacters(string lang)
         => _allowedCharacters.GetValueOrDefault(lang);
 }

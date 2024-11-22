@@ -69,8 +69,20 @@ public class RecruitTab : TabViewModel
     // if/when there's anything else that does text parsing, pull this out into a service
     private List<Tag> TryParseTags(string text)
     {
-        const string Delimiters = ",;| \t\n";
-        var possibleTags  = text.Split(Delimiters.ToCharArray());
+        const string Delimiters = ".,;| \t\n";
+        var span = text.AsSpan();
+        // todo: lang from prefs
+        var allowed = (TagsOCR.GetCharacters("eng") + Delimiters).ToHashSet();
+        Span<char> filteredSpan = stackalloc char[span.Length];
+        var j = 0;
+        foreach (var c in span)
+        {
+            if (allowed.Contains(c))
+                filteredSpan[j++] = c;
+        }
+
+        var filtered = filteredSpan[..j].ToString();
+        var possibleTags = filtered.Split(Delimiters.ToCharArray());
         for (var i = 0; i < possibleTags.Length; i++)
         {
             possibleTags[i] = possibleTags[i].Trim();
