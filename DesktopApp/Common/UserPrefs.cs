@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
@@ -15,10 +16,11 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 
     private const string PrefsFileName = "prefs.json";
 
-    [JsonClass]
+    [JsonClass, EditorBrowsable(EditorBrowsableState.Never)]
     public sealed class UserPrefsData : ReactiveObjectBase
     {
-        public string Version { get; set; } = typeof(UserPrefs).Assembly.GetName().Version?.ToString() ?? "0.0.0.0";
+        public string Version { get; set; } = null!; // populated
+        public string Language { get; set; } = "en_US";
         public RecruitmentPrefsData Recruitment { get; set; } = new();
     }
 
@@ -43,7 +45,7 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
             .Switch(r => r.Changed.ToUnit());
 
         recruitDataChanged
-            .Sample(TimeSpan.FromMilliseconds(500))
+            .Sample(TimeSpan.FromMilliseconds(1000))
             .SubscribeAsync(_ => Save());
 
         Task.Run(Reload);
@@ -59,7 +61,10 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
     [PublicAPI]
     public async Task Reload()
     {
-        Data = await ReloadData();
+        using (SuppressChangeNotifications())
+            Data = await ReloadData();
+        Data.Version = typeof(UserPrefs).Assembly.GetName().Version?.ToString() ?? "0.0.0.0";
+        this.RaisePropertyChanged(nameof(Data));
     }
 
     private async Task<UserPrefsData> ReloadData()

@@ -20,12 +20,13 @@
     <PackageVersion Include="FluentAvaloniaUI" Version="2.1.0" />
     <PackageVersion Include="HotAvalonia" Version="1.1.1" />
     <PackageVersion Include="HotAvalonia.Extensions" Version="1.1.1" />
+    <!-- Data/Infra/Utils -->
+    <PackageVersion Include="Octokit" Version="13.0.1" />
     <PackageVersion Include="OpenCvSharp4.Windows" Version="4.10.0.20240616" />
+    <PackageVersion Include="ReactiveMarbles.CacheDatabase.Sqlite3" Version="1.3.1" />
     <PackageVersion Include="ReactiveUI" Version="20.1.63" />
     <PackageVersion Include="ReactiveUI.Fody" Version="19.5.41" />
     <PackageVersion Include="Splat.DependencyInjection.SourceGenerator" Version="1.2.31" />
-    <!-- Utils -->
-    <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.3.2" />
     <!-- Analyzers -->
     <PackageVersion Include="JetBrains.Annotations" Version="2024.3.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" />

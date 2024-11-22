@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using DesktopApp.Data.GitHub;
 using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
 using DesktopApp.Recruitment;
@@ -13,5 +14,7 @@ namespace DesktopApp.Data;
 [JsonSerializable(typeof(Dictionary<string, Operator>))]
 [JsonSerializable(typeof(UserPrefs.UserPrefsData))]
 [JsonSerializable(typeof(RecruitmentPrefsData))]
+[JsonSerializable(typeof(GithubAkavache.CachedResponseWrapper))]
+[JsonSerializable(typeof(GithubAkavache.CachedResponseWrapper.ApiInfoWrapper))]
 [UsedImplicitly]
 public sealed partial class JsonSourceGenContext : JsonSerializerContext;

@@ -7,7 +7,7 @@ public sealed class TagsOCR(TagsDataSource tagSource) : OCRPipeline<ICollection<
 {
     private static readonly Dictionary<string, string> _allowedCharacters = new()
     {
-        ["eng"] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-",
+        ["eng"] = new string(EmbeddedTagsData.GetKnownTags().SelectMany(t => t.Name).Distinct().Order().ToArray()),
     };
 
     protected override Mat PrepareImage(Mat image)
@@ -71,9 +71,10 @@ public sealed class TagsOCR(TagsDataSource tagSource) : OCRPipeline<ICollection<
             return [];
 
         ReadOnlySpan<OCRResult> ocrs = ocrResults;
-        if (ocrResults.Length > RecruitmentFilter.MaxTagsSelected)
+        var numResults = ocrResults.Length;
+        if (numResults > RecruitmentFilter.MaxTagsSelected)
         {
-            this.Log().Warn($"{ocrResults.Length} results from OCR, should be at most {RecruitmentFilter.MaxTagsSelected}");
+            this.Log().Warn($"{numResults} results from OCR, expected at most {RecruitmentFilter.MaxTagsSelected}");
             // ocrs = ocrs[..RecruitmentFilter.MaxTagsSelected];
         }
 
@@ -92,9 +93,19 @@ public sealed class TagsOCR(TagsDataSource tagSource) : OCRPipeline<ICollection<
             }
             if (res.ComponentConfidences.Any(conf => conf < 80))
             {
-                this.Log().Warn($"OCR confidence kinda low: {res.FullText}"
-                              + $"\n\t({string.Join(',', res.ComponentTexts)})"
-                              + $"\n\t({string.Join(',', res.ComponentConfidences)})");
+                var confidences = string.Join("\n    ",
+                    res.ComponentTexts
+                        .Zip(res.ComponentConfidences)
+                        .Select(pair => $"{pair.Item1}: {pair.Item2}")
+                );
+                this.Log().Warn(
+                    $"""
+                    OCR confidence kinda low
+                    Full text: {res.FullText}
+                    Confidences: 
+                        {confidences}
+                    """
+                );
             }
         }
 

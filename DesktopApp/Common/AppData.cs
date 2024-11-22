@@ -1,4 +1,7 @@
 using System.Reflection;
+using DesktopApp.Utilities.Helpers;
+using ReactiveMarbles.CacheDatabase.Core;
+using ReactiveMarbles.CacheDatabase.Sqlite3;
 
 namespace DesktopApp.Common;
 
@@ -8,9 +11,24 @@ public sealed class AppData : ReactiveObjectBase, IAppData
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         typeof(AppData).Assembly.GetCustomAttribute<AssemblyProductAttribute>()!.Product
     );
+    private readonly Dictionary<string, SqliteBlobCache> _blobCaches = [];
+
+    public AppData()
+    {
+        App.ShutdownRequested += (_, _) =>
+        {
+            var task = OnShutdown();
+            if (task.Status == TaskStatus.Created)
+                task.Start();
+            task.Wait(TimeSpan.FromSeconds(5));
+        };
+    }
 
     private static string GetFullPath(string localPath)
         => Path.Join(_basePath, localPath);
+
+    public IBlobCache GetBlobCache(string localPath)
+        => _blobCaches.GetOrAdd(localPath, () => new SqliteBlobCache(GetFullPath(localPath)));
 
     public bool FileExists(string localPath)
         => File.Exists(GetFullPath(localPath));
@@ -37,5 +55,14 @@ public sealed class AppData : ReactiveObjectBase, IAppData
         await using var stream = File.Open(fullPath, FileMode.Create, FileAccess.Write, FileShare.Read);
         await using var writer = new StreamWriter(stream);
         await writer.WriteAsync(content);
+    }
+
+    private async Task OnShutdown()
+    {
+        foreach (var cache in _blobCaches.Values)
+        {
+            // sync Dispose does not close connections...
+            await cache.DisposeAsync();
+        }
     }
 }

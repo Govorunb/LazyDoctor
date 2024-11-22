@@ -1,4 +1,5 @@
 using DesktopApp.Data;
+using DesktopApp.Data.GitHub;
 using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
 using DesktopApp.Recruitment;
@@ -21,21 +22,28 @@ internal static class SplatHelpers
 
         LogHost.Default.Warn($"Registering {nameof(SplatHelpers)}");
 
-        SplatRegistrations.RegisterConstant(new HttpClient());
-
+        // infra/plumbing
+        SplatRegistrations.RegisterConstant(TimeProvider.System); // for unit tests, register your own TimeProvider after this one
         SplatRegistrations.RegisterLazySingleton<IAppData, AppData>();
+        SplatRegistrations.RegisterLazySingleton<GithubAkavache>();
+        SplatRegistrations.RegisterLazySingleton<GithubDataAdapter>();
+
+        // data sources
         SplatRegistrations.RegisterLazySingleton<UserPrefs>();
-        SplatRegistrations.RegisterLazySingleton<LocalHttpCache>();
-
-        // have to register this one manually, otherwise we resolve recursively
-        Locator.CurrentMutable.RegisterLazySingleton<IDataSource<GachaTable>>(() => new JsonDataSource<GachaTable>("gacha_table.json"));
-
-        SplatRegistrations.RegisterLazySingleton<TagsOCR>();
+        // have to register this one manually
+        Locator.CurrentMutable.RegisterLazySingleton<IDataSource<GachaTable>>(
+            () => LOCATOR.GetService<GithubDataAdapter>()!
+                .GetDataSource<GachaTable>("excel/gacha_table.json")
+        );
         SplatRegistrations.RegisterLazySingleton<OperatorRepository>();
         SplatRegistrations.RegisterLazySingleton<RecruitableOperators>();
         SplatRegistrations.RegisterLazySingleton<TagsDataSource>();
-        SplatRegistrations.RegisterLazySingleton<RecruitmentFilter>();
 
+        // processing
+        SplatRegistrations.RegisterLazySingleton<RecruitmentFilter>();
+        SplatRegistrations.RegisterLazySingleton<TagsOCR>();
+
+        // view models
         SplatRegistrations.RegisterLazySingleton<RecruitTab>();
         SplatRegistrations.RegisterLazySingleton<MainWindowViewModel>();
 

@@ -1,37 +1,38 @@
 using System.Collections.Frozen;
-using System.Collections.Immutable;
 using System.Reactive.Linq;
+using DesktopApp.Data.GitHub;
 using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Data.Operators;
 
-public sealed class OperatorRepository : DataSource<ImmutableArray<Operator>>
+public sealed class OperatorRepository : DataSource<IReadOnlyCollection<Operator>>
 {
-    private readonly JsonDataSource<Dictionary<string, Operator>> _source = new("character_table.json");
+    private readonly DataSource<Dictionary<string, Operator>> _source;
     private FrozenDictionary<string, Operator>? _byId;
     private FrozenDictionary<string, Operator>? _byName;
 
-    public OperatorRepository()
+    public OperatorRepository(GithubDataAdapter adapter)
     {
+        _source = adapter.GetDataSource<Dictionary<string, Operator>>("excel/character_table.json");
         _source.Values
             .Select(Process)
             .Subscribe(Subject)
             .DisposeWith(this);
     }
 
-    private ImmutableArray<Operator> Process(Dictionary<string, Operator> ops)
+    private IReadOnlyCollection<Operator> Process(Dictionary<string, Operator> ops)
     {
-        // filter out scripted/utility entities
-        var actualOps = ops.Where(pair => pair.Value.MaxPotentialLevel > 0).ToDictionary();
+        _byId = ops
+            .Where(pair => pair.Value.MaxPotentialLevel > 0) // filter out scripted/utility entities
+            .ToFrozenDictionary();
 
-        foreach (var (id, op) in actualOps)
+        foreach (var (id, op) in _byId)
         {
             op.Id = id;
         }
-        _byId = actualOps.ToFrozenDictionary();
-        _byName = actualOps.Values.ToFrozenDictionary(op => op.Name!, op => op);
+        _byName = _byId.Values.ToFrozenDictionary(op => op.Name!, op => op);
 
-        return [.. ops.Values];
+        return _byId.Values;
     }
 
     public Operator? GetById(string id) => _byId?[id];
