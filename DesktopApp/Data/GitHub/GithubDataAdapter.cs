@@ -6,6 +6,7 @@ namespace DesktopApp.Data.GitHub;
 
 public sealed class GithubDataAdapter : ReactiveObjectBase
 {
+    private readonly GithubAkavache _cache;
     private readonly UserPrefs _prefs;
     private const string RepoCN = "ArknightsGameData";
     private const string RepoGlobal = "ArknightsGameData_YoStar";
@@ -22,13 +23,15 @@ public sealed class GithubDataAdapter : ReactiveObjectBase
     }
 
     private readonly GitHubClient _client;
-    private readonly Dictionary<string, object> _dataSources = [];
+    private readonly Dictionary<string, IDataSource> _dataSources = [];
 
     public GithubDataAdapter(GithubAkavache cache, UserPrefs prefs)
     {
         AssertDI(cache);
         AssertDI(prefs);
+        _cache = cache;
         _prefs = prefs;
+
         _client = new(new ProductHeaderValue(_userAgent)) { ResponseCache = cache };
     }
 
@@ -78,4 +81,6 @@ public sealed class GithubDataAdapter : ReactiveObjectBase
     {
         return (GithubDataSource<T>)_dataSources.GetOrAdd(path, () => new GithubDataSource<T>(this, _prefs, path));
     }
+
+    public Task ReloadAll() => Task.WhenAll(_dataSources.Values.Select(ds => ds.Reload()));
 }

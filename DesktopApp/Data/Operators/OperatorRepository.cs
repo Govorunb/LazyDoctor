@@ -2,9 +2,11 @@ using System.Collections.Frozen;
 using System.Reactive.Linq;
 using DesktopApp.Data.GitHub;
 using DesktopApp.Utilities.Helpers;
+using JetBrains.Annotations;
 
 namespace DesktopApp.Data.Operators;
 
+[PublicAPI]
 public sealed class OperatorRepository : DataSource<IReadOnlyCollection<Operator>>
 {
     private readonly DataSource<Dictionary<string, Operator>> _source;
@@ -20,6 +22,10 @@ public sealed class OperatorRepository : DataSource<IReadOnlyCollection<Operator
             .DisposeWith(this);
     }
 
+    public Operator? GetById(string id) => _byId?[id];
+    public Operator? GetByName(string name) => _byName?[name];
+    public override Task Reload() => _source.Reload();
+
     private IReadOnlyCollection<Operator> Process(Dictionary<string, Operator> ops)
     {
         _byId = ops
@@ -34,7 +40,4 @@ public sealed class OperatorRepository : DataSource<IReadOnlyCollection<Operator
 
         return _byId.Values;
     }
-
-    public Operator? GetById(string id) => _byId?[id];
-    public Operator? GetByName(string name) => _byName?[name];
 }

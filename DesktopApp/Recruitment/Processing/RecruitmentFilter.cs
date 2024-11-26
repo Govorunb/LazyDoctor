@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reactive.Linq;
@@ -13,10 +14,10 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
 {
     private static readonly Dictionary<string, List<Operator>> _resultsCache = [];
 
-    private readonly RecruitableOperators _recruitPool;
     private readonly TagsDataSource _tags;
     private readonly SourceList<ResultRow> _allResultsList = new();
     private readonly UserPrefs _prefs;
+    private ImmutableArray<Operator>? _recruitableOps;
 
     private readonly ObservableCollectionExtended<Tag> _selectedTags = [];
     private readonly ObservableCollectionExtended<ResultRow> _allResults = [];
@@ -30,25 +31,30 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
 
     public RecruitmentFilter(RecruitableOperators ops, TagsDataSource tags, UserPrefs prefs)
     {
-        _recruitPool = ops;
+        AssertDI(ops);
+        AssertDI(tags);
+        AssertDI(prefs);
         _tags = tags;
         _prefs = prefs;
 
         RarityFilters = [];
         _prefs.Loaded.Subscribe(_ => SetFilters());
 
+        ops.Values.Subscribe(v => _recruitableOps = v);
+
         SelectedTags = new(_selectedTags);
         Results = new(_filteredResults);
         AllResults = new(_allResults);
 
-        var filtersChanged =
-            this.WhenAnyValue(t => t.RarityFilters)
-                .Select(rf => rf
-                    .Select(f => f.WhenPropertyChanged(t => t.Filter))
-                    .Merge())
-                .Switch();
+        var filtersChanged = this.WhenAnyValue(t => t.RarityFilters)
+            .Switch(rf => rf
+                .Select(f => f.WhenPropertyChanged(t => t.Filter))
+                .Merge()
+            );
+        var dataChanged = ops.Values.ToUnit()
+            .Merge(tags.Values.ToUnit());
 
-        filtersChanged.Subscribe(async f =>
+        filtersChanged.SubscribeAsync(async f =>
         {
             await _prefs.Loaded.FirstAsync();
 
@@ -56,6 +62,21 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
             _prefs.Recruitment!.RarityFilters[i] = f.Value;
             await _prefs.Save();
         });
+
+        dataChanged
+            .Debounce(TimeSpan.FromMilliseconds(100))
+            .OnMainThread()
+            .Subscribe(_ =>
+            {
+                // it's not worth the effort to reselect/refilter everything (at least right now)
+                foreach (var selectedTag in _selectedTags)
+                {
+                    selectedTag.IsSelected = false;
+                }
+
+                _resultsCache.Clear();
+                _allResultsList.Clear();
+            });
 
         _allResultsList.Connect()
             .Bind(_allResults)
@@ -75,6 +96,7 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
             .Subscribe();
 
         _selectedTags.ObserveCollectionChanges()
+            .SkipWhile(_ => _recruitableOps is null)
             .OnMainThread()
             .Subscribe(_ => UpdateFilter(_selectedTags));
     }
@@ -172,9 +194,13 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
         return new ResultRow { Tags = tagList, Operators = operators.ToList() }; // copy so hiding operators doesn't affect the cache
 
         List<Operator> ValueFactory()
-            => _recruitPool.Values.MostRecent(default).First()
+        {
+            Debug.Assert(_recruitableOps is { }, "recruitable ops pool not loaded yet");
+
+            return _recruitableOps.Value
                 .Where(op => Match(op, tagList))
                 .ToList();
+        }
     }
 
     private static bool Match(Operator op, List<Tag> tags)

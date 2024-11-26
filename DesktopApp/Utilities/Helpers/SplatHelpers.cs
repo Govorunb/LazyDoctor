@@ -4,6 +4,7 @@ using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
 using DesktopApp.Recruitment;
 using DesktopApp.Recruitment.Processing;
+using DesktopApp.Settings;
 
 namespace DesktopApp.Utilities.Helpers;
 
@@ -44,7 +45,8 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<TagsOCR>();
 
         // view models
-        SplatRegistrations.RegisterLazySingleton<RecruitTab>();
+        SplatRegistrations.RegisterLazySingleton<RecruitPage>();
+        SplatRegistrations.RegisterLazySingleton<SettingsPage>();
         SplatRegistrations.RegisterLazySingleton<MainWindowViewModel>();
 
         SplatRegistrations.SetupIOC();

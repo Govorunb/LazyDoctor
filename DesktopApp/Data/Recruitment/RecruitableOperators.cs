@@ -9,11 +9,16 @@ namespace DesktopApp.Data.Recruitment;
 public sealed class RecruitableOperators : DataSource<ImmutableArray<Operator>>
 {
     private readonly OperatorRepository _allOps;
+    private readonly IDataSource<GachaTable> _gachaTable;
 
-    public RecruitableOperators(OperatorRepository allOps, IDataSource<GachaTable> source)
+    public RecruitableOperators(OperatorRepository allOps, IDataSource<GachaTable> gachaTable)
     {
+        AssertDI(allOps);
+        AssertDI(gachaTable);
         _allOps = allOps;
-        source.Values
+        _gachaTable = gachaTable;
+
+        gachaTable.Values
             .CombineLatest(allOps.Values, (table, _) => table)
             .Select(Process)
             .Subscribe(Subject)
@@ -34,4 +39,6 @@ public sealed class RecruitableOperators : DataSource<ImmutableArray<Operator>>
         // return [..ops]; // also copies
         return ImmutableCollectionsMarshal.AsImmutableArray(ops); // wraps directly
     }
+
+    public override Task Reload() => Task.WhenAll(_allOps.Reload(), _gachaTable.Reload());
 }

@@ -10,6 +10,8 @@ namespace DesktopApp.Data.Recruitment;
 
 public sealed class TagsDataSource : DataSource<Tag[]>
 {
+    private readonly IDataSource<GachaTable> _gachaTable;
+
     private static readonly FrozenSet<string> _excludedTags =
         EmbeddedTagsData.GetKnownTags()
             .Select(t => t.Name)
@@ -28,6 +30,7 @@ public sealed class TagsDataSource : DataSource<Tag[]>
 
     public TagsDataSource(IDataSource<GachaTable> gachaTable)
     {
+        _gachaTable = gachaTable;
         Categories = new(_categories);
 
         gachaTable.Values
@@ -67,4 +70,5 @@ public sealed class TagsDataSource : DataSource<Tag[]>
     }
 
     public Tag? GetByName(string name) => _byName.GetValueOrDefault(name);
+    public override Task Reload() => _gachaTable.Reload();
 }

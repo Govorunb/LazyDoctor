@@ -1,0 +1,122 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:fa="using:FluentAvalonia.UI.Controls">
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <!-- Add Controls for Previewer Here -->
+    </Border>
+  </Design.PreviewWith>
+
+  <Style Selector=":is(Button).Danger">
+    <Setter Property="Background" Value="#ffDD0000" />
+    <!-- there has to be a better way... really wish styles/templates/themes in avalonia worked better than this -->
+    <Style Selector="^:disabled">
+      <!-- ava button -->
+      <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#808B0000" />
+      </Style>
+      <!-- FA command bar button -->
+      <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
+        <Setter Property="Background" Value="#808B0000" />
+      </Style>
+    </Style>
+    <Style Selector="^:pointerover">
+      <!-- ava button -->
+      <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="OrangeRed" />
+      </Style>
+      <!-- FA command bar button -->
+      <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
+        <Setter Property="Background" Value="OrangeRed" />
+      </Style>
+    </Style>
+  </Style>
+
+  <!-- :is(Button) to target FA command bar button -->
+  <!-- adapted from https://github.com/amwx/FluentAvalonia/blob/d879f12a7dd8079193a9d1ae5560c071936c0fab/src/FluentAvalonia/Styling/ControlThemes/BasicControls/ButtonStyles.axaml#L83 -->
+  <Style Selector=":is(Button).accent">
+    <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
+
+    <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
+      <Setter Property="Background" Value="{DynamicResource AccentButtonBackground}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentButtonBorderBrush}" />
+    </Style>
+    <Style Selector="^ /template/ Viewbox#ContentViewBox > ContentPresenter#Content">
+      <Setter Property="Background" Value="{DynamicResource AccentButtonBackground}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentButtonBorderBrush}" />
+    </Style>
+
+    <Style Selector="^:pointerover">
+      <!-- <Setter Property="Foreground" Value="{DynamicResource AccentButtonForegroundPointerOver}" /> -->
+      <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
+        <Setter Property="Background" Value="{DynamicResource AccentButtonBackgroundPointerOver}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AccentButtonBorderBrushPointerOver}" />
+      </Style>
+    </Style>
+
+    <Style Selector="^:pressed">
+      <Setter Property="Foreground" Value="{DynamicResource AccentButtonForegroundPressed}" />
+      <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
+        <Setter Property="Background" Value="{DynamicResource AccentButtonBackgroundPressed}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AccentButtonBorderBrushPressed}" />
+      </Style>
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource AccentButtonForegroundDisabled}" />
+      <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
+        <Setter Property="Background" Value="{DynamicResource AccentButtonBackgroundDisabled}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AccentButtonBorderBrushDisabled}" />
+      </Style>
+    </Style>
+  </Style>
+
+  <Style Selector="ItemsControl.Virtualizing">
+    <Setter Property="ItemsPanel">
+      <ItemsPanelTemplate>
+        <VirtualizingStackPanel />
+      </ItemsPanelTemplate>
+    </Setter>
+    <!--
+    there doesn't seem to be a particularly good way to do this in selectors
+    (to encompass both VirtualizingStackPanel and regular StackPanel)
+    -->
+    <Style Selector="^.Horizontal">
+      <Setter Property="ItemsPanel">
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel Orientation="Horizontal" />
+        </ItemsPanelTemplate>
+      </Setter>
+    </Style>
+  </Style>
+  <Style Selector="ItemsControl.Horizontal:not(.Virtualizing)">
+    <Setter Property="ItemsPanel">
+      <ItemsPanelTemplate>
+        <StackPanel Orientation="Horizontal" />
+      </ItemsPanelTemplate>
+    </Setter>
+  </Style>
+
+  <!--
+    nested items in FA's expanders don't have the outer padding after the footer that's there in WinUI
+    even though they should (expand any expander in the win11 settings app to see the expected look)
+  -->
+  <Style Selector="fa|SettingsExpanderItem:not(#ContentHost)"> <!-- only actual items (SEItem is also used in expanders themselves) -->
+    <Style Selector="^:not(:actionIcon) /template/ Viewbox#ActionIconHost">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    <!--
+        without :not(:actionIcon) the style setting IsVisible doesn't actually apply because of how style precedence works
+        (see https://docs.avaloniaui.net/docs/guides/styles-and-resources/setter-precedence#styletrigger)
+        but we also want to set margin on all action icons - so here are two separate styles for the same target
+        styles are just really funny like that
+    -->
+    <Style Selector="^ /template/ Viewbox#ActionIconHost">
+      <Setter Property="Margin" Value="16 0 0 0" />
+    </Style>
+  </Style>
+  <!-- switch labels are on the wrong side and it bothers me (in WinUI, they're on the left) -->
+  <Style Selector="fa|SettingsExpanderItem:footer:not(:footerBottom) /template/ #FooterPresenter /template/ ToggleSwitch">
+    <Setter Property="FlowDirection" Value="RightToLeft" />
+  </Style>
+</Styles>

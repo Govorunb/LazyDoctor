@@ -17,7 +17,7 @@
            VerticalAlignment="Center" HorizontalAlignment="Center" />
     <ComboBox Name="FilterComboBox"
               MinWidth="100"
-              ItemsSource="{x:Static views:RecruitTabView.FilterTypes}"
+              ItemsSource="{x:Static views:RecruitPageView.FilterTypes}"
               ToolTip.Tip="{Binding $self.SelectedItem, Converter={StaticResource EnumDescriptionConverter}}"
               SelectedItem="{Binding Filter, Mode=TwoWay}">
       <ComboBox.Styles>

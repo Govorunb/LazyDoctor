@@ -12,14 +12,14 @@ using WClipboard = System.Windows.Forms.Clipboard;
 
 namespace DesktopApp.Recruitment.Views;
 
-public sealed partial class RecruitTabView : ReactiveUserControl<RecruitTab>
+public sealed partial class RecruitPageView : ReactiveUserControl<RecruitPage>
 {
     public static readonly FilterType[] FilterTypes = Enum.GetValues<FilterType>();
 
     private MainWindow? Window => TopLevel.GetTopLevel(this) as MainWindow;
     private IDisposable? _pasteHandlerSubscription;
 
-    public RecruitTabView()
+    public RecruitPageView()
     {
         InitializeComponent();
         Focusable = true;

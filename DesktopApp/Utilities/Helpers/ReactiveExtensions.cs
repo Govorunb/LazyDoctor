@@ -107,8 +107,47 @@ public static class ReactiveExtensions
         => source.Select(_ => Unit.Default);
 
     /// <summary>
-    /// Replays notifications like <see cref="System.Reactive.Linq.Observable.Replay{TSource}(IObservable{TSource}, int)"/>, but immediately subscribes to the underlying <paramref name="source" /> - so, no notifications are missed between creation and first subscription.
+    /// Replays notifications like <see cref="System.Reactive.Linq.Observable.Replay{TSource}(IObservable{TSource}, int)"/>, but immediately subscribes to the underlying <paramref name="source" /> so that no notifications before the first subscription are missed.
     /// </summary>
-    public static IObservable<T> ReplayHot<T>(this IObservable<T> source, int bufferSize)
+    public static IObservable<T> ReplayCold<T>(this IObservable<T> source, int bufferSize)
         => source.Replay(bufferSize).AutoConnect(0);
+
+    /// <inheritdoc cref="System.Reactive.Linq.Observable.Sample{T}(IObservable{T}, TimeSpan)"/>
+    /// <summary>
+    /// Emits the latest item from the <paramref name="source" /> each <paramref name="interval"/>, if it is new.<br/>
+    /// In other words:
+    /// <list type="bullet">
+    /// <item>
+    /// If there are multiple source items emitted between interval ticks, only the latest item is emitted.<br/>
+    /// </item>
+    /// <item>
+    /// If there are no source items by the next interval tick, nothing is emitted.
+    /// </item>
+    /// </list>
+    /// </summary>
+    public static IObservable<T> ThrottleLast<T>(this IObservable<T> source, TimeSpan interval)
+        => source.Sample(interval);
+
+    /// <inheritdoc cref="System.Reactive.Linq.Observable.Sample{T, TSample}(IObservable{T}, IObservable{TSample})"/>
+    /// <summary>
+    /// Emits the latest item from the <paramref name="source" /> when the <paramref name="sampler"/> ticks, if it is new.<br/>
+    /// In other words:
+    /// <list type="bullet">
+    /// <item>
+    /// If there are multiple source items emitted between sample ticks, only the latest item is emitted.<br/>
+    /// </item>
+    /// <item>
+    /// If there are no source items by the next sample tick, nothing is emitted.
+    /// </item>
+    /// </list>
+    /// </summary>
+    public static IObservable<T> ThrottleLast<T>(this IObservable<T> source, IObservable<Unit> sampler)
+        => source.Sample(sampler);
+
+    // rename
+    public static IObservable<T> Debounce<T>(this IObservable<T> source, TimeSpan interval)
+        => source.Throttle(interval);
+
+    public static IObservable<T> ThrottleFirst<T>(this IObservable<T> source, TimeSpan interval)
+        => Debounce(source, interval);
 }

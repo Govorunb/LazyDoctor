@@ -1,0 +1,72 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             xmlns:vm="using:DesktopApp.Settings"
+             x:Class="DesktopApp.Settings.SettingsPageView"
+             x:DataType="vm:SettingsPage">
+  <Design.DataContext>
+    <vm:DesignSettingsPage LastRefresh="1970-01-01 11:23:45" />
+  </Design.DataContext>
+  <Border Padding="20">
+    <StackPanel Orientation="Vertical" Spacing="8">
+      <!--
+      <fa:SettingsExpander Header="Recruitment" IconSource="People" DataContext="{Binding Prefs.Recruitment}">
+        <fa:SettingsExpanderItem>
+          Nothing yet
+        </fa:SettingsExpanderItem>
+      </fa:SettingsExpander>
+      -->
+      <fa:SettingsExpander Header="Game data"
+                           IconSource="Globe"
+                           Description="Manually refresh data source">
+        <!--
+        <fa:SettingsExpanderItem Content="Repository" Description="The GitHub repository to fetch data from, in the form (owner/repo).">
+           <fa:SettingsExpanderItem.Footer>
+             <TextBox Text="Kengxxiao/ArknightsGameData" MinWidth="200" />
+           </fa:SettingsExpanderItem.Footer>
+        </fa:SettingsExpanderItem>
+        -->
+        <fa:SettingsExpanderItem IconSource="Important">
+          <StackPanel>
+            <TextBlock Foreground="OrangeRed"
+                       VerticalAlignment="Center"
+                       FontSize="16" FontWeight="Medium"
+                       Text="Important information" />
+            <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
+              Game data gets downloaded through the GitHub API, which has strict rate limits for unauthenticated users.
+              <LineBreak />
+              Refreshing too quickly will exhaust your rate limit, which could break this app for up to an hour.
+              <LineBreak />
+              If you're not sure whether you need this - you very likely don't.
+            </TextBlock>
+          </StackPanel>
+          <fa:SettingsExpanderItem.Footer>
+            <CheckBox Content="I understand"
+                      IsChecked="{Binding Prefs.General.ManualRefreshAcknowledged}"
+                      FlowDirection="RightToLeft" />
+          </fa:SettingsExpanderItem.Footer>
+        </fa:SettingsExpanderItem>
+        <fa:SettingsExpanderItem IsEnabled="{Binding Prefs.General.ManualRefreshAcknowledged}">
+          <TextBlock>
+            Last checked: <Run Text="{Binding LastRefresh, StringFormat=yyyy-MM-dd HH:mm:ss}" /> <!-- date and time without timezone -->
+          </TextBlock>
+          <fa:SettingsExpanderItem.Footer>
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Name="RefreshWarningText"
+                         VerticalAlignment="Center"
+                         IsVisible="{Binding !RefreshDataSource.CanExecute^}">
+                Please wait <Run Text="{Binding RefreshCooldownLeft}" />
+              </TextBlock>
+              <Button Name="RefreshButton"
+                      Command="{Binding RefreshDataSource}"
+                      Content="Refresh now" />
+            </StackPanel>
+          </fa:SettingsExpanderItem.Footer>
+        </fa:SettingsExpanderItem>
+      </fa:SettingsExpander>
+    </StackPanel>
+  </Border>
+</UserControl>

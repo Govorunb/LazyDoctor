@@ -15,7 +15,7 @@ public sealed class AppData : ReactiveObjectBase, IAppData
 
     public AppData()
     {
-        App.ShutdownRequested += (_, _) =>
+        App.ShutdownRequested += delegate
         {
             var task = OnShutdown();
             if (task.Status == TaskStatus.Created)
@@ -60,6 +60,6 @@ public sealed class AppData : ReactiveObjectBase, IAppData
     private async Task OnShutdown()
     {
         // sync Dispose does not close connections...
-        await Task.WhenAll(_blobCaches.Values.Select(c => c.DisposeAsync().AsTask()));
+        await Task.WhenAll(_blobCaches.Values.Select(c => c.DisposeAsync().AsTask())).ConfigureAwait(false);
     }
 }

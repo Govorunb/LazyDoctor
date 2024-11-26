@@ -1,6 +1,10 @@
 namespace DesktopApp.Data;
 
-public interface IDataSource<T>
+public interface IDataSource
+{
+    Task Reload();
+}
+public interface IDataSource<out T> : IDataSource
 {
     IObservable<T> Values { get; }
 }

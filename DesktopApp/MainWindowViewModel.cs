@@ -1,9 +1,11 @@
 ﻿using DesktopApp.Recruitment;
+using DesktopApp.Settings;
 
 namespace DesktopApp;
 
-public sealed class MainWindowViewModel(RecruitTab recruitTab) : ViewModelBase
+public sealed class MainWindowViewModel(RecruitPage recruitPage, SettingsPage settingsPage) : ViewModelBase
 {
-    public RecruitTab RecruitTab { get; } = recruitTab;
-    public int SelectedTabIndex { get; set; }
+    public RecruitPage RecruitPage { get; } = recruitPage;
+    public SettingsPage SettingsPage { get; } = settingsPage;
+    public PageBase? SelectedPage { get; set; }
 }

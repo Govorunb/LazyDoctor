@@ -4,11 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="800"
-             x:Class="DesktopApp.Recruitment.Views.RecruitTabView"
+             x:Class="DesktopApp.Recruitment.Views.RecruitPageView"
              xmlns:r="using:DesktopApp.Recruitment"
-             x:DataType="r:RecruitTab">
+             x:DataType="r:RecruitPage">
   <Design.DataContext>
-    <r:DesignRecruitTab PasteError="Erm..." RowsHidden="999" />
+    <r:DesignRecruitPage PasteError="Erm..." RowsHidden="999" />
   </Design.DataContext>
   <Control.Styles>
     <Style Selector="Expander /template/ #ExpanderHeader TextBlock">
@@ -18,11 +18,11 @@
       <Setter Property="Margin" Value="4 2" />
     </Style>
   </Control.Styles>
-  <Border Padding="8 0">
+  <Border Padding="20">
     <ScrollViewer>
       <StackPanel Orientation="Vertical" Spacing="4">
         <Expander Name="TagsExpander" Header="Tags" IsExpanded="{Binding Prefs.Recruitment.TagsExpanded}">
-          <ItemsControl ItemsSource="{Binding Categories}" Margin="0 16" />
+          <ItemsControl ItemsSource="{Binding Categories}" />
         </Expander>
         <ItemsControl Classes="Horizontal" ItemsSource="{Binding SelectedTags}"
                       IsVisible="{Binding !#TagsExpander.IsExpanded}"/>
@@ -51,7 +51,7 @@
                      Text="{Binding PasteError}"
                      Foreground="Salmon" />
         </WrapPanel>
-        <WrapPanel Orientation="Horizontal" Margin="0 16">
+        <WrapPanel Orientation="Horizontal" Margin="0 8">
           <TextBlock Padding="16 8" VerticalAlignment="Center"
                      Text="Filter:" FontSize="16" />
           <ItemsControl ItemsSource="{Binding RarityFilters}">

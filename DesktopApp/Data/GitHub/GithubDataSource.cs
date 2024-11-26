@@ -33,7 +33,7 @@ public sealed class GithubDataSource<T> : DataSource<T>
         _ = Reload();
     }
 
-    public async Task<T> Reload()
+    public override async Task<T> Reload()
     {
         try
         {

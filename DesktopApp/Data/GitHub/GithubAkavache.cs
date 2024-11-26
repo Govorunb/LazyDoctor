@@ -3,6 +3,7 @@ using System.Net;
 using System.Reactive.Linq;
 using System.Text;
 using DesktopApp.Utilities.Attributes;
+using DesktopApp.Utilities.Helpers;
 using Octokit;
 using Octokit.Caching;
 using Octokit.Internal;
@@ -13,7 +14,7 @@ namespace DesktopApp.Data.GitHub;
 public sealed class GithubAkavache : ReactiveObjectBase, IResponseCache
 {
     private readonly TimeProvider _timeProvider;
-    private readonly IBlobCache _blobCache;
+    public IBlobCache BlobCache { get; }
 
     #region bad workaround for terrible code
     // OctoKit.ApiInfo's constructor parameters having different types from the properties breaks System.Text.Json
@@ -60,7 +61,7 @@ public sealed class GithubAkavache : ReactiveObjectBase, IResponseCache
 
         public CachedResponse.V1 ToCachedResponseV1()
         {
-            object body = ContentType.Contains("raw")
+            object body = ContentType.EndsWith("raw", StringComparison.Ordinal)
                 ? Encoding.UTF8.GetBytes(Body) // "raw" calls expect a byte[] (or Stream)
                 : Body;
             return new(body, Headers, ApiInfo.ToApiInfo(), StatusCode, ContentType);
@@ -102,18 +103,27 @@ public sealed class GithubAkavache : ReactiveObjectBase, IResponseCache
         AssertDI(timeProvider);
 
         _timeProvider = timeProvider;
-        _blobCache = appData.GetBlobCache("gamedata_cache.sqlite3");
-        _blobCache.Vacuum().Subscribe();
+        BlobCache = appData.GetBlobCache("gamedata_cache.sqlite3");
+        BlobCache.Vacuum().Subscribe();
     }
 
     async Task<CachedResponse.V1?> IResponseCache.GetAsync(IRequest request)
     {
         var key = GetKey(request);
-        var resp = await _blobCache.GetObject<CachedResponseWrapper>(key)
-            .Catch((KeyNotFoundException _) => Observable.Return<CachedResponseWrapper?>(null));
+        // SetAsync takes time (async) but octokit returns without awaiting it
+        // therefore, we lock here manually :):):):)
+        var res = await StampedeLock<string, CachedResponseWrapper?>.CombineConcurrent(key, async () =>
+        {
+            var resp = await BlobCache.GetObject<CachedResponseWrapper>(key)
+                .Catch((KeyNotFoundException _) => Observable.Return<CachedResponseWrapper?>(null));
 
-        this.Log().Info($"Cache {(resp is { } ? "hit" : "miss")} for {request.Method} {request.Endpoint} {request.ContentType}");
-        return resp?.ToCachedResponseV1();
+            this.Log().Info($"Cache {(resp is { } ? "hit" : "miss")} for {request.Method} {request.Endpoint} {request.Headers.GetValueOrDefault("Accept")}");
+            return resp;
+        });
+        if (!res.IsMainRequest)
+            this.Log().Warn("you're doing a great job :)");
+
+        return res.Result?.ToCachedResponseV1();
     }
 
     async Task IResponseCache.SetAsync(IRequest request, CachedResponse.V1 cachedResponse)
@@ -123,8 +133,15 @@ public sealed class GithubAkavache : ReactiveObjectBase, IResponseCache
 
         var wrapper = CachedResponseWrapper.FromCachedResponseV1(cachedResponse);
 
-        await _blobCache.InsertObject(GetKey(request), wrapper, expiration);
+        var key = GetKey(request);
+        await StampedeLock<string, CachedResponseWrapper>.OverrideMainRequest(key, async () =>
+        {
+            await BlobCache.InsertObject(key, wrapper, expiration);
+            return wrapper;
+        });
     }
+
+    private static readonly HashSet<string> _headersFilter = ["Accept", "User-Agent"];
 
     private static string GetKey(IRequest request)
     {
@@ -135,9 +152,12 @@ public sealed class GithubAkavache : ReactiveObjectBase, IResponseCache
             sb.AppendJoin('&', request.Parameters.Select(kvp => $"{kvp.Key}={kvp.Value}"));
         }
         sb.AppendLine();
-        if (request.Headers.Count > 0)
+        var relevantHeaders = request.Headers
+            .Where(kvp => _headersFilter.Contains(kvp.Key))
+            .ToList();
+        if (relevantHeaders.Count > 0)
         {
-            sb.AppendJoin('\n', request.Headers.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
+            sb.AppendJoin('\n', relevantHeaders.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
             sb.AppendLine();
         }
         return sb.ToString();

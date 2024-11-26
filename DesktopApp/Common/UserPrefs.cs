@@ -1,34 +1,38 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
 using DesktopApp.Data;
 using DesktopApp.Recruitment;
+using DesktopApp.Settings;
 using DesktopApp.Utilities.Attributes;
 using DesktopApp.Utilities.Helpers;
 using JetBrains.Annotations;
 
 namespace DesktopApp.Common;
 
+[PublicAPI]
 public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 {
-    private readonly IAppData _appData;
-
     private const string PrefsFileName = "prefs.json";
+    public static readonly string AppVersion = typeof(UserPrefs).Assembly.GetName().Version?.ToString() ?? "0.0.0.0"; // todo: move
 
     [JsonClass, EditorBrowsable(EditorBrowsableState.Never)]
     public sealed class UserPrefsData : ReactiveObjectBase
     {
-        public string Version { get; set; } = null!; // populated
+        public string Version { get; set; } = null!; // populated on save
         public string Language { get; set; } = "en_US";
         public RecruitmentPrefsData Recruitment { get; set; } = new();
+        public GeneralPrefsData General { get; set; } = new();
     }
 
+    private readonly IAppData _appData;
     [Reactive]
-    private UserPrefsData? Data { get; set; }
-    [PublicAPI]
+    internal UserPrefsData? Data { get; set; }
     public string? Version => Data?.Version;
     public RecruitmentPrefsData? Recruitment => Data?.Recruitment;
+    public GeneralPrefsData? General => Data?.General;
     public IObservable<Unit> Loaded { get; }
 
     public UserPrefs(IAppData appData)
@@ -38,14 +42,22 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 
         Loaded = this.ObservableForProperty(t => t.Data)
             .ToUnit()
-            .ReplayHot(1);
+            .ReplayCold(1);
 
-        var recruitDataChanged = this.WhenAnyValue(t => t.Data!.Recruitment)
-            .Do(_ => this.RaisePropertyChanged(nameof(Recruitment)))
-            .Switch(r => r.Changed.ToUnit());
+        var prefsChanged = this.WhenAnyValue(t => t.Data)
+            .Do(_ =>
+            {
+                this.RaisePropertyChanged(nameof(Recruitment));
+                this.RaisePropertyChanged(nameof(General));
+            })
+            .WhereNotNull()
+            .Switch(d => d.Recruitment.Changed
+                .Merge(d.General.Changed)
+                .ToUnit()
+            );
 
-        recruitDataChanged
-            .Sample(TimeSpan.FromMilliseconds(1000))
+        prefsChanged
+            .ThrottleLast(TimeSpan.FromMilliseconds(1000))
             .SubscribeAsync(_ => Save());
 
         Task.Run(Reload);
@@ -53,19 +65,15 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 
     public async Task Save()
     {
-        var json = JsonSerializer.Serialize(Data, JsonSourceGenContext.Default.UserPrefsData!);
+        Debug.Assert(Data is { });
+        Data.Version = AppVersion;
+        var json = JsonSerializer.Serialize(Data, JsonSourceGenContext.Default.UserPrefsData);
         this.Log().Info($"Saving preferences {json}");
         await _appData.WriteFile(PrefsFileName, json);
     }
 
-    [PublicAPI]
-    public async Task Reload()
-    {
-        using (SuppressChangeNotifications())
-            Data = await ReloadData();
-        Data.Version = typeof(UserPrefs).Assembly.GetName().Version?.ToString() ?? "0.0.0.0";
-        this.RaisePropertyChanged(nameof(Data));
-    }
+    public override async Task<UserPrefsData> Reload()
+        => Data = await ReloadData();
 
     private async Task<UserPrefsData> ReloadData()
     {
@@ -84,12 +92,70 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
             if (JsonSourceGenContext.Default.Deserialize<UserPrefsData>(json) is not { } loaded)
                 throw new InvalidOperationException("Deserialization failed");
             this.Log().Info($"Loaded preferences {json}");
-            return loaded;
+            return UserPrefsMigrations.RunMigrations(loaded);
         }
         catch (Exception e)
         {
             this.Log().Error(e, "Failed to load preferences, reverting to default");
             return new();
         }
+    }
+}
+
+file static class UserPrefsMigrations
+{
+    private sealed record Migration(string Version, Func<UserPrefs.UserPrefsData, UserPrefs.UserPrefsData> Migrate);
+
+    private static readonly List<Migration> _migrations = new Migration[]
+    {
+        new("0.1.2.0", d =>
+        {
+            // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+            // json
+            d.General ??= new();
+            return d;
+        }),
+        new("9.9.9.9", d =>
+        {
+            d.Log().Error("Should not be here");
+            return d;
+        }),
+    }.OrderBy(m => m.Version).ToList();
+
+    public static UserPrefs.UserPrefsData RunMigrations(UserPrefs.UserPrefsData data)
+    {
+        var oldVersion = data.Version;
+        if (oldVersion == UserPrefs.AppVersion)
+        {
+            data.Log().Info($"No migrations to perform, prefs data version matches app version ({UserPrefs.AppVersion})");
+            return data;
+        }
+
+        foreach (var migration in _migrations)
+        {
+            if (string.CompareOrdinal(migration.Version, data.Version) <= 0)
+            {
+                data.Log().Debug($"Skipping migration for {migration.Version} as data is newer ({data.Version})");
+                continue;
+            }
+
+            if (string.CompareOrdinal(migration.Version, UserPrefs.AppVersion) > 0)
+            {
+                data.Log().Warn($"Ending migrations, migration v{migration.Version} is newer than current app version ({UserPrefs.AppVersion})");
+                break;
+            }
+            data.Log().Info($"Applying migration for {migration.Version}");
+            try
+            {
+                data = migration.Migrate(data);
+                data.Version = migration.Version;
+            }
+            catch (Exception e)
+            {
+                data.Log().Error(e, $"Failed to apply migration for {migration.Version}");
+            }
+        }
+        data.Log().Info($"Finished migrations from {oldVersion} to {data.Version}");
+        return data;
     }
 }

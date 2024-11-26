@@ -8,7 +8,7 @@ using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Recruitment;
 
-public class RecruitTab : TabViewModel
+public class RecruitPage : PageBase
 {
     private readonly TagsDataSource _tagSource;
     private readonly RecruitmentFilter _filter;
@@ -27,7 +27,7 @@ public class RecruitTab : TabViewModel
 
     public ReactiveCommand<Unit, Unit> ClearSelectedTags { get; }
 
-    public RecruitTab(TagsDataSource tagSource, RecruitmentFilter filter, TagsOCR ocr, UserPrefs prefs)
+    public RecruitPage(TagsDataSource tagSource, RecruitmentFilter filter, TagsOCR ocr, UserPrefs prefs)
     {
         AssertDI(tagSource);
         AssertDI(filter);
@@ -45,7 +45,8 @@ public class RecruitTab : TabViewModel
         // show PasteError only for a few seconds
         this.WhenAnyValue(t => t.PasteError)
             .WhereNotNull()
-            .Throttle(TimeSpan.FromSeconds(5)) // debounce
+            .ToUnit()
+            .Debounce(TimeSpan.FromSeconds(5))
             .OnMainThread()
             .Subscribe(_ => PasteError = null);
     }
@@ -111,8 +112,8 @@ public class RecruitTab : TabViewModel
 }
 
 [DesignClass]
-public sealed class DesignRecruitTab()
-    : RecruitTab(
+public sealed class DesignRecruitPage()
+    : RecruitPage(
         LOCATOR.GetService<TagsDataSource>()!,
         LOCATOR.GetService<RecruitmentFilter>()!,
         LOCATOR.GetService<TagsOCR>()!,
