@@ -72,12 +72,12 @@ public sealed class GithubAkavache : ReactiveObjectBase, IResponseCache
             // brother how the hell am i supposed to cache your response body
             // it's an http stream we can't both read it
             // bonus: if you think you're smart and want to copy it to a MemoryStream and replace the previous body
-            // you've been outsmarted
-            // because the actual IResponse that octokit reads the body from is completely inaccessible to us from here
-            // the only way to unscrew this is a Harmony patch and i have sworn off patching non-game code
+            // you've been outsmarted - the CachedResponse.V1 is a shallow copy
+            // and the actual IResponse that octokit reads the body from is completely inaccessible to us from here
             var fullBody = cachedResponse.Body switch
             {
                 // consumes the (unseekable) http stream - octokit will read an empty byte array
+                // not async because octokit continues without awaiting the "set cache" task
                 Stream stream => new StreamReader(stream).ReadToEnd(),
                 string s => s,
                 null => "",

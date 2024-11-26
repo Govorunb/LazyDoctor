@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net8.0-windows</TargetFramework>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 
@@ -15,13 +14,26 @@
         <Authors>Govorunb</Authors>
         <Product>LazyDoctor</Product>
         <Version>0.1.2</Version>
-        
+
         <Company>$(Authors)</Company>
         <AssemblyName>$(Product)</AssemblyName>
+
+        <!-- disabled because it doesn't work (yet (clueless)) -->
+        <!-- <PublishAot>true</PublishAot> -->
+        <_SuppressWinFormsTrimError>true</_SuppressWinFormsTrimError>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <DebugSymbols>false</DebugSymbols>
+        <DebugType>None</DebugType>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <DefineConstants>$(DefineConstants);ENABLE_XAML_HOT_RELOAD</DefineConstants>
 <!--        <DefineConstants>$(DefineConstants);DEBUG_OPENCV</DefineConstants>-->
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(PublishAot)' == 'true'">
+        <DefineConstants>$(DefineConstants);DISABLE_XAML_HOT_RELOAD</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
@@ -45,7 +57,7 @@
         <Content Include="Assets\tessdata\eng.traineddata" TargetPath="data/tessdata/eng.traineddata" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
-    <ItemGroup Condition="$(DefineConstants.Contains('ENABLE_XAML_HOT_RELOAD'))">
+    <ItemGroup Condition="$(DefineConstants.Contains('ENABLE_XAML_HOT_RELOAD')) and !$(DefineConstants.Contains('DISABLE_XAML_HOT_RELOAD'))">
         <PackageReference Include="Avalonia.Markup.Xaml.Loader" />
         <PackageReference Include="HotAvalonia" />
     </ItemGroup>

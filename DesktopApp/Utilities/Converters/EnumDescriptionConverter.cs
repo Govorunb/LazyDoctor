@@ -29,9 +29,4 @@ public sealed class EnumDescriptionConverter : ValueConverterBase
 
         return descriptions[(int)value];
     }
-
-    public override object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        throw new NotSupportedException();
-    }
 }

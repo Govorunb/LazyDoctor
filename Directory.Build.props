@@ -1,5 +1,6 @@
 <Project>
   <PropertyGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -10,12 +11,8 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Avalonia">
-    <AvaloniaVersion>11.1.3</AvaloniaVersion> <!-- not on latest beta to match FluentAvalonia (crashes otherwise) -->
+    <AvaloniaVersion>11.2.2</AvaloniaVersion>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-  </PropertyGroup>
-  <!-- hot reloading -->
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <DefineConstants>$(DefineConstants);ENABLE_XAML_HOT_RELOAD</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

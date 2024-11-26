@@ -1,0 +1,4 @@
+M:System.IO.Path.Combine(System.String[]);Rooted paths discard any paths before them. This can lead to unwanted/insecure behaviour. Use Path.Join instead
+M:System.IO.Path.Combine(System.String,System.String);Rooted paths discard any paths before them. This can lead to unwanted/insecure behaviour. Use Path.Join instead
+M:System.IO.Path.Combine(System.String,System.String,System.String);Rooted paths discard any paths before them. This can lead to unwanted/insecure behaviour. Use Path.Join instead
+M:System.IO.Path.Combine(System.String,System.String,System.String,System.String);Rooted paths discard any paths before them. This can lead to unwanted/insecure behaviour. Use Path.Join instead

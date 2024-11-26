@@ -23,13 +23,15 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
     {
         public string Version { get; set; } = null!; // populated on save
         public string Language { get; set; } = "en_US";
-        public RecruitmentPrefsData Recruitment { get; set; } = new();
-        public GeneralPrefsData General { get; set; } = new();
+
+        public RecruitmentPrefsData Recruitment { get; set => SetIfNotNull(ref field, value); } = new();
+
+        public GeneralPrefsData General { get; set => SetIfNotNull(ref field, value); } = new();
     }
 
     private readonly IAppData _appData;
     [Reactive]
-    internal UserPrefsData? Data { get; set; }
+    public UserPrefsData? Data { get; set; }
     public string? Version => Data?.Version;
     public RecruitmentPrefsData? Recruitment => Data?.Recruitment;
     public GeneralPrefsData? General => Data?.General;
@@ -92,6 +94,11 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
             if (JsonSourceGenContext.Default.Deserialize<UserPrefsData>(json) is not { } loaded)
                 throw new InvalidOperationException("Deserialization failed");
             this.Log().Info($"Loaded preferences {json}");
+            // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+            // fixups for explicit nulls
+            loaded.Recruitment ??= new();
+            loaded.General ??= new();
+            // ReSharper restore NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
             return UserPrefsMigrations.RunMigrations(loaded);
         }
         catch (Exception e)
@@ -99,6 +106,13 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
             this.Log().Error(e, "Failed to load preferences, reverting to default");
             return new();
         }
+    }
+
+    private static void SetIfNotNull<T>(ref T field, T? value)
+    {
+        if (value is null)
+            return;
+        field = value;
     }
 }
 
@@ -135,7 +149,7 @@ file static class UserPrefsMigrations
         {
             if (string.CompareOrdinal(migration.Version, data.Version) <= 0)
             {
-                data.Log().Debug($"Skipping migration for {migration.Version} as data is newer ({data.Version})");
+                data.Log().Debug($"Skipping migration for {migration.Version} as data is same or newer ({data.Version})");
                 continue;
             }
 

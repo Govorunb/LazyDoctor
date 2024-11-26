@@ -4,6 +4,7 @@
     <File Path=".gitignore" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
+    <File Path="BannedSymbols.txt" />
   </Folder>
   <Project Path="DesktopApp.Test\DesktopApp.Test.csproj" />
   <Project Path="DesktopApp\DesktopApp.csproj" />

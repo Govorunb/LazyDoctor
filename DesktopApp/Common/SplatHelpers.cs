@@ -6,7 +6,7 @@ using DesktopApp.Recruitment;
 using DesktopApp.Recruitment.Processing;
 using DesktopApp.Settings;
 
-namespace DesktopApp.Utilities.Helpers;
+namespace DesktopApp.Common;
 
 internal static class SplatHelpers
 {

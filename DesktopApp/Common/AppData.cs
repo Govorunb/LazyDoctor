@@ -7,7 +7,7 @@ namespace DesktopApp.Common;
 
 public sealed class AppData : ReactiveObjectBase, IAppData
 {
-    private static readonly string _basePath = Path.Combine(
+    private static readonly string _basePath = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         typeof(AppData).Assembly.GetCustomAttribute<AssemblyProductAttribute>()!.Product
     );
@@ -15,13 +15,7 @@ public sealed class AppData : ReactiveObjectBase, IAppData
 
     public AppData()
     {
-        App.ShutdownRequested += delegate
-        {
-            var task = OnShutdown();
-            if (task.Status == TaskStatus.Created)
-                task.Start();
-            task.Wait(TimeSpan.FromSeconds(2));
-        };
+        App.ShutdownRequested += async (_, _) => await OnShutdown().ConfigureAwait(false); // waiting is futile
     }
 
     private static string GetFullPath(string localPath)
@@ -57,9 +51,9 @@ public sealed class AppData : ReactiveObjectBase, IAppData
         await writer.WriteAsync(content);
     }
 
-    private async Task OnShutdown()
+    private Task OnShutdown()
     {
         // sync Dispose does not close connections...
-        await Task.WhenAll(_blobCaches.Values.Select(c => c.DisposeAsync().AsTask())).ConfigureAwait(false);
+        return Task.WhenAll(_blobCaches.Values.Select(c => c.DisposeAsync().AsTask()));
     }
 }
