@@ -59,8 +59,13 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
             await _prefs.Loaded.FirstAsync();
 
             var i = f.Sender.Stars - 1;
-            _prefs.Recruitment!.RarityFilters[i] = f.Value;
-            await _prefs.Save();
+            var prefsFilters = _prefs.Recruitment!.RarityFilters.AsSpan();
+            Debug.Assert(i < prefsFilters.Length, "Added extra filter UI element (why?) but forgot to update prefs");
+            if (prefsFilters[i] != f.Value)
+            {
+                prefsFilters[i] = f.Value;
+                await _prefs.Save();
+            }
         });
 
         dataChanged

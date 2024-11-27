@@ -11,6 +11,8 @@ namespace DesktopApp;
 public sealed class App : Application
 {
     public static event EventHandler<CancelEventArgs> ShutdownRequested = delegate { };
+    public static readonly Version Version = typeof(App).Assembly.GetName().Version ?? new();
+
     public override void Initialize()
     {
         CoreRegistrations.Serializer = new JsonContextSerializer(JsonSourceGenContext.Default);

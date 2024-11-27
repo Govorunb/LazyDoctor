@@ -40,7 +40,7 @@ public sealed class GithubDataAdapter : ReactiveObjectBase
 
         _client = new HttpClient();
         Disposables.Add(_client);
-        _client.DefaultRequestHeaders.UserAgent.ParseAdd($"{_userAgent}/{UserPrefs.AppVersion}");
+        _client.DefaultRequestHeaders.UserAgent.ParseAdd($"{_userAgent}/{App.Version}");
         _client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
         // 304s are supposed to not count against your ratelimit but they actually do :)
         // unless we add an Authorization header with seemingly literally anything in it :) :)

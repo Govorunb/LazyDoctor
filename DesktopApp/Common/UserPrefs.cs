@@ -16,12 +16,11 @@ namespace DesktopApp.Common;
 public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 {
     private const string PrefsFileName = "prefs.json";
-    public static readonly string AppVersion = typeof(UserPrefs).Assembly.GetName().Version?.ToString() ?? "0.0.0.0"; // todo: move
 
     [JsonClass, EditorBrowsable(EditorBrowsableState.Never)]
     public sealed class UserPrefsData : ReactiveObjectBase
     {
-        public string Version { get; set; } = null!; // populated on save
+        public Version Version { get; set; } = null!; // populated on save
         public string Language { get; set; } = "en_US";
 
         public RecruitmentPrefsData Recruitment { get; set => SetIfNotNull(ref field, value); } = new();
@@ -32,7 +31,7 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
     private readonly IAppData _appData;
     [Reactive]
     public UserPrefsData? Data { get; set; }
-    public string? Version => Data?.Version;
+    public Version? Version => Data?.Version;
     public RecruitmentPrefsData? Recruitment => Data?.Recruitment;
     public GeneralPrefsData? General => Data?.General;
     public IObservable<Unit> Loaded { get; }
@@ -55,11 +54,11 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
             .WhereNotNull()
             .Switch(d => d.Recruitment.Changed
                 .Merge(d.General.Changed)
-                .ToUnit()
+
             );
 
         prefsChanged
-            .ThrottleLast(TimeSpan.FromMilliseconds(1000))
+            .Debounce(TimeSpan.FromMilliseconds(1000))
             .SubscribeAsync(_ => Save());
 
         Task.Run(Reload);
@@ -68,7 +67,7 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
     public async Task Save()
     {
         Debug.Assert(Data is { });
-        Data.Version = AppVersion;
+        Data.Version = App.Version;
         var json = JsonSerializer.Serialize(Data, JsonSourceGenContext.Default.UserPrefsData);
         this.Log().Info($"Saving preferences {json}");
         await _appData.WriteFile(PrefsFileName, json);
@@ -118,18 +117,18 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 
 file static class UserPrefsMigrations
 {
-    private sealed record Migration(string Version, Func<UserPrefs.UserPrefsData, UserPrefs.UserPrefsData> Migrate);
+    private sealed record Migration(Version Version, Func<UserPrefs.UserPrefsData, UserPrefs.UserPrefsData> Migrate);
 
     private static readonly List<Migration> _migrations = new Migration[]
     {
-        new("0.1.2.0", d =>
+        new(new("0.1.2.0"), d =>
         {
             // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
             // json
             d.General ??= new();
             return d;
         }),
-        new("9.9.9.9", d =>
+        new(new("9.9.9.9"), d =>
         {
             d.Log().Error("Should not be here");
             return d;
@@ -139,23 +138,23 @@ file static class UserPrefsMigrations
     public static UserPrefs.UserPrefsData RunMigrations(UserPrefs.UserPrefsData data)
     {
         var oldVersion = data.Version;
-        if (oldVersion == UserPrefs.AppVersion)
+        if (oldVersion == App.Version)
         {
-            data.Log().Info($"No migrations to perform, prefs data version matches app version ({UserPrefs.AppVersion})");
+            data.Log().Info($"No migrations to perform, prefs data version matches app version ({App.Version})");
             return data;
         }
 
         foreach (var migration in _migrations)
         {
-            if (string.CompareOrdinal(migration.Version, data.Version) <= 0)
+            if (migration.Version <= data.Version)
             {
                 data.Log().Debug($"Skipping migration for {migration.Version} as data is same or newer ({data.Version})");
                 continue;
             }
 
-            if (string.CompareOrdinal(migration.Version, UserPrefs.AppVersion) > 0)
+            if (migration.Version > App.Version)
             {
-                data.Log().Warn($"Ending migrations, migration v{migration.Version} is newer than current app version ({UserPrefs.AppVersion})");
+                data.Log().Warn($"Ending migrations, migration v{migration.Version} is newer than current app version ({App.Version})");
                 break;
             }
             data.Log().Info($"Applying migration for {migration.Version}");
