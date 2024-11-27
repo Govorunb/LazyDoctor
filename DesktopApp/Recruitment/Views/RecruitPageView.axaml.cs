@@ -14,6 +14,7 @@ namespace DesktopApp.Recruitment.Views;
 
 public sealed partial class RecruitPageView : ReactiveUserControl<RecruitPage>
 {
+    // ReSharper disable once CollectionNeverQueried.Global // false
     public static readonly FilterType[] FilterTypes = Enum.GetValues<FilterType>();
 
     private MainWindow? Window => TopLevel.GetTopLevel(this) as MainWindow;
@@ -76,35 +77,41 @@ public sealed partial class RecruitPageView : ReactiveUserControl<RecruitPage>
         Debug.Assert(ViewModel is { });
         if (Window?.Clipboard is not { } clipboard)
             return;
-        var formats = await clipboard.GetFormatsAsync();
-
-        if (formats.Contains(DataFormats.Text) && await clipboard.GetTextAsync() is { } text)
+        try
         {
-            ViewModel.OnPaste(text);
-            return;
-        }
+            var formats = await clipboard.GetFormatsAsync();
 
-        if (formats.Contains("PNG") && await clipboard.GetDataAsync("PNG") is byte[] pngData)
-        {
-            ViewModel.OnPaste(pngData);
-            return;
-        }
-
-        // Avalonia doesn't (yet?) handle image formats like CF_BITMAP ("Unknown_format_2")
-        // and because of their very funny format name handling code, we literally cannot obtain data for those formats from their clipboard
-        // yes, this is the only reason we reference WinForms
-        if (WClipboard.ContainsImage() && WClipboard.GetImage() is { } image)
-        {
-            using var stream = new MemoryStream();
-            using (image)
+            if (formats.Contains(DataFormats.Text) && await clipboard.GetTextAsync() is { } text)
             {
-                image.Save(stream, ImageFormat.Png);
+                ViewModel.OnPaste(text);
+                return;
             }
 
-            ViewModel.OnPaste(stream.AsSpan());
-            return;
-        }
+            if (formats.Contains("PNG") && await clipboard.GetDataAsync("PNG") is byte[] pngData)
+            {
+                ViewModel.OnPaste(pngData);
+                return;
+            }
 
-        ViewModel.PasteError = "Could not find image or text in clipboard";
+            // Avalonia doesn't (yet?) handle image formats like CF_BITMAP ("Unknown_format_2")
+            // and because of their very funny format name handling code, we literally cannot obtain data for those formats from their clipboard
+            // yes, this is the only reason we reference WinForms
+            if (WClipboard.ContainsImage() && WClipboard.GetImage() is { } image)
+            {
+                using var stream = new MemoryStream();
+                using (image)
+                {
+                    image.Save(stream, ImageFormat.Png);
+                }
+
+                ViewModel.OnPaste(stream.AsSpan());
+                return;
+            }
+            ViewModel.PasteError = "Could not find image or text in clipboard";
+        }
+        catch (Exception e)
+        {
+            ViewModel.PasteError = $"Could not read clipboard: {e.Message} ({e.GetType().Name})";
+        }
     }
 }

@@ -28,6 +28,8 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<IAppData, AppData>();
         SplatRegistrations.RegisterLazySingleton<GithubAkavache>();
         SplatRegistrations.RegisterLazySingleton<GithubDataAdapter>();
+        // DebugLogger is registered automatically by default, but our debug log gets spammed by MonoMod from HotAvalonia
+        SplatRegistrations.RegisterConstant<ILogger>(new ConsoleLogger());
 
         // data sources
         SplatRegistrations.RegisterLazySingleton<UserPrefs>();
