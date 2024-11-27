@@ -12,6 +12,8 @@ Tech stack:
 ### Recruitment Calculator
 Classic recruitment calculator. I don't want to remember tag combinations, my brain is busy being full of air.
 
+![image](https://github.com/user-attachments/assets/998d8007-69f0-418d-8922-659bbb65606b)
+
 #### OCR
 Having to Alt-Tab away to [Aceship](https://aceship.github.io/AN-EN-Tags/akhr.html) or [akgcc](https://akgcc.github.io/cc/recruit.html) is slow. Visually locating the tags you need to click and... clicking them... no, too much work.
 
@@ -28,6 +30,8 @@ I'm not here to automate the game, so only handling the most common workflow is 
 #### Rarity filters
 > "Ah yes, I would certainly like to see which combinations of these tags guarantee me a 3★"<br/>
 > (said nobody ever)
+
+![image](https://github.com/user-attachments/assets/5f00c753-d567-4d8a-b2df-c0b95b6e0dbc)
 
 You can choose whether you want to see results for rarities below 4★.<br/>
 The defaults (hide 1★/2★, exclude 3★) correspond to the typical daily recruitment (at least 7h40m to remove 1★/2★, only care about 4★ for yellow certs).<br/>
