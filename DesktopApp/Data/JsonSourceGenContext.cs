@@ -20,7 +20,7 @@ namespace DesktopApp.Data;
 [JsonSerializable(typeof(Dictionary<string, Operator>))]
 [JsonSerializable(typeof(UserPrefs.UserPrefsData))]
 [JsonSerializable(typeof(RecruitmentPrefsData))]
-[JsonSerializable(typeof(GithubAkavache.CachedResponseWrapper))]
-[JsonSerializable(typeof(GithubAkavache.CachedResponseWrapper.ApiInfoWrapper))]
+[JsonSerializable(typeof(GithubFileStub))]
+[JsonSerializable(typeof(GithubAkavache.HttpResponse))]
 [UsedImplicitly]
 public sealed partial class JsonSourceGenContext : JsonSerializerContext;

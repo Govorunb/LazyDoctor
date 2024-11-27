@@ -13,7 +13,7 @@
         <UseWindowsForms>true</UseWindowsForms>
         <Authors>Govorunb</Authors>
         <Product>LazyDoctor</Product>
-        <Version>0.1.2</Version>
+        <Version>0.1.2.1</Version>
 
         <Company>$(Authors)</Company>
         <AssemblyName>$(Product)</AssemblyName>
@@ -63,18 +63,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentAvaloniaUI" />
-
-        <PackageReference Include="HotAvalonia.Extensions" PrivateAssets="all" /> <!-- compiles itself out in release mode -->
-        <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
-
         <PackageReference Include="Avalonia" />
         <PackageReference Include="Avalonia.Desktop" />
         <PackageReference Include="Avalonia.Themes.Fluent" />
         <PackageReference Include="Avalonia.Fonts.Inter" />
         <PackageReference Include="Avalonia.ReactiveUI" />
+        <PackageReference Include="FluentAvaloniaUI" />
         <PackageReference Include="JetBrains.Annotations" />
-        <PackageReference Include="Octokit" />
         <PackageReference Include="OpenCvSharp4.Windows" />
         <PackageReference Include="ReactiveMarbles.CacheDatabase.Sqlite3" />
         <PackageReference Include="ReactiveUI" />
@@ -83,5 +78,8 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+
+        <PackageReference Include="HotAvalonia.Extensions" PrivateAssets="all" /> <!-- compiles itself out in release mode -->
+        <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
     </ItemGroup>
 </Project>

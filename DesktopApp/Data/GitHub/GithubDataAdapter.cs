@@ -1,6 +1,8 @@
+using System.Net;
+using System.Reactive.Linq;
 using System.Reflection;
 using DesktopApp.Utilities.Helpers;
-using Octokit;
+using ReactiveMarbles.CacheDatabase.Core;
 
 namespace DesktopApp.Data.GitHub;
 
@@ -14,6 +16,8 @@ public sealed class GithubDataAdapter : ReactiveObjectBase
 
     private static readonly string _userAgent;
 
+    private readonly IBlobCache _blobCache;
+
     static GithubDataAdapter()
     {
         var thisAssembly = typeof(GithubDataAdapter).Assembly;
@@ -22,7 +26,7 @@ public sealed class GithubDataAdapter : ReactiveObjectBase
         _userAgent = $"{author}-{product}";
     }
 
-    private readonly GitHubClient _client;
+    private readonly HttpClient _client;
     private readonly Dictionary<string, IDataSource> _dataSources = [];
 
     public GithubDataAdapter(GithubAkavache cache, UserPrefs prefs)
@@ -32,7 +36,15 @@ public sealed class GithubDataAdapter : ReactiveObjectBase
         _cache = cache;
         _prefs = prefs;
 
-        _client = new(new ProductHeaderValue(_userAgent)) { ResponseCache = cache };
+        _blobCache = cache.BlobCache;
+
+        _client = new HttpClient();
+        Disposables.Add(_client);
+        _client.DefaultRequestHeaders.UserAgent.ParseAdd($"{_userAgent}/{UserPrefs.AppVersion}");
+        _client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
+        // 304s are supposed to not count against your ratelimit but they actually do :)
+        // unless we add an Authorization header with seemingly literally anything in it :) :)
+        _client.DefaultRequestHeaders.Authorization = new("None");
     }
 
     public async Task<byte[]?> GetFileContents(string lang, string file)
@@ -40,36 +52,50 @@ public sealed class GithubDataAdapter : ReactiveObjectBase
         var repo = lang == "zh_CN" ? RepoCN : RepoGlobal;
         var path = $"{lang}/gamedata/{file}";
 
-        var uriString = $"https://api.github.com/repos/{RepoOwner}/{repo}/contents/{path}";
-        var res = await StampedeLock<string, byte[]?>.CombineConcurrent(uriString, async () =>
+        var url = $"https://api.github.com/repos/{RepoOwner}/{repo}/contents/{path}";
+        var res = await StampedeLock<string, byte[]?>.CombineConcurrent(url, async () =>
         {
-            var results = await _client.Repository.Content.GetAllContents(RepoOwner, repo, path);
-            var githubFile = results.Single();
-            if (githubFile.Type.Value != ContentType.File)
-                throw new InvalidOperationException($"{file} is a {githubFile.Type.Value}, not a file");
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+            var cached = await _cache.GetAsync(url);
+            if (cached?.Headers.GetValueOrDefault("ETag") is { } etag)
+            {
+                this.Log().Debug($"Have etag {etag} for {url}");
+                request.Headers.Add("If-None-Match", etag);
+            }
+
+            var response = await _client.SendAsync(request);
+            this.Log().Debug($"{response.StatusCode} for {url}");
+
+            var (modified, json) = response.StatusCode switch
+            {
+                HttpStatusCode.NotModified => (false, cached!.Body),
+                HttpStatusCode.OK => (true, await response.Content.ReadAsStringAsync()),
+                _ => throw new InvalidOperationException($"Failed to {request.Method} {request.RequestUri}: {response.StatusCode} {response.ReasonPhrase}")
+            };
+
+            var githubFile = JsonSourceGenContext.Default.Deserialize<GithubFileStub>(json)!;
+            if (githubFile.Type is not "file")
+                throw new InvalidOperationException($"{path} was a {githubFile.Type} instead of a file");
+
+            if (modified)
+            {
+                await _blobCache.Invalidate(githubFile.DownloadUrl!);
+                var headers = response.Headers.ToDictionary(kvp => kvp.Key, kvp => string.Join(',', kvp.Value));
+                await _cache.SetAsync(url, new(json, headers));
+            }
 
             // if the file is small (under 1MB?), github just returns the contents in the first response
             if (githubFile.Encoding == "base64")
             {
                 this.Log().Debug($"Using inlined contents for {file}");
-                return Convert.FromBase64String(githubFile.EncodedContent);
+                return Convert.FromBase64String(githubFile.Content!);
             }
 
             // otherwise, we need to do a second fetch for the actual contents
             this.Log().Debug($"Fetching raw contents for {file}");
-            var rawContents = await _client.Repository.Content.GetRawContent(RepoOwner, repo, path);
-
-            // if the previous call freshly cached the result, it means the http stream was consumed
-            if (rawContents.Length == 0)
-            {
-                // realistically, i can either do this garbage (and cry every time i have to look at this code)
-                // or use IBlobCache.DownloadUrl (and cry at being unable to invalidate properly)
-                // you can clearly see which was chosen
-                rawContents = await _client.Repository.Content.GetRawContent(RepoOwner, repo, path);
-                if (rawContents.Length > 0)
-                    this.Log().Warn($"Fresh cache on raw contents for {file}");
-                // otherwise, the file really is empty
-            }
+            // this has a rate limit but it's pretty undocumented/opaque, allegedly 5k req/hr per IP
+            var rawContents = await _blobCache.DownloadUrl(githubFile.DownloadUrl!, HttpMethod.Get, GithubAkavache.DefaultExpiration);
 
             return rawContents;
         });
