@@ -3,10 +3,10 @@
 This is a Windows app I made to simplify my daily maintenance tasks in Arknights.
 
 Tech stack:
-- [Avalonia](https://avaloniaui.net) (with [FluentAvalonia](https://github.com/amwx/FluentAvalonia)) as frontend
+- [Avalonia](https://avaloniaui.net) (with [FluentAvalonia](https://github.com/amwx/FluentAvalonia)) as frontend (plus [HotAvalonia](https://github.com/Kir-Antipov/HotAvalonia) to save on iteration time)
 - [ReactiveUI](https://www.reactiveui.net/) + [DynamicData](https://github.com/reactivemarbles/DynamicData) for view/viewmodel bindings and collections plumbing
 - [ReactiveMarbles.CacheDatabase](https://github.com/reactivemarbles/CacheDatabase) (really just [Akavache](https://github.com/reactiveui/Akavache) but this reimplementation lets me use System.Text.Json)
-- [Octokit](https://github.com/octokit/octokit.net) to fetch/update game data
+- [GitHub API](https://docs.github.com/en/rest/repos/contents) to fetch/update game data
 - [OpenCVSharp](https://github.com/shimat/opencvsharp/) for OCR
 ## Features
 ### Recruitment Calculator

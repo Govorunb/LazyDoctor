@@ -18,7 +18,7 @@
         <Company>$(Authors)</Company>
         <AssemblyName>$(Product)</AssemblyName>
 
-        <!-- disabled because it doesn't work (yet (clueless)) -->
+        <!-- disabled because it doesn't work (yet) (clueless) -->
         <!-- <PublishAot>true</PublishAot> -->
         <_SuppressWinFormsTrimError>true</_SuppressWinFormsTrimError>
     </PropertyGroup>
