@@ -7,7 +7,8 @@ Tech stack:
 - [ReactiveUI](https://www.reactiveui.net/) + [DynamicData](https://github.com/reactivemarbles/DynamicData) for view/viewmodel bindings and collections plumbing
 - [ReactiveMarbles.CacheDatabase](https://github.com/reactivemarbles/CacheDatabase) (really just [Akavache](https://github.com/reactiveui/Akavache) but this reimplementation lets me use System.Text.Json)
 - [GitHub API](https://docs.github.com/en/rest/repos/contents) to fetch/update game data
-- [OpenCVSharp](https://github.com/shimat/opencvsharp/) for OCR
+- [WinRT](https://en.wikipedia.org/wiki/Windows_Runtime) for OCR and clipboard access
+
 ## Features
 ### Recruitment Calculator
 Classic recruitment calculator. I don't want to remember tag combinations, my brain is busy being full of air.
@@ -17,15 +18,13 @@ Classic recruitment calculator. I don't want to remember tag combinations, my br
 #### OCR
 Having to Alt-Tab away to [Aceship](https://aceship.github.io/AN-EN-Tags/akhr.html) or [akgcc](https://akgcc.github.io/cc/recruit.html) is slow. Visually locating the tags you need to click and... clicking them... no, too much work.
 
-The app can parse text from the clipboard, so you can use something like the [OCR in PowerToys](https://learn.microsoft.com/en-us/windows/powertoys/text-extractor) to autoselect all tags in just two keyboard/mouse motions instead of five.<br/>
-If you don't want to install PowerToys, OCR functionality is included in the app - so you can just grab a screenshot of the tags (e.g. with [Snipping Tool](https://support.microsoft.com/en-us/windows/use-snipping-tool-to-capture-screenshots-00246869-1843-655f-f220-97299b865f6b#ID0EDZBBBDD)) and immediately see the results. I'll admit it's not as good at the actual OCR part as PowerToys right now... Maybe I'll get around to it some day. For now, if one of them doesn't work, try the other.
+Just grab a screenshot of the tags (e.g. with [Snipping Tool](https://support.microsoft.com/en-us/windows/use-snipping-tool-to-capture-screenshots-00246869-1843-655f-f220-97299b865f6b#ID0EDZBBBDD)) and immediately see the results.<br/>
+The OCR engine used is internal to Windows. This means that, to OCR a specific language, you need to install the corresponding language pack in Windows.<br/>
+You can also use your own OCR, if it's better - it just needs to copy its output to the clipboard.
+
 > [!TIP]
 > `Alt+PrintScreen` will capture the active window. This is just one keystroke and doesn't need the mouse.<br/>
 > You can also use something like [keymapper](https://github.com/houmain/keymapper/) or [AutoHotkey](https://www.autohotkey.com/) to trigger it with one key instead of two - but that's beyond lazy, even for me.
-
-##### Note on in-built OCR
-The in-built OCR is currently in a minimum-viable state. It doesn't properly detect text on `Senior`/`Top Operator` tags or on tags selected in-game, because I've only put in the minimum effort.<br/>
-I'm not here to automate the game, so only handling the most common workflow is good enough for me - I can use my eyes to spot top ops just fine.
 
 #### Rarity filters
 > "Ah yes, I would certainly like to see which combinations of these tags guarantee me a 3★"<br/>

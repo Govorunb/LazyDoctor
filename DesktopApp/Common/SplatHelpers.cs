@@ -1,3 +1,4 @@
+using DesktopApp.Common.OCR;
 using DesktopApp.Data;
 using DesktopApp.Data.GitHub;
 using DesktopApp.Data.Operators;
@@ -30,6 +31,7 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<GithubDataAdapter>();
         // DebugLogger is registered automatically by default, but our debug log gets spammed by MonoMod from HotAvalonia
         SplatRegistrations.RegisterConstant<ILogger>(new ConsoleLogger());
+        SplatRegistrations.RegisterLazySingleton<WinRtOCR>();
 
         // data sources
         SplatRegistrations.RegisterLazySingleton<UserPrefs>();
@@ -43,8 +45,13 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<TagsDataSource>();
 
         // processing
+        SplatRegistrations.RegisterLazySingleton<TextParsingUtils>();
         SplatRegistrations.RegisterLazySingleton<RecruitmentFilter>();
-        SplatRegistrations.RegisterLazySingleton<TagsOCR>();
+        // "temporary"
+        // theoretically manual OCR (with OpenCvSharp) could be better with enough time investment since we know text layout/constraints
+        // but until something else requires OpenCV, there's very little ROI on the >50MB dependency
+        // SplatRegistrations.RegisterLazySingleton<IRecruitTagsOCR, OpenCvTagsOCR>();
+        SplatRegistrations.RegisterLazySingleton<IRecruitTagsOCR, WinRtTagsOCR>();
 
         // view models
         SplatRegistrations.RegisterLazySingleton<RecruitPage>();
