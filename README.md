@@ -48,4 +48,4 @@ Right now these are all from spreadsheets I made over the years - I just need to
     - It's a pain to maintain it even with me only checking in basically once every three months
     - Probably not going to be ported over unless I manage to automate pulling data for future events (if you have/know of an available API, feel free to open an issue)
 - Red cert planner ([spreadsheet](https://docs.google.com/spreadsheets/d/17pi3KdViPWyNmGcCdPMmZzlS1sFKgOiftdiAheA8Qr0/edit))
-    - The 6★ tokens in red cert shop haven't rotated in 500 years, so this calculator isn't very useful anymore
+    - The 6★ tokens in red cert shop only rotate every 500 years, so this calculator isn't very useful to begin with
