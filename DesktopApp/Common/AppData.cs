@@ -22,7 +22,7 @@ public sealed class AppData : ReactiveObjectBase, IAppData
         => Path.Join(_basePath, localPath);
 
     public IBlobCache GetBlobCache(string localPath)
-        => _blobCaches.GetOrAdd(localPath, () => new SqliteBlobCache(GetFullPath(localPath)));
+        => _blobCaches.GetOrAdd(localPath, () => new SqliteBlobCache(GetFullPath($"{localPath}.sqlite3")));
 
     public bool FileExists(string localPath)
         => File.Exists(GetFullPath(localPath));

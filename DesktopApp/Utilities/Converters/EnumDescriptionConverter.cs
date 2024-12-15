@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 
@@ -13,7 +14,7 @@ public sealed class EnumDescriptionConverter : ValueConverterBase
         HotReloadHandler.OnClear().Subscribe(_ => _descriptions.Clear());
     }
 
-    private static IEnumerable<string?> GetEnumDescriptions(Type enumType)
+    private static IEnumerable<string?> GetEnumDescriptions([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields)] Type enumType)
     {
         return enumType.GetFields(BindingFlags.Public | BindingFlags.Static)
             .Select(f => f.GetCustomAttribute<DescriptionAttribute>()?.Description);

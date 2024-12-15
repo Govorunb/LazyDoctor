@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
@@ -9,6 +10,7 @@ public sealed class ViewLocator : IDataTemplate, IViewLocator
 {
     private static readonly Dictionary<Type, Type> _registry = [];
 
+    [RequiresUnreferencedCode("Accesses all types in assembly")]
     public static void RegisterViews(Assembly? assembly = null)
     {
         assembly ??= Assembly.GetCallingAssembly();

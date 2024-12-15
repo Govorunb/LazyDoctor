@@ -36,7 +36,7 @@ You can choose whether you want to see results for rarities below 4★.<br/>
 The defaults (hide 1★/2★, exclude 3★) correspond to the typical daily recruitment (at least 7h40m to remove 1★/2★, only care about 4★ for yellow certs).<br/>
 Selecting the `Robot` or `Starter` tags manually will include them in results regardless of the filter.
 #### Updates
-When new operators are added to recruitment... I don't want to have to do anything. Updating the whole app is slow and inconvenient.
+When new operators are added to recruitment... I don't want to have to do anything. Me having to publish an update... you having to download it... slow and inconvenient. If I get hit by a bus tomorrow, why should your app stop working?
 
 So, the app automatically pulls the most recent data from [Kengxxiao's data repository](https://github.com/Kengxxiao/ArknightsGameData_YoStar/tree/main/en_US). It also picks up any new tags, though new tags should get added basically never (`Elemental` is the only tag added post-release so far).
 
