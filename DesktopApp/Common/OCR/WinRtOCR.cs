@@ -56,11 +56,11 @@ public sealed class WinRtOCR : ReactiveObjectBase, IOCR<string>
         using (bitmap)
         {
             var winRtOcrResult = await engine.RecognizeAsync(bitmap);
-            var regions = winRtOcrResult.Lines.SelectMany(l => l.Words)
-                .Select(w => w.BoundingRect.ToAvaRect())
+            var components = winRtOcrResult.Lines
+                .SelectMany(l => l.Words)
+                .Select(word => new OCRResultComponent(word.Text, word.BoundingRect.ToAvaRect()))
                 .ToArray();
-            string?[] texts = new string[winRtOcrResult.Lines.Count];
-            return new(winRtOcrResult.Text, regions, texts);
+            return new(winRtOcrResult.Text, components);
         }
     }
 
@@ -72,8 +72,6 @@ public sealed class WinRtOCR : ReactiveObjectBase, IOCR<string>
                 ?? throw new InvalidOperationException("You do not have any OCR packs installed.");
         }
 
-        // if (lang.StartsWith("en", StringComparison.OrdinalIgnoreCase))
-        //     lang = "en-US";
         if (!Language.IsWellFormed(lang))
             throw new ArgumentException($"Language {lang} is not a valid BCP-47 language tag.");
 
@@ -81,6 +79,6 @@ public sealed class WinRtOCR : ReactiveObjectBase, IOCR<string>
         if (!OcrEngine.IsLanguageSupported(language))
             throw new NotSupportedException($"Could not find an installed OCR pack for language {lang}.");
 
-        return OcrEngine.TryCreateFromLanguage(new(lang)); // theoretically also uses the IsLanguageSupported guard
+        return OcrEngine.TryCreateFromLanguage(language); // theoretically also uses the IsLanguageSupported guard
     }
 }

@@ -62,7 +62,7 @@ public class RecruitPage : PageBase
     public void OnPaste(IRandomAccessStream stream)
     {
         Task.Run(() =>
-            _ocr.Process(stream.AsStreamForRead(), "en")
+            _ocr.Process(stream.AsStreamForRead())
                 .ContinueWith(t => OnPaste(string.Join('|', t.Result.Select(r => r.FullText))))
         );
     }

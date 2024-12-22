@@ -54,7 +54,9 @@
 
     <ItemGroup>
         <PackageReference Include="Avalonia" />
-        <PackageReference Include="Avalonia.Desktop" />
+        <PackageReference Include="Avalonia.Win32" />
+        <PackageReference Include="Avalonia.Skia" />
+<!--        <PackageReference Include="Avalonia.Desktop" />--> <!-- includes X11/Metal, no point -->
         <PackageReference Include="Avalonia.Themes.Fluent" />
         <PackageReference Include="Avalonia.Fonts.Inter" />
         <PackageReference Include="Avalonia.ReactiveUI" />
