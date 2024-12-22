@@ -16,6 +16,8 @@ public sealed class AppData : ReactiveObjectBase, IAppData
     public AppData()
     {
         App.ShutdownRequested += async (_, _) => await OnShutdown().ConfigureAwait(false); // waiting is futile
+        // ensure we have a folder in AppData/Local before SQLite tries to write there
+        Directory.CreateDirectory(_basePath);
     }
 
     private static string GetFullPath(string localPath)
