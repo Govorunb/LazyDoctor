@@ -8,7 +8,7 @@
         x:Class="DesktopApp.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="DesktopApp">
+        Title="LazyDoctor">
   <fa:NavigationView Name="Nav"
                      Content="{Binding $self.((Control)SelectedItem).DataContext}"
                      DataContext="{Binding SettingsPage}"

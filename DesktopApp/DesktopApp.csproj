@@ -10,12 +10,14 @@
         <!-- slimmer builds -->
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+
+        <Title>LazyDoctor</Title>
         <Authors>Govorunb</Authors>
-        <Product>LazyDoctor</Product>
-        <Version>0.1.3</Version>
+        <Product>$(Title)</Product>
+        <Version>0.1.4</Version>
 
         <Company>$(Authors)</Company>
-        <AssemblyName>$(Product)</AssemblyName>
+        <AssemblyName>$(Title)</AssemblyName>
 
         <!-- disabled because it doesn't work (yet) (clueless) -->
         <!-- <PublishAot>true</PublishAot> -->
