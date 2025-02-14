@@ -54,7 +54,6 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
             .WhereNotNull()
             .Switch(d => d.Recruitment.Changed
                 .Merge(d.General.Changed)
-
             );
 
         prefsChanged

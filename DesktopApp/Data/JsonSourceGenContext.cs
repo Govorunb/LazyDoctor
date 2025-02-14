@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using DesktopApp.Data.GitHub;
 using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
+using DesktopApp.Data.Stages;
 using DesktopApp.Recruitment;
 using JetBrains.Annotations;
 
@@ -17,10 +18,14 @@ namespace DesktopApp.Data;
 [JsonSerializable(typeof(RawTagData))]
 [JsonSerializable(typeof(Operator))]
 [JsonSerializable(typeof(GachaTable))]
+[JsonSerializable(typeof(GameConstants))]
+[JsonSerializable(typeof(StageTable))]
+[JsonSerializable(typeof(StageTable.ForceOpenPeriod))]
+[JsonSerializable(typeof(ZoneTable))]
+[JsonSerializable(typeof(ZoneTable.WeeklyZoneSchedule))]
 [JsonSerializable(typeof(Dictionary<string, Operator>))]
 [JsonSerializable(typeof(UserPrefs.UserPrefsData))]
 [JsonSerializable(typeof(RecruitmentPrefsData))]
 [JsonSerializable(typeof(GithubFileStub))]
 [JsonSerializable(typeof(GithubAkavache.HttpResponse))]
-[UsedImplicitly]
 public sealed partial class JsonSourceGenContext : JsonSerializerContext;

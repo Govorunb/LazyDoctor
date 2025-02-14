@@ -5,3 +5,4 @@ global using ReactiveUI;
 global using ReactiveUI.Fody.Helpers;
 global using Splat;
 global using static DesktopApp.Common.SplatHelpers;
+global using DayOfWeek = DesktopApp.Common.DayOfWeek;

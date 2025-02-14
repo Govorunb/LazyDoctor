@@ -3,6 +3,7 @@ using DesktopApp.Data;
 using DesktopApp.Data.GitHub;
 using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
+using DesktopApp.Data.Stages;
 using DesktopApp.Recruitment;
 using DesktopApp.Recruitment.Processing;
 using DesktopApp.Settings;
@@ -25,7 +26,7 @@ internal static class SplatHelpers
         LogHost.Default.Warn($"Registering {nameof(SplatHelpers)}");
 
         // infra/plumbing
-        SplatRegistrations.RegisterConstant(TimeProvider.System); // for unit tests, register your own TimeProvider after this one
+        SplatRegistrations.RegisterConstant(TimeProvider.System); // for unit tests, register the mock TimeProvider after this one
         SplatRegistrations.RegisterLazySingleton<IAppData, AppData>();
         SplatRegistrations.RegisterLazySingleton<GithubAkavache>();
         SplatRegistrations.RegisterLazySingleton<GithubDataAdapter>();
@@ -35,14 +36,14 @@ internal static class SplatHelpers
 
         // data sources
         SplatRegistrations.RegisterLazySingleton<UserPrefs>();
-        // have to register this one manually
-        Locator.CurrentMutable.RegisterLazySingleton<IDataSource<GachaTable>>(
-            () => LOCATOR.GetService<GithubDataAdapter>()!
-                .GetDataSource<GachaTable>("excel/gacha_table.json")
-        );
+        RegisterTable<GachaTable>("excel/character_table.json");
+        RegisterTable<GachaTable>("excel/gacha_table.json");
+        RegisterTable<GameConstants>("excel/gamedata_const.json");
         SplatRegistrations.RegisterLazySingleton<OperatorRepository>();
         SplatRegistrations.RegisterLazySingleton<RecruitableOperators>();
         SplatRegistrations.RegisterLazySingleton<TagsDataSource>();
+        SplatRegistrations.RegisterLazySingleton<StageRepository>();
+        SplatRegistrations.RegisterLazySingleton<WeeklyStages>();
 
         // processing
         SplatRegistrations.RegisterLazySingleton<TextParsingUtils>();
@@ -61,6 +62,14 @@ internal static class SplatHelpers
         SplatRegistrations.SetupIOC();
 
         _registered = true;
+    }
+
+    private static void RegisterTable<TTable>(string path)
+    {
+        Locator.CurrentMutable.RegisterLazySingleton<IDataSource<TTable>>(
+            () => LOCATOR.GetService<GithubDataAdapter>()!
+                .GetDataSource<TTable>(path)
+        );
     }
 
     private static T EnsureRegistered<T>(T thing)

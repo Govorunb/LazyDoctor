@@ -1,6 +1,5 @@
 using System.Collections.Frozen;
 using System.Reactive.Linq;
-using DesktopApp.Data.GitHub;
 using DesktopApp.Utilities.Helpers;
 using JetBrains.Annotations;
 
@@ -9,14 +8,14 @@ namespace DesktopApp.Data.Operators;
 [PublicAPI]
 public sealed class OperatorRepository : DataSource<IReadOnlyCollection<Operator>>
 {
-    private readonly DataSource<Dictionary<string, Operator>> _source;
+    private readonly IDataSource<Dictionary<string, Operator>> _source;
     private FrozenDictionary<string, Operator>? _byId;
     private FrozenDictionary<string, Operator>? _byName;
 
-    public OperatorRepository(GithubDataAdapter adapter)
+    public OperatorRepository(IDataSource<Dictionary<string, Operator>> source)
     {
-        _source = adapter.GetDataSource<Dictionary<string, Operator>>("excel/character_table.json");
-        _source.Values
+        _source = source;
+        source.Values
             .Select(Process)
             .Subscribe(Subject)
             .DisposeWith(this);
