@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.ReactiveUI;
+using Serilog;
 
 namespace DesktopApp;
 
@@ -10,18 +10,23 @@ public sealed class ViewLocator : IDataTemplate, IViewLocator
 {
     private static readonly Dictionary<Type, Type> _registry = [];
 
-    [RequiresUnreferencedCode("Accesses all types in assembly")]
-    public static void RegisterViews(Assembly? assembly = null)
+    [RequiresUnreferencedCode("Accesses all types in own assembly")]
+    internal static void RegisterViews()
     {
-        assembly ??= Assembly.GetCallingAssembly();
+        var assembly = typeof(App).Assembly;
         foreach (var controlType in assembly.GetTypes())
         {
             if (controlType.BaseType is { IsConstructedGenericType: true } serviceType
                 && serviceType.GetGenericTypeDefinition() == typeof(ReactiveUserControl<>))
             {
                 var vmType = serviceType.GetGenericArguments()[0];
+                Log.Logger.Verbose("Registering {controlType} for {vmType}", controlType.Name, vmType.Name);
                 _registry.Add(vmType, controlType);
-                Locator.CurrentMutable.Register(() => Activator.CreateInstance(controlType)!, serviceType);
+                SERVICES.Register(() =>
+                {
+                    Log.Logger.Verbose("Instantiating {controlType} for {vmType}", controlType.Name, vmType.Name);
+                    return Activator.CreateInstance(controlType)!;
+                }, serviceType);
             }
         }
     }
@@ -59,7 +64,9 @@ public sealed class ViewLocator : IDataTemplate, IViewLocator
         if (vmType.Name.StartsWith("Design", StringComparison.Ordinal))
             name = name.Replace(".Design", ".", StringComparison.Ordinal);
 
+#pragma warning disable IL2057 // Should only access its own assembly, which is rooted
         var controlType = Type.GetType(name);
+#pragma warning restore IL2057 // It's not possible to guarantee the availability of the target type
         return controlType?.IsAssignableTo(typeof(Control)) == true
             ? (Control)Activator.CreateInstance(controlType)!
             : null;

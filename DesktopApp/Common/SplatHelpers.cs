@@ -7,6 +7,9 @@ using DesktopApp.Data.Stages;
 using DesktopApp.Recruitment;
 using DesktopApp.Recruitment.Processing;
 using DesktopApp.Settings;
+using Serilog;
+using Serilog.Events;
+using Splat.Serilog;
 
 namespace DesktopApp.Common;
 
@@ -23,6 +26,8 @@ internal static class SplatHelpers
         if (_registered)
             return;
 
+        _registered = true; // re-entry
+
         LogHost.Default.Warn($"Registering {nameof(SplatHelpers)}");
 
         // infra/plumbing
@@ -30,8 +35,20 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<IAppData, AppData>();
         SplatRegistrations.RegisterLazySingleton<GithubAkavache>();
         SplatRegistrations.RegisterLazySingleton<GithubDataAdapter>();
-        // DebugLogger is registered automatically by default, but our debug log gets spammed by MonoMod from HotAvalonia
-        SplatRegistrations.RegisterConstant<ILogger>(new ConsoleLogger());
+
+        // TODO: move this out
+        const LogEventLevel FileLogLevel = LogEventLevel.Information;
+#pragma warning disable CA1305 // Defaults to CultureInfo.InvariantCulture, which is what I would've passed in anyway
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Console()
+            .WriteTo.File(AppData.GetFullPath("logs/log.txt"),
+                rollingInterval: RollingInterval.Day,
+                restrictedToMinimumLevel: FileLogLevel)
+            .CreateLogger();
+#pragma warning restore CA1305 // Provide a value for the 'IFormatProvider' argument.
+        SERVICES.UseSerilogFullLogger();
+
         SplatRegistrations.RegisterLazySingleton<WinRtOCR>();
 
         // data sources
@@ -60,13 +77,11 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<MainWindowViewModel>();
 
         SplatRegistrations.SetupIOC();
-
-        _registered = true;
     }
 
     private static void RegisterTable<TTable>(string path)
     {
-        Locator.CurrentMutable.RegisterLazySingleton<IDataSource<TTable>>(
+        SERVICES.RegisterLazySingleton<IDataSource<TTable>>(
             () => LOCATOR.GetService<GithubDataAdapter>()!
                 .GetDataSource<TTable>(path)
         );

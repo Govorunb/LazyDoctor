@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Avalonia">
-    <AvaloniaVersion>11.2.3</AvaloniaVersion>
+    <AvaloniaVersion>11.2.4</AvaloniaVersion>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 

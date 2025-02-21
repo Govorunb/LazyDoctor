@@ -2,7 +2,8 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <ApplicationManifest>app.manifest</ApplicationManifest>
-        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <UseWindowsForms>false</UseWindowsForms>
+        <UseWpf>false</UseWpf>
 
         <!-- trim runtimes -->
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -68,12 +69,21 @@
         <PackageReference Include="ReactiveMarbles.CacheDatabase.Sqlite3" />
         <PackageReference Include="ReactiveUI" />
         <PackageReference Include="ReactiveUI.Fody" />
+        <PackageReference Include="Serilog.Sinks.Console" />
+        <PackageReference Include="Serilog.Sinks.File" />
         <PackageReference Include="Splat.DependencyInjection.SourceGenerator">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Splat.Serilog" />
 
         <PackageReference Include="HotAvalonia.Extensions" PrivateAssets="all" /> <!-- compiles itself out in release mode -->
         <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(PublishAot)' == 'true' or '$(PublishTrimmed)' == 'true'">
+        <TrimmerRootAssembly Include="$(AssemblyName)" />
+        <TrimmerRootAssembly Include="ReactiveMarbles.CacheDatabase.Sqlite3" />
+        <TrimmerRootAssembly Include="SQLite-net" />
     </ItemGroup>
 </Project>

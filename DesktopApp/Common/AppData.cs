@@ -20,7 +20,7 @@ public sealed class AppData : ReactiveObjectBase, IAppData
         Directory.CreateDirectory(_basePath);
     }
 
-    private static string GetFullPath(string localPath)
+    internal static string GetFullPath(string localPath)
         => Path.Join(_basePath, localPath);
 
     public IBlobCache GetBlobCache(string localPath)
