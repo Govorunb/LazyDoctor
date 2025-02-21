@@ -21,7 +21,8 @@ public sealed class StageTable
         [JsonPropertyName("forceOpenList")]
         public required List<string> ZoneList { get; set; }
 
-        // server time? todo check
-        public DateTime Start => DateTimeOffset.FromUnixTimeSeconds(StartTime).DateTime;
+        // utc; not necessarily on reset
+        public DateTime StartsAt => DateTimeOffset.FromUnixTimeSeconds(StartTime).DateTime;
+        public DateTime EndsAt => DateTimeOffset.FromUnixTimeSeconds(EndTime).DateTime;
     }
 }

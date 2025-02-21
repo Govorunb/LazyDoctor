@@ -4,7 +4,6 @@ using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
 using DesktopApp.Data.Stages;
 using DesktopApp.Recruitment;
-using JetBrains.Annotations;
 
 namespace DesktopApp.Data;
 

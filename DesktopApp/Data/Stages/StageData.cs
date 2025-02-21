@@ -16,7 +16,7 @@ public sealed class StageData
     [JsonPropertyName("apCost")]
     public int SanityCost { get; set; }
     [JsonInclude, JsonPropertyName("expGain")]
-    private int TwoStarClearExpReward { get; set; }
+    internal int TwoStarClearExpReward { get; set; }
     [JsonPropertyName("goldGain")]
     public int CreditsReward { get; set; }
 
