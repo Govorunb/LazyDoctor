@@ -15,7 +15,8 @@ public sealed class StageRepository : DataSource<IReadOnlyCollection<StageData>>
     private FrozenDictionary<string, StageData>? _byName;
     private FrozenDictionary<string, StageData>? _byCode;
 
-    public StageTable? Stages { get; private set; }
+    [Reactive]
+    public StageTable? StageTable { get; private set; }
 
     public StageRepository(IDataSource<ZoneTable> zones, IDataSource<StageTable> stages)
     {
@@ -65,7 +66,7 @@ public sealed class StageRepository : DataSource<IReadOnlyCollection<StageData>>
         _byId = table.Stages.ToFrozenDictionary();
         _byName = table.Stages.Values.ToFrozenDictionary(s => s.Name);
         _byCode = table.Stages.Values.ToFrozenDictionary(s => s.Code);
-        Stages = table;
+        StageTable = table;
 
         return _byName.Values;
     }

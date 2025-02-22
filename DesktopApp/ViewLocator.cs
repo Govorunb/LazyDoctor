@@ -20,11 +20,11 @@ public sealed class ViewLocator : IDataTemplate, IViewLocator
                 && serviceType.GetGenericTypeDefinition() == typeof(ReactiveUserControl<>))
             {
                 var vmType = serviceType.GetGenericArguments()[0];
-                Log.Logger.Verbose("Registering {controlType} for {vmType}", controlType.Name, vmType.Name);
+                Log.Verbose("Registering {controlType} for {vmType}", controlType.Name, vmType.Name);
                 _registry.Add(vmType, controlType);
                 SERVICES.Register(() =>
                 {
-                    Log.Logger.Verbose("Instantiating {controlType} for {vmType}", controlType.Name, vmType.Name);
+                    Log.Verbose("Instantiating {controlType} for {vmType}", controlType.Name, vmType.Name);
                     return Activator.CreateInstance(controlType)!;
                 }, serviceType);
             }

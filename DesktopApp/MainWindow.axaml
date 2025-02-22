@@ -16,6 +16,8 @@
     <fa:NavigationView.MenuItems>
       <fa:NavigationViewItem IconSource="People" Content="Recruitment"
                              DataContext="{Binding $parent[vm:MainWindow].ViewModel.RecruitPage}" />
+      <fa:NavigationViewItem IconSource="Calendar" Content="Planner"
+                             DataContext="{Binding $parent[vm:MainWindow].ViewModel.ResourcePlannerPage}" />
     </fa:NavigationView.MenuItems>
   </fa:NavigationView>
 </Window>

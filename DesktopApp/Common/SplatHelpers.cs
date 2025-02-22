@@ -6,6 +6,7 @@ using DesktopApp.Data.Recruitment;
 using DesktopApp.Data.Stages;
 using DesktopApp.Recruitment;
 using DesktopApp.Recruitment.Processing;
+using DesktopApp.ResourcePlanner;
 using DesktopApp.Settings;
 using Serilog;
 using Serilog.Events;
@@ -73,6 +74,7 @@ internal static class SplatHelpers
 
         // view models
         SplatRegistrations.RegisterLazySingleton<RecruitPage>();
+        SplatRegistrations.RegisterLazySingleton<ResourcePlannerPage>();
         SplatRegistrations.RegisterLazySingleton<SettingsPage>();
         SplatRegistrations.RegisterLazySingleton<MainWindowViewModel>();
 
