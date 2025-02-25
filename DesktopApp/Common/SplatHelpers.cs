@@ -55,6 +55,8 @@ internal static class SplatHelpers
         // data sources
         SplatRegistrations.RegisterLazySingleton<UserPrefs>();
         RegisterTable<Dictionary<string, Operator>>("excel/character_table.json");
+        // TODO: attribute
+        RegisterTable<StageTable>("excel/stage_table.json");
         RegisterTable<GachaTable>("excel/gacha_table.json");
         RegisterTable<GameConstants>("excel/gamedata_const.json");
         SplatRegistrations.RegisterLazySingleton<OperatorRepository>();

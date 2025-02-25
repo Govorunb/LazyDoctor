@@ -7,23 +7,23 @@ namespace DesktopApp.Data.Stages;
 [PublicAPI]
 public sealed class WeeklyStages : ServiceBase
 {
-    private readonly StageRepository _stages;
     private ZoneTable? _zt;
-    public SourceList<StageData> Stages { get; set; }
+    private SourceList<StageData> StagesList { get; set; }
+    public StageRepository Stages { get; }
 
     public WeeklyStages(IDataSource<ZoneTable> zoneTable, StageRepository stages)
     {
-        _stages = stages;
-        Stages = new();
+        Stages = stages;
+        StagesList = new();
         zoneTable.Values.Subscribe(zt => _zt = zt);
         zoneTable.Values.CombineLatest(stages.Values)
             .Select(t => t.Item2.Where(s => t.Item1.WeeklySchedule.ContainsKey(s.ZoneId)))
-            .Subscribe(l => Stages.EditDiff(l));
+            .Subscribe(l => StagesList.EditDiff(l));
     }
 
     public bool IsOpen(string stageCode, DayOfWeek day)
     {
-        var stage = _stages.GetByCode(stageCode);
+        var stage = Stages.GetByCode(stageCode);
         if (stage is null || _zt is null) return false;
 
         return _zt.WeeklySchedule.TryGetValue(stage.ZoneId, out var schedule)
@@ -34,7 +34,7 @@ public sealed class WeeklyStages : ServiceBase
         => IsOpen(stage, date.DayOfWeek.ToEuropean());
 
     public IEnumerable<StageData> GetOpen(DayOfWeek day)
-        => Stages.Items.Where(s => IsOpen(s.Code, day));
+        => StagesList.Items.Where(s => IsOpen(s.Code, day));
     public IEnumerable<StageData> GetOpen(DateTime date)
         => GetOpen(date.DayOfWeek.ToEuropean());
 }

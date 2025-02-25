@@ -18,16 +18,22 @@ public sealed class GameConstants
     public int GetMaxSanity(int level)
         => MaxSanity[level - 1];
 
-    public int AddExp(int level, int currExp, int addExp, out bool leveledUp)
+    public int AddExp(int level, int currExp, int addExp, out int levelups)
     {
-        leveledUp = false;
-        var req = GetExpRequirementForNextLevel(level);
         var nextExp = currExp + addExp;
-        if (nextExp >= req)
+        levelups = 0;
+        bool leveledUp;
+        do
         {
-            nextExp -= req;
-            leveledUp = true;
-        }
+            var req = GetExpRequirementForNextLevel(level);
+            var rem = nextExp - req;
+            leveledUp = rem >= 0;
+            if (leveledUp)
+            {
+                nextExp = rem;
+                levelups++;
+            }
+        } while (leveledUp);
         return nextExp;
     }
 }

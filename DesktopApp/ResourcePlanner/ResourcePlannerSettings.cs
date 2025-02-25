@@ -1,27 +1,31 @@
-using JetBrains.Annotations;
+using DesktopApp.Data;
+using DesktopApp.Utilities.Attributes;
 
 namespace DesktopApp.ResourcePlanner;
 
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-public class ResourcePlannerSettings : ViewModelBase
+[JsonClass]
+public sealed class ResourcePlannerSettings : ViewModelBase
 {
     [Reactive]
     public PlannerDay InitialState { get; set; } = new()
     {
         Date = DateTime.Now,
-        // TODO: pull from saved prefs
+        // TODO: player stats saved prefs?
         StartingPlayerLevel = 1,
         StartingPlayerExp = 0,
-        BankedSanityValue = 30,
     };
 
+    #region Target
     [Reactive] public string TargetStageCode { get; set; } = "AP-5";
+    // TODO: target mode switch (target date/target amount)
+    [Reactive] public DateTime TargetDate { get; set; } = DateTime.Now.AddDays(7);
+    #endregion Target
 
     #region Time
-    [Reactive] public TimeOnly ServerReset { get; set; } = new(4, 0);
-    [Reactive] public int ServerTimezone { get; set; } = -7;
-    [Reactive] public DateTime CurrentServerTime { get; private set; }
-    [Reactive] public DateTime TargetDate { get; set; } = DateTime.Now.AddDays(7);
+
+    [Reactive] public TimeOnly ServerReset { get; set; } = Constants.EnServerReset;
+    [Reactive] public TimeSpan ServerTimezone { get; set; } = Constants.EnServerTimezone;
+    [Reactive] public DateTime CurrentServerTime { get; set; }
     #endregion Time
 
     #region Potion/sanity settings
@@ -30,6 +34,7 @@ public class ResourcePlannerSettings : ViewModelBase
     // reoccurring
     [Reactive] public bool UseMonthlyCard { get; set; } // daily, 80 each
     [Reactive] public bool UseWeeklyPots { get; set; } = true; // 2x120 each
+    [Reactive] public int DailySanityRegenEfficiency { get; set; } = 240; // can be manually set lower if you login once a day or something
 
     // banked potions
     [Reactive] public int SmallPots { get; set; } // 10 each
@@ -45,6 +50,8 @@ public class ResourcePlannerSettings : ViewModelBase
     public ResourcePlannerSettings()
     {
         this.WhenAnyValue(t => t.ServerTimezone)
-            .Subscribe(t => CurrentServerTime = DateTime.UtcNow.AddHours(t));
+            .Subscribe(t => CurrentServerTime = DateTime.UtcNow + t);
+        this.WhenAnyValue(t => t.CurrentServerTime)
+            .Subscribe(t => ServerTimezone = t - DateTime.UtcNow);
     }
 }

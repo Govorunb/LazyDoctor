@@ -14,6 +14,7 @@ namespace DesktopApp.Data;
     //      should not deserialize to null if it's not present in an older prefs.json
     PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate
 )]
+// TODO: source gen (all classes marked [JsonClass])
 [JsonSerializable(typeof(RawTagData))]
 [JsonSerializable(typeof(Operator))]
 [JsonSerializable(typeof(GachaTable))]

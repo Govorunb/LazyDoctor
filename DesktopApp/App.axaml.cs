@@ -16,10 +16,6 @@ public sealed class App : Application
 
     public override void Initialize()
     {
-        CoreRegistrations.Serializer = new JsonContextSerializer(JsonSourceGenContext.Default);
-        // yes please do just swallow my exception and throw a generic one instead. it's a great thing to do as a library
-        RxApp.DefaultExceptionHandler = Observer.Create<Exception>(ex => LogHost.Default.Error(ex, "Unhandled exception in observable"));
-
         this.EnableHotReload();
         AvaloniaXamlLoader.Load(this);
     }

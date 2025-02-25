@@ -1,15 +1,21 @@
+using DesktopApp.Utilities.Attributes;
+
 namespace DesktopApp.ResourcePlanner;
 
+[JsonClass]
 public sealed class PlannerDay : ViewModelBase
 {
     public DateTime Date { get; init; }
 
     public int StartingPlayerLevel { get; init; }
     public int StartingPlayerExp { get; init; }
-    public int BankedSanityValue { get; init; }
+    public int StartingSanityValue { get; set; }
     public bool IsTargetStageOpen { get; init; }
 
-    public int FinishPlayerLevel { get; }
-    public int FinishPlayerExp { get; }
-    public int SurplusSanity { get; }
+    public SanityLog SanityLog { get; init; } = new();
+
+    public int FinishPlayerLevel { get; set; }
+    public int FinishPlayerExp { get; set; }
+    public int FinishSanityValue { get; set; }
+    public int TargetStageCompletions { get; set; }
 }

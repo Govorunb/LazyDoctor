@@ -4,10 +4,6 @@ namespace DesktopApp.Utilities.Helpers;
 
 public static class LinqExtensions
 {
-    // net9: .NET 9 has this
-    public static IEnumerable<(T Item, int Index)> WithIndex<T>(this IEnumerable<T> source)
-        => source.Select((item, index) => (item, index));
-
     public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, Func<TValue> valueFactory)
         where TKey : notnull
     {
@@ -25,4 +21,7 @@ public static class LinqExtensions
             reference = defaultValue;
         return reference!;
     }
+
+    public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source)
+        => source.Where(t => t is {})!;
 }

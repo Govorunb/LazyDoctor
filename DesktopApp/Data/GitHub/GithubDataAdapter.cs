@@ -42,9 +42,12 @@ public sealed class GithubDataAdapter : ReactiveObjectBase
         Disposables.Add(_client);
         _client.DefaultRequestHeaders.UserAgent.ParseAdd($"{_userAgent}/{App.Version}");
         _client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
-        // 304s are supposed to not count against your ratelimit but they actually do :)
-        // unless there's an Authorization header present - with seemingly literally anything in it :) :)
-        _client.DefaultRequestHeaders.Authorization = new("None");
+        var token = Environment.GetEnvironmentVariable("GH_TOKEN");
+        _client.DefaultRequestHeaders.Authorization = token is {}
+            ? new("Bearer", token)
+            // 304s are supposed to not count against your ratelimit but they actually do :)
+            // unless there's an Authorization header present - with seemingly literally anything in it :) :)
+            : new("None");
     }
 
     public async Task<byte[]?> GetFileContents(string lang, string file)
