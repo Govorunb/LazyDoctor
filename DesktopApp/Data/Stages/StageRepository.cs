@@ -81,8 +81,28 @@ public sealed class StageRepository : DataSource<IReadOnlyCollection<StageData>>
                 // - two stages with the code ??? (cool)
                 // - TR-1 to TR-3 (yep)
                 .ToList()))
-            .Select(g => g.Item2.Count == 1 ? g.Item2[0]
-                : ((StageData?)null).AndLog(this, LogLevel.Debug, $"Stage {g.Key} has {g.Item2.Count} duplicates - did not filter to 1"))
+            .Select(g => g.Item2 switch
+            {
+                [var stage] => stage,
+                _ when _expectedNonUniqueCodes.Contains(g.Key) => null,
+                _ => ((StageData?)null).AndLog(this, LogLevel.Info, $"Stage {g.Key} has {g.Item2.Count} duplicates - did not filter to 1"),
+            })
             .WhereNotNull();
     }
+
+    // initializing the FrozenSet directly with a collection expression:
+    // - copies the list with a ToArray call (which is then cast to ReadOnlySpan)
+    //     (instead of using CollectionsMarshal.AsSpan, which is safe because this is a temporary list)
+    // - passes the ROS to FrozenSet.Create, which copies everything (again!) into a HashSet
+    // - then, from that set, everything is copied (!!!) into the final frozen set object
+    // this does not help the creation cost one bit
+    private static readonly FrozenSet<string> _expectedNonUniqueCodes = new HashSet<string>(
+    [
+        ..StringHelpers.Enumerate($"TN-{1..4}"),
+        ..StringHelpers.Enumerate($"LT-{1..8}"),
+        "IS-QT",
+        "Ursus", "Yan", "Kazimierz", "Siesta", "Iberia", "Sargon", "Columbia", "Victoria",
+        "???",
+        ..StringHelpers.Enumerate($"TR-{1..3}"),
+    ]).ToFrozenSet();
 }

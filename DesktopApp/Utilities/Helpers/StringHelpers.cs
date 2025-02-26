@@ -1,6 +1,6 @@
 namespace DesktopApp.Utilities.Helpers;
 
-internal static class StringExtensions
+internal static class StringHelpers
 {
     public static string Repeat(this string template, int times)
     {
@@ -14,4 +14,6 @@ internal static class StringExtensions
     }
 
     public static string Repeat(this char c, int times) => new string(c, times);
+
+    public static IEnumerable<string> Enumerate(this RangeInterpolatedStringHandler r) => r;
 }
