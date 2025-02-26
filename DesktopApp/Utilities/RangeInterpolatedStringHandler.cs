@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Text;
+using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Utilities;
 
@@ -7,7 +8,7 @@ namespace DesktopApp.Utilities;
 public readonly struct RangeInterpolatedStringHandler : IEnumerable<string>
 {
     private record Part;
-    private sealed record LiteralPart(string Literal) : Part;
+    private sealed record LiteralPart(string? Literal) : Part;
     private sealed record RangePart(Range Range) : Part;
 
     private readonly List<Part> _parts = [];
@@ -20,33 +21,53 @@ public readonly struct RangeInterpolatedStringHandler : IEnumerable<string>
 
     public void AppendFormatted<T>(T t)
     {
-        if (t is not Range range)
-            throw new ArgumentException($"{nameof(t)} must be of type {nameof(Range)}", nameof(t));
-        if (range.End.IsFromEnd || range.Start.IsFromEnd)
-            throw new ArgumentException("Range start and end must be literals", nameof(t));
+        if (t is Range range)
+        {
+            if (range.End.IsFromEnd || range.Start.IsFromEnd)
+                throw new ArgumentException("Range start and end must be literals", nameof(t));
+            if (range.End.Value <= range.Start.Value)
+                throw new ArgumentException("Range end must be greater than start", nameof(t));
 
-        _parts.Add(new RangePart(range));
+            _parts.Add(new RangePart(range));
+        }
+        else
+        {
+            _parts.Add(new LiteralPart(t?.ToString()));
+        }
     }
 
     public IEnumerator<string> GetEnumerator()
     {
-        var ranges = _parts.Index().Where(p => p.Item is RangePart).ToList();
-        if (ranges.Count > 1)
-            throw new InvalidOperationException("Only one range is supported for now");
-
-        var range = (ranges[0].Item as RangePart)!.Range;
-        var start = range.Start.Value;
-        var end = range.End.Value;
-        var size = end - start;
-        StringBuilder sb = new();
-        foreach (var sub in Enumerable.Range(start, size))
+        var ranges = _parts.Index()
+            .Where(p => p.Item is RangePart)
+            .Select(p => (p.Index, ((RangePart)p.Item).Range))
+            .ToList();
+        if (ranges.Count == 0)
         {
+            yield return string.Concat(_parts.Cast<LiteralPart>());
+            yield break;
+        }
+
+        var substitutions = ranges switch
+        {
+            [var (_, r)] => [Enumerable.Range(r.Start.Value, r.End.Value - r.Start.Value)],
+            _ => ranges
+                .Select(p => p.Range)
+                .Select(r => Enumerable.Range(r.Start.Value, r.End.Value - r.Start.Value))
+                .CartesianProduct(),
+        };
+
+        StringBuilder sb = new();
+        foreach (var sub in substitutions)
+        {
+            var subItems = sub.ToList();
+            var rangeIdx = 0;
             foreach (var part in _parts)
             {
                 if (part is LiteralPart literalPart)
                     sb.Append(literalPart.Literal);
                 else
-                    sb.Append(sub);
+                    sb.Append(subItems[rangeIdx++]);
             }
             yield return sb.ToString();
             sb.Clear();
