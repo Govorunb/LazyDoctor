@@ -1,11 +1,8 @@
 using System.ComponentModel;
-using System.Reactive;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using DesktopApp.Data;
 using HotAvalonia;
-using ReactiveMarbles.CacheDatabase.Core;
 
 namespace DesktopApp;
 

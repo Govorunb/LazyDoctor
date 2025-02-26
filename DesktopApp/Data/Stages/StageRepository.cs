@@ -62,30 +62,27 @@ public sealed class StageRepository : DataSource<IReadOnlyCollection<StageData>>
 
     private IEnumerable<StageData> StagesByCode(IEnumerable<StageData> source)
     {
+        // stage codes were really not meant to be used as keys
         return source.GroupBy(s => s.Code)
             .Select(g => (g.Key, g
-                    // event and main story CMs (through ch9) have stage IDs end in "#f#"
-                    .Where(stage => !stage.StageId.EndsWith("#f#", StringComparison.Ordinal))
-                    // from ch10 onwards, the "diffGroup" field is used (H-stages are "TOUGH" but have "stageType": "SUB")
-                    // ... except for 11-20, the single other stage that uses "SUB"
-                    .Where(stage => !(stage is {DifficultyGroup: "EASY" or "TOUGH"} && stage.LevelId.StartsWith("Obt/Main/", StringComparison.Ordinal)))
-                    // Children of Ursus share their SV- prefix with Under Tides (very cool)
-                    // keep Under Tides since it's the only one whose stages are actually available
-                    .Where(stage => stage.ZoneId != "act10d5_zone1")
-                    .ToList()
-                ))
-            .Select(g =>
-            {
-                switch (g.Item2.Count)
-                {
-                    case 1: return g.Item2[0];
-                    default:
-                    {
-                        this.Log().Info($"Stage {g.Key} has {g.Item2.Count} duplicates - did not filter to 1");
-                        return null;
-                    }
-                }
-            })
+                // event and main story CMs (through ch9) have stage IDs end in "#f#"
+                .Where(stage => !stage.StageId.EndsWith("#f#", StringComparison.Ordinal))
+                // from ch10 onwards, the "diffGroup" field is used (H-stages are "TOUGH" but have "stageType": "SUB")
+                // ... except for 11-20, the single other stage that uses "SUB"
+                .Where(stage => !(stage.DifficultyGroup is "EASY" or "TOUGH" && stage.LevelId.StartsWith("Obt/Main/", StringComparison.Ordinal)))
+                // Children of Ursus share their SV- prefix with Under Tides (very cool)
+                // keep Under Tides since it's the only one whose stages are actually available
+                .Where(stage => stage.ZoneId != "act10d5_zone1")
+                // the rest are:
+                // - TN-x (trials for navigator)
+                // - LT-x (SSS)
+                // - annihilations (whose codes are country names, e.g. "Ursus" is for Chernobog, Abandoned Mine, and the other one i forgor)
+                // - Il Siracusano missions (IS-QT)
+                // - two stages with the code ??? (cool)
+                // - TR-1 to TR-3 (yep)
+                .ToList()))
+            .Select(g => g.Item2.Count == 1 ? g.Item2[0]
+                : ((StageData?)null).AndLog(this, LogLevel.Debug, $"Stage {g.Key} has {g.Item2.Count} duplicates - did not filter to 1"))
             .WhereNotNull();
     }
 }
