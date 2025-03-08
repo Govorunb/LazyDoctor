@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Text.Json;
 using DesktopApp.Data;
 using DesktopApp.Recruitment;
+using DesktopApp.ResourcePlanner;
 using DesktopApp.Settings;
 using DesktopApp.Utilities.Attributes;
 using DesktopApp.Utilities.Helpers;
@@ -26,6 +27,7 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
         public RecruitmentPrefsData Recruitment { get; set => SetIfNotNull(ref field, value); } = new();
 
         public GeneralPrefsData General { get; set => SetIfNotNull(ref field, value); } = new();
+        public ResourcePlannerPrefsData Planner { get; set => SetIfNotNull(ref field, value); } = new();
     }
 
     private readonly IAppData _appData;
@@ -33,6 +35,7 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
     public UserPrefsData? Data { get; set; }
     public Version? Version => Data?.Version;
     public RecruitmentPrefsData? Recruitment => Data?.Recruitment;
+    public ResourcePlannerPrefsData? Planner => Data?.Planner;
     public GeneralPrefsData? General => Data?.General;
     public IObservable<Unit> Loaded { get; }
 

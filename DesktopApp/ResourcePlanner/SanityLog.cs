@@ -32,8 +32,9 @@ public sealed class SanityLog : ViewModelBase
 [JsonClass]
 public sealed class SanityChange(int delta, string comment) : ViewModelBase
 {
-    [Reactive] public int Delta { get; set; } = delta;
-    [Reactive] public string Comment { get; set; } = comment;
+    public int Delta { get; } = delta;
+    public string Comment { get; } = comment;
 
     public bool IsGain => Delta > 0;
+    public override string ToString() => $"{(IsGain ? "+" : "")}{Delta} ({Comment})";
 }
