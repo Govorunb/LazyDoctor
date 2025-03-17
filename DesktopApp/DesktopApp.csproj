@@ -20,10 +20,10 @@
         <Company>$(Authors)</Company>
         <AssemblyName>$(Title)</AssemblyName>
 
-        <!-- disabled because it doesn't work (yet) (clueless) -->
+        <!-- assembly size leaves things to be desired -->
         <!-- <PublishAot>true</PublishAot> -->
 
-        <!-- OpenCvSharp was removed in favor of WinRT OCR but it might be needed in the future -->
+        <!-- WinRT OCR is used over OpenCvSharp for simplicity but it might be needed in the future -->
         <UseOpenCv>false</UseOpenCv>
     </PropertyGroup>
 
@@ -35,6 +35,9 @@
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
         <DefineConstants>$(DefineConstants);ENABLE_XAML_HOT_RELOAD</DefineConstants>
 <!--        <DefineConstants>$(DefineConstants);DEBUG_OPENCV</DefineConstants>-->
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(UseOpenCv)' == 'true'">
+        <DefineConstants>$(DefineConstants);OPENCV</DefineConstants>
     </PropertyGroup>
     <PropertyGroup Condition="'$(PublishAot)' == 'true'">
         <DefineConstants>$(DefineConstants);DISABLE_XAML_HOT_RELOAD</DefineConstants>

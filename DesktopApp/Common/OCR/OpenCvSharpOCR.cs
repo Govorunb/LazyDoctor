@@ -125,7 +125,11 @@ public abstract class OpenCvSharpOCR : ReactiveObjectBase, IOCR<string>
             } catch (OpenCVException) { } // throws only when exiting the whole app
         }
 #endif
-        return new(text, rects.Select(OpenCvExtensions.ToAvaRect).ToArray(), compTexts);
+        return new(text, rects.Zip(compTexts).Select(p =>
+        {
+            var (compRect, compText) = p;
+            return new OCRResultComponent(compText, compRect.ToAvaRect());
+        }).ToArray());
     }
 
     private OCRTesseract GetCachedOCR(string lang)

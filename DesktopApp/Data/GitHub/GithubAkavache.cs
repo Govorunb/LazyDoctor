@@ -1,4 +1,5 @@
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using DesktopApp.Utilities.Attributes;
 using DesktopApp.Utilities.Helpers;
 using ReactiveMarbles.CacheDatabase.Core;
@@ -48,10 +49,11 @@ public sealed class GithubAkavache : ReactiveObjectBase
         var expiration = DefaultExpiration;
         this.Log().Info($"Caching {url} (expiring at {_timeProvider.GetLocalNow().Add(expiration)})");
 
-        await StampedeLock<string, HttpResponse>.OverrideMainRequest(url, async () =>
-        {
-            await BlobCache.InsertObject(url, cachedResponse, expiration);
-            return cachedResponse;
-        });
+        var task = BlobCache.InsertObject(url, cachedResponse, expiration)
+            .Select(_ => cachedResponse)
+            .ToTask();
+        // "locks" the cache entry to force future requests to wait until it's finished setting
+        StampedeLock<string, HttpResponse>.SetMainRequest(url, task);
+        await task;
     }
 }

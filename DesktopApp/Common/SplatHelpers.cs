@@ -55,7 +55,7 @@ internal static class SplatHelpers
         // data sources
         SplatRegistrations.RegisterLazySingleton<UserPrefs>();
         RegisterTable<Dictionary<string, Operator>>("excel/character_table.json");
-        // TODO: attribute
+        // could be registered with an attribute but that needs a whole source gen (aot/generics)
         RegisterTable<StageTable>("excel/stage_table.json");
         RegisterTable<GachaTable>("excel/gacha_table.json");
         RegisterTable<GameConstants>("excel/gamedata_const.json");
@@ -68,11 +68,14 @@ internal static class SplatHelpers
         // processing
         SplatRegistrations.RegisterLazySingleton<TextParsingUtils>();
         SplatRegistrations.RegisterLazySingleton<RecruitmentFilter>();
-        // "temporary"
+
         // theoretically manual OCR (with OpenCvSharp) could be better with enough time investment since we know text layout/constraints
         // but until something else requires OpenCV, there's very little ROI on the >50MB dependency
-        // SplatRegistrations.RegisterLazySingleton<IRecruitTagsOCR, OpenCvTagsOCR>();
+#if OPENCV
+        SplatRegistrations.RegisterLazySingleton<IRecruitTagsOCR, OpenCvTagsOCR>();
+#else
         SplatRegistrations.RegisterLazySingleton<IRecruitTagsOCR, WinRtTagsOCR>();
+#endif
 
         // view models
         SplatRegistrations.RegisterLazySingleton<RecruitPage>();
