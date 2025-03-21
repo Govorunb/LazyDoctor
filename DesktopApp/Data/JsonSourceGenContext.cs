@@ -4,6 +4,8 @@ using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
 using DesktopApp.Data.Stages;
 using DesktopApp.Recruitment;
+using DesktopApp.ResourcePlanner;
+using DesktopApp.Settings;
 
 namespace DesktopApp.Data;
 
@@ -14,7 +16,7 @@ namespace DesktopApp.Data;
     //      should not deserialize to null if it's not present in an older prefs.json
     PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate
 )]
-// TODO: source gen (all classes marked [JsonClass])
+// all classes marked with [JsonClass] are checked for a matching [JsonSerializable] attribute here
 [JsonSerializable(typeof(RawTagData))]
 [JsonSerializable(typeof(Operator))]
 [JsonSerializable(typeof(GachaTable))]
@@ -28,4 +30,12 @@ namespace DesktopApp.Data;
 [JsonSerializable(typeof(RecruitmentPrefsData))]
 [JsonSerializable(typeof(GithubFileStub))]
 [JsonSerializable(typeof(GithubAkavache.HttpResponse))]
+[JsonSerializable(typeof(PlannerDay))]
+[JsonSerializable(typeof(GeneralPrefsData))]
+[JsonSerializable(typeof(ResourcePlannerPrefsData))]
+[JsonSerializable(typeof(ResourcePlannerSettings))]
+[JsonSerializable(typeof(SanityLog))]
+[JsonSerializable(typeof(SanityChange))]
+[JsonSerializable(typeof(StageData))]
+[JsonSerializable(typeof(Zone))]
 public sealed partial class JsonSourceGenContext : JsonSerializerContext;

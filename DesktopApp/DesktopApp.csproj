@@ -59,6 +59,9 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\LazyDoctor.Analyzers\LazyDoctor.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\LazyDoctor.CodeFixes\LazyDoctor.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+
         <PackageReference Include="Avalonia" />
         <PackageReference Include="Avalonia.Win32" />
         <PackageReference Include="Avalonia.Skia" />
