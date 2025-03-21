@@ -5,11 +5,17 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="250"
              x:Class="DesktopApp.ResourcePlanner.Views.PlannerDayView"
              xmlns:rp="using:DesktopApp.ResourcePlanner"
+             xmlns:rpv="using:DesktopApp.ResourcePlanner.Views"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:DataType="rp:PlannerDay">
   <Design.DataContext>
     <rp:DesignPlannerDay />
   </Design.DataContext>
+  <!--
+  Alternative visualization: just the sanity log
+  level circle in tooltip
+    calculated on the fly?
+  -->
   <Grid ColumnDefinitions="300,*,300" RowDefinitions="60,*">
     <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
                HorizontalAlignment="Center" Text="{Binding Date, StringFormat=MMMM d}" FontSize="32" />
@@ -17,21 +23,16 @@
     <Border Grid.Row="1" Grid.Column="0"
             BorderBrush="Black" BorderThickness="1"
             Margin="20,10,20,20">
-      <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <Panel>
-          <!-- TODO level-to-max-exp converter -->
-          <fa:ProgressRing Value="{Binding StartingPlayerExp}" Maximum="6000"
-                           IsIndeterminate="False"
-                           ToolTip.Tip="{Binding StartingPlayerExp}" />
-          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="{Binding StartingPlayerLevel, StringFormat={}Lv {0}}" HorizontalAlignment="Center" FontSize="5" />
-          </StackPanel>
-        </Panel>
-      </Viewbox>
+      <rpv:PlayerExpCircle DataContext="{Binding StartingExpData}" />
     </Border>
+    <TextBlock Grid.Column="1" Grid.Row="1"
+               Text="➡️"
+               VerticalAlignment="Center"
+               Margin="-9 0 0 30" />
     <!-- log -->
     <ListBox Grid.Row="1" Grid.Column="1"
              HorizontalAlignment="Stretch"
+             IsHitTestVisible="False"
              ItemsSource="{Binding SanityLog.Changes}">
       <ListBox.ItemTemplate>
         <!--
@@ -59,18 +60,15 @@
         </DataTemplate>
       </ListBox.ItemTemplate>
     </ListBox>
+    <TextBlock Grid.Column="2" Grid.Row="1"
+               Text="➡️"
+               VerticalAlignment="Center"
+               Margin="-6 0 0 30" />
     <!-- finish -->
     <Border Grid.Row="1" Grid.Column="2"
             BorderBrush="Black" BorderThickness="1"
             Margin="20,10,20,20">
-      <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-          <Panel>
-            <fa:ProgressRing Value="{Binding FinishPlayerExp}" Maximum="25000" IsIndeterminate="False" />
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-              <TextBlock Text="{Binding FinishPlayerLevel, StringFormat={}Lv {0}}" HorizontalAlignment="Center" FontSize="5" />
-            </StackPanel>
-          </Panel>
-      </Viewbox>
+      <rpv:PlayerExpCircle DataContext="{Binding FinishExpData}" />
     </Border>
   </Grid>
 </UserControl>

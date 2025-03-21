@@ -5,7 +5,7 @@ using DynamicData;
 
 namespace DesktopApp.ResourcePlanner;
 
-public sealed class ResourcePlannerPage : PageBase
+public class ResourcePlannerPage : PageBase
 {
     public ResourcePlannerSettings? Setup => _prefs.Planner?.Setup;
 
@@ -13,7 +13,7 @@ public sealed class ResourcePlannerPage : PageBase
     private readonly ReadOnlyObservableCollection<PlannerDay> _results;
     public ReadOnlyObservableCollection<PlannerDay> Results => _results;
     private readonly WeeklyFarmCalculator _calc;
-    private readonly UserPrefs _prefs;
+    private protected readonly UserPrefs _prefs;
 
     public ReactiveCommand<Unit, Unit> CalculateCommand { get; }
 
@@ -30,13 +30,12 @@ public sealed class ResourcePlannerPage : PageBase
 
     private void Simulate()
     {
-        _resultsList.Edit(list =>
-        {
-            list.Clear();
-            for (var day = Setup!.InitialState; day.Date < Setup.TargetDate; day = _calc.AdvanceDay(day))
-            {
-                list.Add(day);
-            }
-        });
+        _resultsList.EditDiff(_calc.Simulate(Setup));
     }
 }
+
+public sealed class DesignResourcePlannerPage()
+    : ResourcePlannerPage(
+        LOCATOR.GetService<WeeklyFarmCalculator>()!,
+        LOCATOR.GetService<UserPrefs>()!
+);

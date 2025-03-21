@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:plrdata="using:DesktopApp.Data.Player"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             xmlns:conv="using:DesktopApp.Utilities.Converters"
+             x:DataType="plrdata:PlayerExpData"
+             x:Class="DesktopApp.ResourcePlanner.Views.PlayerExpCircle">
+  <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Panel>
+      <fa:ProgressRing Value="{Binding Exp}"
+                       Maximum="{Binding Level, Converter={x:Static conv:FuncConverters.PlayerLevelToExpRequirement}, FallbackValue=99999}"
+                       IsIndeterminate="False"
+                       ToolTip.Tip="{Binding Exp}" />
+      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+        <TextBlock Text="{Binding Level, StringFormat={}Lv {0}}" HorizontalAlignment="Center" FontSize="5" />
+      </StackPanel>
+    </Panel>
+  </Viewbox>
+</UserControl>

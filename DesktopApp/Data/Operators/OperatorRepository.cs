@@ -8,11 +8,11 @@ namespace DesktopApp.Data.Operators;
 [PublicAPI]
 public sealed class OperatorRepository : DataSource<IReadOnlyCollection<Operator>>
 {
-    private readonly IDataSource<Dictionary<string, Operator>> _source;
+    private readonly IDataSource<OperatorTable> _source;
     private FrozenDictionary<string, Operator>? _byId;
     private FrozenDictionary<string, Operator>? _byName;
 
-    public OperatorRepository(IDataSource<Dictionary<string, Operator>> source)
+    public OperatorRepository(IDataSource<OperatorTable> source)
     {
         _source = source;
         source.Values
@@ -45,7 +45,7 @@ public sealed class OperatorRepository : DataSource<IReadOnlyCollection<Operator
 
     public override Task Reload() => _source.Reload();
 
-    private IReadOnlyCollection<Operator> Process(Dictionary<string, Operator> ops)
+    private IReadOnlyCollection<Operator> Process(OperatorTable ops)
     {
         _byId = ops
             .Where(pair => pair.Value.MaxPotentialLevel > 0) // filter out scripted/utility entities

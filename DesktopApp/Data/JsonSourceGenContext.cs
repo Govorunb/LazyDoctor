@@ -23,7 +23,7 @@ namespace DesktopApp.Data;
 [JsonSerializable(typeof(StageTable.ForceOpenPeriod))]
 [JsonSerializable(typeof(ZoneTable))]
 [JsonSerializable(typeof(ZoneTable.WeeklyZoneSchedule))]
-[JsonSerializable(typeof(Dictionary<string, Operator>))]
+[JsonSerializable(typeof(OperatorTable))]
 [JsonSerializable(typeof(UserPrefs.UserPrefsData))]
 [JsonSerializable(typeof(RecruitmentPrefsData))]
 [JsonSerializable(typeof(GithubFileStub))]

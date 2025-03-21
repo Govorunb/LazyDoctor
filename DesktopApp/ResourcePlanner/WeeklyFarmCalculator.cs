@@ -10,6 +10,13 @@ public class WeeklyFarmCalculator(WeeklyStages sched, GameConstants gameConst) :
 {
     public ResourcePlannerSettings Settings { get; } = new();
 
+    public IEnumerable<PlannerDay> Simulate(ResourcePlannerSettings? setup)
+    {
+        if (setup is null)
+            yield break;
+        yield break;
+    }
+
     public PlannerDay AdvanceDay(PlannerDay yesterday)
     {
         var today = yesterday.Date.AddDays(1);
@@ -17,8 +24,7 @@ public class WeeklyFarmCalculator(WeeklyStages sched, GameConstants gameConst) :
         var day = new PlannerDay
         {
             Date = today,
-            StartingPlayerLevel = yesterday.FinishPlayerLevel,
-            StartingPlayerExp = yesterday.FinishPlayerExp,
+            StartingExpData = yesterday.FinishExpData,
             StartingSanityValue = yesterday.FinishSanityValue,
             IsTargetStageOpen = sched.IsOpen(Settings.TargetStageCode, today),
         };
@@ -26,8 +32,7 @@ public class WeeklyFarmCalculator(WeeklyStages sched, GameConstants gameConst) :
         var natRegen = Settings.DailySanityRegenEfficiency;
         sanLog.Log(yesterday.SanityLog.CurrentValue, "Banked sanity");
         sanLog.Log(natRegen, "Natural regen");
-        var level = day.StartingPlayerLevel;
-        var exp = day.StartingPlayerExp;
+        var (level, exp) = day.StartingExpData;
         var targetStage = sched.Stages.GetByCode(Settings.TargetStageCode);
         Debug.Assert(targetStage is {}, $"No target stage found with code {Settings.TargetStageCode}");
         if (Settings.UseMonthlyCard)
@@ -60,6 +65,7 @@ public class WeeklyFarmCalculator(WeeklyStages sched, GameConstants gameConst) :
             // though, you have to level up quite a lot to get even one extra run out of this
             // theoretically, there are certain breakpoints where it's better to push and level
             // e.g. 119->120 sanity cap lets you bank 4 runs of AP-5 instead of 3
+            // (which compounds more if done early)
             // TODO simulate OP refresh strategies
             // it's simulations all the way down
 
@@ -91,15 +97,16 @@ public class WeeklyFarmCalculator(WeeklyStages sched, GameConstants gameConst) :
             {
                 // (multiple of target stage cost, up to player cap)
                 // TODO: spending surplus can level up...
-                var maxSaved = Math.Min(gameConst.GetMaxSanity(day.FinishPlayerLevel) - 1, sanLog.CurrentValue);
+                // just calc twice, first with X exp and then with X-(max san gained from levelups)
+                // 1 sanity can make a difference in levelups once but not twice so two passes are enough
+                var maxSaved = Math.Min(gameConst.GetMaxSanity(level) - 1, sanLog.CurrentValue);
                 RunTargetStage(maxSaved, out var saved);
                 day.FinishSanityValue = saved;
-                sanLog.Log(-saved, "Saved until reset (target stage open tomorrow)");
+                sanLog.Log(-saved, "Saved for tomorrow (target stage will be open)");
             }
         }
 
-        day.FinishPlayerExp = exp;
-        day.FinishPlayerLevel = level;
+        day.FinishExpData = new(level, exp);
 
         return day;
 

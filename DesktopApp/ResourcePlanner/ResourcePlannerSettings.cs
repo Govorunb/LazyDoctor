@@ -11,8 +11,7 @@ public sealed class ResourcePlannerSettings : ViewModelBase
     {
         Date = DateTime.Now,
         // TODO: player stats saved prefs?
-        StartingPlayerLevel = 1,
-        StartingPlayerExp = 0,
+        StartingExpData = new(),
     };
 
     #region Target
