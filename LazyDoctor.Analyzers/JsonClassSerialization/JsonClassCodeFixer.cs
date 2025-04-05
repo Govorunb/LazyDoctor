@@ -1,14 +1,14 @@
 using System.Collections.Immutable;
-using LazyDoctor.Analyzers;
+using System.Composition;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace LazyDoctor.CodeFixes;
+namespace LazyDoctor.Analyzers.JsonClassSerialization;
 
-[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(JsonClassCodeFixer))]
+[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(JsonClassCodeFixer)), Shared]
 public class JsonClassCodeFixer : CodeFixProvider
 {
     public override Task RegisterCodeFixesAsync(CodeFixContext context)
@@ -83,7 +83,7 @@ public class JsonClassCodeFixer : CodeFixProvider
             ? newRoot.InsertNodesBefore(newRoot.DescendantNodes().OfType<NamespaceDeclarationSyntax>().First(), autoImports)
             : newRoot.InsertNodesAfter(lastUsing, autoImports);
 
-        // check count is correct
+        // check for fix-alls with multiple declarations (ideally tests should cover this and not runtime checks)
         var newAttrCount = newJsonContextClass.AttributeLists
             .SelectMany(a => a.Attributes)
             .Count(a => a.Name.ToString() == "JsonSerializable");
