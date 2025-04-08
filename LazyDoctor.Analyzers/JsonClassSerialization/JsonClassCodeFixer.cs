@@ -16,30 +16,19 @@ public class JsonClassCodeFixer : CodeFixProvider
         context.RegisterCodeFix(
             CodeAction.Create(
                 "Add [JsonSerializable] attribute on JsonSourceGenContext",
-                ct => AddJsonSerializableAttributeAsync(context, ct),
+                ct => FixAll(context.Diagnostics, context.Document.Project, ct),
                 nameof(JsonClassCodeFixer)),
             context.Diagnostics);
         return Task.CompletedTask;
     }
 
-    private static async Task<Solution> AddJsonSerializableAttributeAsync(CodeFixContext ctx, CancellationToken ct = default)
+    private static async Task<Solution> FixAll(IList<Diagnostic> diagnostics, Project proj, CancellationToken ct = default)
     {
-        var doc = ctx.Document;
-        var diagnostic = ctx.Diagnostics[0];
+        if (diagnostics.Count == 0)
+            return proj.Solution;
 
-        var clsName = diagnostic.Properties["JsonClass"]!; // full metadata name
-        var jsonContextLoc = diagnostic.AdditionalLocations[0];
-        var jsgcDoc = doc.Project.GetDocument(jsonContextLoc.SourceTree)!;
-
-        return await AddMany([clsName], jsonContextLoc, jsgcDoc, ct);
-    }
-
-    private static async Task<Solution> AddMany(
-        IEnumerable<string> jsonClassNames,
-        Location jsonContextLoc,
-        Document jsgcDoc,
-        CancellationToken ct = default)
-    {
+        var jsonContextLoc = diagnostics[0].AdditionalLocations[0];
+        var jsgcDoc = proj.GetDocument(jsonContextLoc.SourceTree)!;
         var jsgcRoot = await jsgcDoc.GetSyntaxRootAsync(ct);
         var jsgcNode = jsgcRoot!.FindNode(jsonContextLoc.SourceSpan);
         var jsgcClass = jsgcNode.FirstAncestorOrSelf<ClassDeclarationSyntax>()!;
@@ -49,20 +38,25 @@ public class JsonClassCodeFixer : CodeFixProvider
         var attrCount = jsgcClass.AttributeLists
             .SelectMany(a => a.Attributes)
             .Count(a => a.Name.ToString() == "JsonSerializable");
-        ImmutableArray<string> classNames = [..jsonClassNames];
 
-        var jsonClassSymbols = classNames
-            .Select(name => name.StartsWith("global::", StringComparison.Ordinal)
-                ? name.Substring(8)
-                : name)
-            .Select(compilation.GetTypesByMetadataName)
-            .Select(symbols => symbols.Single())
+        ImmutableArray<string> typeNames = [..diagnostics.Select(d => d.Properties[JsonClassDiagnosticAnalyzer.SymbolMetadataNameProperty]!)];
+
+        var jsonClassSymbols = typeNames
+            .Select(name =>
+            {
+                var actualName = name.StartsWith("global::", StringComparison.Ordinal) ? name.Substring("global::".Length) : name;
+                var symbols = compilation.GetTypesByMetadataName(actualName);
+                // slightly better error over .Single()
+                if (symbols.Length != 1)
+                    throw new InvalidOperationException($"Found {symbols.Length} symbols for {actualName}, should have been 1");
+                return symbols[0];
+            })
             .ToArray();
         // add [JsonSerializable(typeof(...))] for each class
-        var jsonSerializableAttrs = jsonClassSymbols
-            .Select(s => jsonSerializableAttr.AddArgumentListArguments(
+        var jsonSerializableAttrs = diagnostics
+            .Select(d => jsonSerializableAttr.AddArgumentListArguments(
                 SyntaxFactory.AttributeArgument(
-                    SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(s.Name)))
+                    SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(d.Properties[JsonClassDiagnosticAnalyzer.SymbolReferenceableNameProperty]!)))
                 )
             );
         var newJsonContextClass = jsgcClass
@@ -87,10 +81,10 @@ public class JsonClassCodeFixer : CodeFixProvider
         var newAttrCount = newJsonContextClass.AttributeLists
             .SelectMany(a => a.Attributes)
             .Count(a => a.Name.ToString() == "JsonSerializable");
-        if (newAttrCount != attrCount + classNames.Length)
-            throw new InvalidOperationException($"{attrCount} + {classNames.Length} should have been {attrCount + classNames.Length}, was {newAttrCount}");
+        if (newAttrCount != attrCount + typeNames.Length)
+            throw new InvalidOperationException($"{attrCount} + {typeNames.Length} should have been {attrCount + typeNames.Length}, was {newAttrCount}");
 
-        var newSolution = jsgcDoc.Project.Solution.WithDocumentSyntaxRoot(jsgcDoc.Id, newRoot);
+        var newSolution = proj.Solution.WithDocumentSyntaxRoot(jsgcDoc.Id, newRoot);
         return newSolution;
     }
 
@@ -105,16 +99,16 @@ public class JsonClassCodeFixer : CodeFixProvider
         public static JsonClassFixAllProvider Instance { get; } = new();
         private JsonClassFixAllProvider() { }
 
+        public override IEnumerable<FixAllScope> GetSupportedFixAllScopes()
+            => [FixAllScope.Project];
+
         public override async Task<CodeAction?> GetFixAsync(FixAllContext fixAllContext)
         {
             var diagnostics = await fixAllContext.GetAllDiagnosticsAsync(fixAllContext.Project);
-            var jsonContextLoc = diagnostics.First().AdditionalLocations[0];
-            var names = diagnostics.Select(d => d.Properties["JsonClass"]!).Distinct();
-            var jsgcDoc = fixAllContext.Project.GetDocument(jsonContextLoc.SourceTree)!;
 
             return CodeAction.Create(
                 "Add [JsonSerializable] attributes on JsonSourceGenContext",
-                ct => AddMany(names, jsonContextLoc, jsgcDoc, ct),
+                ct => FixAll(diagnostics, fixAllContext.Project, ct),
                 nameof(JsonClassFixAllProvider));
         }
     }

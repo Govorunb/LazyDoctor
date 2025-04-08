@@ -6,6 +6,7 @@ using DesktopApp.Data.Stages;
 using DesktopApp.Recruitment;
 using DesktopApp.ResourcePlanner;
 using DesktopApp.Settings;
+using DesktopApp.Data.Player;
 
 namespace DesktopApp.Data;
 
@@ -38,4 +39,5 @@ namespace DesktopApp.Data;
 [JsonSerializable(typeof(SanityChange))]
 [JsonSerializable(typeof(StageData))]
 [JsonSerializable(typeof(Zone))]
+[JsonSerializable(typeof(PlayerExpData))]
 public sealed partial class JsonSourceGenContext : JsonSerializerContext;
