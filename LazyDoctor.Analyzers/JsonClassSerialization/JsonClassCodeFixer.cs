@@ -33,30 +33,13 @@ public class JsonClassCodeFixer : CodeFixProvider
         var jsgcNode = jsgcRoot!.FindNode(jsonContextLoc.SourceSpan);
         var jsgcClass = jsgcNode.FirstAncestorOrSelf<ClassDeclarationSyntax>()!;
 
-        var compilation = (await jsgcDoc.Project.GetCompilationAsync(ct))!;
         var jsonSerializableAttr = SyntaxFactory.Attribute(SyntaxFactory.ParseName("JsonSerializable"));
-        var attrCount = jsgcClass.AttributeLists
-            .SelectMany(a => a.Attributes)
-            .Count(a => a.Name.ToString() == "JsonSerializable");
 
-        ImmutableArray<string> typeNames = [..diagnostics.Select(d => d.Properties[JsonClassDiagnosticAnalyzer.SymbolMetadataNameProperty]!)];
-
-        var jsonClassSymbols = typeNames
-            .Select(name =>
-            {
-                var actualName = name.StartsWith("global::", StringComparison.Ordinal) ? name.Substring("global::".Length) : name;
-                var symbols = compilation.GetTypesByMetadataName(actualName);
-                // slightly better error over .Single()
-                if (symbols.Length != 1)
-                    throw new InvalidOperationException($"Found {symbols.Length} symbols for {actualName}, should have been 1");
-                return symbols[0];
-            })
-            .ToArray();
         // add [JsonSerializable(typeof(...))] for each class
-        var jsonSerializableAttrs = diagnostics
-            .Select(d => jsonSerializableAttr.AddArgumentListArguments(
+        var jsonSerializableAttrs = SelectProperty(diagnostics, JsonClassDiagnosticAnalyzer.SymbolTypeNameProperty)
+            .Select(name => jsonSerializableAttr.AddArgumentListArguments(
                 SyntaxFactory.AttributeArgument(
-                    SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(d.Properties[JsonClassDiagnosticAnalyzer.SymbolReferenceableNameProperty]!)))
+                    SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(name)))
                 )
             );
         var newJsonContextClass = jsgcClass
@@ -68,28 +51,20 @@ public class JsonClassCodeFixer : CodeFixProvider
 
         var usings = newRoot.DescendantNodes().OfType<UsingDirectiveSyntax>().ToArray();
         var lastUsing = usings.LastOrDefault(u => u.Name is { });
-        var autoImports = jsonClassSymbols
-            .Select(s => s.ContainingNamespace.ToDisplayString())
+        var autoImports = SelectProperty(diagnostics, JsonClassDiagnosticAnalyzer.SymbolNamespaceProperty)
             .Distinct()
             .Select(ns => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(ns)))
-            .Where(u => usings.All(u2 => u2.Name?.ToString() != u.Name?.ToString()));
+            .Where(u => usings.All(u2 => u2.Name?.ToString() != u.Name!.ToString()));
         newRoot = lastUsing is null
             ? newRoot.InsertNodesBefore(newRoot.DescendantNodes().OfType<NamespaceDeclarationSyntax>().First(), autoImports)
             : newRoot.InsertNodesAfter(lastUsing, autoImports);
-
-        // check for fix-alls with multiple declarations (ideally tests should cover this and not runtime checks)
-        var newAttrCount = newJsonContextClass.AttributeLists
-            .SelectMany(a => a.Attributes)
-            .Count(a => a.Name.ToString() == "JsonSerializable");
-        if (newAttrCount != attrCount + typeNames.Length)
-            throw new InvalidOperationException($"{attrCount} + {typeNames.Length} should have been {attrCount + typeNames.Length}, was {newAttrCount}");
 
         var newSolution = proj.Solution.WithDocumentSyntaxRoot(jsgcDoc.Id, newRoot);
         return newSolution;
     }
 
     public override ImmutableArray<string> FixableDiagnosticIds
-        => [Diagnostics.JsonSerializableMissingDescriptor.Id];
+        => [Diagnostics.JsonSerializableMissing.Id];
 
     public sealed override FixAllProvider GetFixAllProvider()
         => JsonClassFixAllProvider.Instance;
@@ -112,4 +87,7 @@ public class JsonClassCodeFixer : CodeFixProvider
                 nameof(JsonClassFixAllProvider));
         }
     }
+
+    private static IEnumerable<string> SelectProperty(IEnumerable<Diagnostic> diagnostics, string propName)
+        => diagnostics.Select(d => d.Properties[propName]!);
 }
