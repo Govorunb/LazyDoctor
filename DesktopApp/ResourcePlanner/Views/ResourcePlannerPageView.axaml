@@ -5,8 +5,12 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:vm="using:DesktopApp.ResourcePlanner"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
+             xmlns:conv="using:DesktopApp.Utilities.Converters"
              x:Class="DesktopApp.ResourcePlanner.Views.ResourcePlannerPageView"
              x:DataType="vm:ResourcePlannerPage">
+  <Design.DataContext>
+    <vm:DesignResourcePlannerPage />
+  </Design.DataContext>
   <Control.Styles>
     <Style Selector="Expander /template/ #ExpanderHeader TextBlock">
       <Setter Property="FontSize" Value="22" />
@@ -135,13 +139,14 @@
               <!-- TODO: easy calc button
               "what is the current server time? (shown on the main menu screen)"
               -->
-              <Label VerticalAlignment="Center">Server Timezone (offset to UTC)</Label>
+              <Label VerticalAlignment="Center" Target="ServerTimezoneSlider">Server Timezone</Label>
               <!-- text input for wacky :45 timezones? (no) -->
+              <!-- TODO: move to settings and do "profiles" (CN, EN, etc) -->
               <Slider Name="ServerTimezoneSlider"
                       Minimum="-12" Maximum="14" Value="-7"
                       MinWidth="200"
                       TickFrequency="1" IsSnapToTickEnabled="True" />
-              <Label VerticalAlignment="Center" Content="{Binding #ServerTimezoneSlider.Value}" />
+              <Label VerticalAlignment="Center" Content="{Binding #ServerTimezoneSlider.Value, Converter={x:Static conv:FuncConverters.TimezoneConverter}}" />
             </StackPanel>
           </StackPanel>
         </Expander>

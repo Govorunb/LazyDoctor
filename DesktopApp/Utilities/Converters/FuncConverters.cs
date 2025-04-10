@@ -11,4 +11,7 @@ internal static class FuncConverters
 
     public static FuncValueConverter<int, int> PlayerLevelToExpRequirement { get; }
         = new(lvl => LOCATOR.GetService<GameConstants>()!.GetExpRequirementForNextLevel(lvl));
+
+    public static FuncValueConverter<int, string> TimezoneConverter { get; }
+        = new (utcOffset => (utcOffset > 0 ? "+" : "") + utcOffset);
 }

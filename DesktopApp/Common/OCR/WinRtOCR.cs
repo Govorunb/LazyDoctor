@@ -16,13 +16,13 @@ public sealed class WinRtOCR : ReactiveObjectBase, IOCR<string>
         [0x88982F50] = "The component cannot be found",
         [0x88982F72] = "Failed to read from the stream",
     };
-    public async Task<OCRResult[]> Process(Stream imageData, string? lang = default)
+    public async Task<OCRResult[]> Process(Stream imageData, string? lang = null)
     {
         var ocrResult = await Process(imageData.AsRandomAccessStream(), lang);
         return ocrResult.HasValue ? [ocrResult.Value] : [];
     }
 
-    public async Task<OCRResult?> Process(IRandomAccessStream stream, string? lang = default)
+    public async Task<OCRResult?> Process(IRandomAccessStream stream, string? lang = null)
     {
         var engine = GetEngine(lang) ?? throw new ArgumentException($"Could not create an OCR engine for language {lang}.");
 
@@ -51,7 +51,7 @@ public sealed class WinRtOCR : ReactiveObjectBase, IOCR<string>
             return null;
         }
 
-        this.Log().Info(engine.RecognizerLanguage);
+        this.Log().Debug($"Performing OCR with {engine.RecognizerLanguage.DisplayName} language pack.");
 
         using (bitmap)
         {

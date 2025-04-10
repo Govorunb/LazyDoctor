@@ -7,13 +7,13 @@ namespace DesktopApp.ResourcePlanner;
 [JsonClass]
 public class PlannerDay : ViewModelBase
 {
-    public DateTime Date { get; init; }
+    public DateTime Date { get; set; } = DateTime.Today;
 
-    public required PlayerExpData StartingExpData { get; init; }
+    public PlayerExpData StartingExpData { get; set; } = new();
     public int StartingSanityValue { get; set; }
-    public bool IsTargetStageOpen { get; init; }
+    public bool IsTargetStageOpen { get; set; }
 
-    public SanityLog SanityLog { get; init; } = new();
+    public SanityLog SanityLog { get; set; } = new();
 
     public PlayerExpData FinishExpData { get; set; } = new();
     public int FinishSanityValue { get; set; }

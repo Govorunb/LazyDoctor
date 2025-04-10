@@ -71,7 +71,7 @@ internal static class SplatHelpers
 
         // theoretically manual OCR (with OpenCvSharp) could be better with enough time investment since we know text layout/constraints
         // but until something else requires OpenCV, there's very little ROI on the >50MB dependency
-#if OPENCV
+#if USE_OPENCV
         SplatRegistrations.RegisterLazySingleton<IRecruitTagsOCR, OpenCvTagsOCR>();
 #else
         SplatRegistrations.RegisterLazySingleton<IRecruitTagsOCR, WinRtTagsOCR>();

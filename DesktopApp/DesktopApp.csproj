@@ -20,8 +20,9 @@
         <Company>$(Authors)</Company>
         <AssemblyName>$(Title)</AssemblyName>
 
-        <!-- assembly size leaves things to be desired -->
+        <!-- assembly size is somewhat unsatisfactory -->
         <!-- <PublishAot>true</PublishAot> -->
+        <PublishTrimmed>true</PublishTrimmed>
 
         <!-- WinRT OCR is used over OpenCvSharp for simplicity but it might be needed in the future -->
         <UseOpenCv>false</UseOpenCv>
@@ -33,14 +34,10 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-        <DefineConstants>$(DefineConstants);ENABLE_XAML_HOT_RELOAD</DefineConstants>
 <!--        <DefineConstants>$(DefineConstants);DEBUG_OPENCV</DefineConstants>-->
     </PropertyGroup>
     <PropertyGroup Condition="'$(UseOpenCv)' == 'true'">
-        <DefineConstants>$(DefineConstants);OPENCV</DefineConstants>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(PublishAot)' == 'true'">
-        <DefineConstants>$(DefineConstants);DISABLE_XAML_HOT_RELOAD</DefineConstants>
+        <DefineConstants>$(DefineConstants);USE_OPENCV</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
@@ -53,14 +50,12 @@
         <Content Include="Assets\tessdata\en.traineddata" Condition="$(UseOpenCv)" TargetPath="data/tessdata/en.traineddata" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
-    <ItemGroup Condition="$(DefineConstants.Contains('ENABLE_XAML_HOT_RELOAD')) and !$(DefineConstants.Contains('DISABLE_XAML_HOT_RELOAD'))">
-        <PackageReference Include="Avalonia.Markup.Xaml.Loader" />
-        <PackageReference Include="HotAvalonia" />
-    </ItemGroup>
-
     <ItemGroup>
-        <ProjectReference Include="..\LazyDoctor.Analyzers\LazyDoctor.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <!-- https://github.com/dotnet/sdk/issues/45253 forces publishing with `dotnet publish` -->
+        <ProjectReference Include="..\LazyDoctor.Analyzers\LazyDoctor.Analyzers.csproj"
+                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 
+        <PackageReference Include="HotAvalonia" PrivateAssets="All" />
         <PackageReference Include="Avalonia" />
         <PackageReference Include="Avalonia.Win32" />
         <PackageReference Include="Avalonia.Skia" />
@@ -83,7 +78,6 @@
         </PackageReference>
         <PackageReference Include="Splat.Serilog" />
 
-        <PackageReference Include="HotAvalonia.Extensions" PrivateAssets="all" /> <!-- compiles itself out in release mode -->
         <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
     </ItemGroup>
 

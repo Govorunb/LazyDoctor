@@ -24,7 +24,6 @@ public sealed class ResourcePlannerSettings : ViewModelBase
 
     [Reactive] public TimeOnly ServerReset { get; set; } = Constants.EnServerReset;
     [Reactive] public TimeSpan ServerTimezone { get; set; } = Constants.EnServerTimezone;
-    [Reactive] public DateTime CurrentServerTime { get; set; }
     #endregion Time
 
     #region Potion/sanity settings
@@ -45,12 +44,4 @@ public sealed class ResourcePlannerSettings : ViewModelBase
     [Reactive] public int RefreshOpBudget { get; set; }
     [Reactive] public int WeeklyAnniLoss { get; set; } = 124;
     #endregion Potion/sanity settings
-
-    public ResourcePlannerSettings()
-    {
-        this.WhenAnyValue(t => t.ServerTimezone)
-            .Subscribe(t => CurrentServerTime = DateTime.UtcNow + t);
-        this.WhenAnyValue(t => t.CurrentServerTime)
-            .Subscribe(t => ServerTimezone = t - DateTime.UtcNow);
-    }
 }
