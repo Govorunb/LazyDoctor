@@ -20,7 +20,7 @@
         <Company>$(Authors)</Company>
         <AssemblyName>$(Title)</AssemblyName>
 
-        <!-- assembly size is somewhat unsatisfactory -->
+        <!-- aot adds about +25% assembly size -->
         <!-- <PublishAot>true</PublishAot> -->
         <PublishTrimmed>true</PublishTrimmed>
 
@@ -33,11 +33,9 @@
         <DebugType>None</DebugType>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-<!--        <DefineConstants>$(DefineConstants);DEBUG_OPENCV</DefineConstants>-->
-    </PropertyGroup>
     <PropertyGroup Condition="'$(UseOpenCv)' == 'true'">
         <DefineConstants>$(DefineConstants);USE_OPENCV</DefineConstants>
+<!--        <DefineConstants>$(DefineConstants);DEBUG_OPENCV</DefineConstants>-->
     </PropertyGroup>
 
     <ItemGroup>

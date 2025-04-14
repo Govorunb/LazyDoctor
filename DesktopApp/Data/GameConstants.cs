@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using DesktopApp.Data.Player;
 using DesktopApp.Utilities.Attributes;
 
 namespace DesktopApp.Data;
@@ -16,24 +17,24 @@ public sealed class GameConstants
     public int GetTotalExpRequirement(int level)
         => PlayerExpMap.Take(level).Sum();
     public int GetMaxSanity(int level)
-        => MaxSanity[level - 1];
+        => MaxSanity[level - 1] + 45; // cap was raised by 45 in early 2025, but they did it in the code instead of the data...
 
-    public int AddExp(int level, int currExp, int addExp, out int levelups)
+    public PlayerExpData AddExp(PlayerExpData curr, int exp)
     {
-        var nextExp = currExp + addExp;
-        levelups = 0;
-        bool leveledUp;
+        var (level, currExp) = curr;
+        var nextExp = currExp + exp;
+        int rem;
         do
         {
             var req = GetExpRequirementForNextLevel(level);
-            var rem = nextExp - req;
-            leveledUp = rem >= 0;
-            if (leveledUp)
+            rem = nextExp - req;
+            if (rem >= 0)
             {
                 nextExp = rem;
-                levelups++;
+                level++;
             }
-        } while (leveledUp);
-        return nextExp;
+        } while (rem >= 0);
+
+        return new(level, nextExp);
     }
 }

@@ -38,6 +38,7 @@ public sealed class ResourcePlannerSettings : ViewModelBase
     [Reactive] public int SmallPots { get; set; } // 10 each
     [Reactive] public int MediumPots { get; set; } // 80 each
     [Reactive] public int LargePots { get; set; } // 120 each
+    [Reactive] public int OpBudget { get; set; } // 135 each
     [Reactive] public int ExtraSanity { get; set; }
 
     // extra gain/loss

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using DesktopApp.Data;
 using DesktopApp.Recruitment;
 using DesktopApp.ResourcePlanner;
@@ -25,9 +26,17 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
         public string Language { get; set; } = "en_US";
 
         public RecruitmentPrefsData Recruitment { get; set => SetIfNotNull(ref field, value); } = new();
+        public ResourcePlannerPrefsData Planner { get; set => SetIfNotNull(ref field, value); } = new();
 
         public GeneralPrefsData General { get; set => SetIfNotNull(ref field, value); } = new();
-        public ResourcePlannerPrefsData Planner { get; set => SetIfNotNull(ref field, value); } = new();
+
+        // preserve newer configs on older versions
+        [JsonExtensionData] internal Dictionary<string, object> UnknownProperties { get; set; } = new();
+
+        internal static JsonSerializerOptions SerializerOptions { get; } = new(JsonSourceGenContext.Default.Options)
+        {
+            WriteIndented = true, // more human-readable (and editable) (but still not yaml, all my homies hate yaml)
+        };
     }
 
     private readonly IAppData _appData;
@@ -53,10 +62,12 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
             {
                 this.RaisePropertyChanged(nameof(Recruitment));
                 this.RaisePropertyChanged(nameof(General));
+                this.RaisePropertyChanged(nameof(Planner));
             })
             .WhereNotNull()
             .Switch(d => d.Recruitment.Changed
                 .Merge(d.General.Changed)
+                .Merge(d.Planner.Changed)
             );
 
         prefsChanged
@@ -70,8 +81,12 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
     {
         Debug.Assert(Data is { });
         Data.Version = App.Version;
-        var json = JsonSerializer.Serialize(Data, JsonSourceGenContext.Default.UserPrefsData);
-        this.Log().Info($"Saving preferences {json}");
+#pragma warning disable IL2026 // Type is used (whole assembly is rooted, too)
+#pragma warning disable IL3050 // type resolver will use source generated code
+        var json = JsonSerializer.Serialize(Data, UserPrefsData.SerializerOptions);
+#pragma warning restore IL2026 // RequiresUnreferencedCode
+#pragma warning restore IL3050 // RequiresDynamicCode
+        this.Log().Info("Saving preferences");
         await _appData.WriteFile(PrefsFileName, json);
     }
 
@@ -92,13 +107,16 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 
         try
         {
-            if (JsonSourceGenContext.Default.Deserialize<UserPrefsData>(json) is not { } loaded)
+            // ReSharper disable once RedundantAlwaysMatchSubpattern
+            // Version can be null here (but not in contract)
+            if (JsonSourceGenContext.Default.Deserialize<UserPrefsData>(json) is not { Version: { } } loaded)
                 throw new InvalidOperationException("Deserialization failed");
-            this.Log().Info($"Loaded preferences {json}");
+            this.Log().Info("Loaded preferences");
             // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
             // fixups for explicit nulls
             loaded.Recruitment ??= new();
             loaded.General ??= new();
+            loaded.Planner ??= new();
             // ReSharper restore NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
             return UserPrefsMigrations.RunMigrations(loaded);
         }
@@ -128,11 +146,6 @@ file static class UserPrefsMigrations
             // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
             // json
             d.General ??= new();
-            return d;
-        }),
-        new(new("9.9.9.9"), d =>
-        {
-            d.Log().Error("Should not be here");
             return d;
         }),
     }.OrderBy(m => m.Version).ToList();

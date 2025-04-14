@@ -35,6 +35,8 @@ public class WeeklyFarmCalculator(WeeklyStages sched, GameConstants gameConst) :
         var (level, exp) = day.StartingExpData;
         var targetStage = sched.Stages.GetByCode(Settings.TargetStageCode);
         Debug.Assert(targetStage is {}, $"No target stage found with code {Settings.TargetStageCode}");
+        // TODO: simulate inventory?
+        // e.g. op is +135, can't cleanly consume 120 without tacking on the extra "wasted" 15
         if (Settings.UseMonthlyCard)
             sanLog.Log(80, "Daily potion from monthly card");
         if (Settings.UseWeeklyPots && today.DayOfWeek == System.DayOfWeek.Monday)
@@ -42,32 +44,24 @@ public class WeeklyFarmCalculator(WeeklyStages sched, GameConstants gameConst) :
 
         if (day.IsTargetStageOpen)
         {
-            while (true)
+            int levelups;
+            do
             {
                 var runs = RunTargetStage(sanLog.CurrentValue, out var spent);
                 sanLog.Log(-spent, $"Run {Settings.TargetStageCode} {runs} times");
                 day.TargetStageCompletions += runs;
-                exp = gameConst.AddExp(level, exp, spent * 12, out var levelups);
-                if (levelups == 0)
-                    break;
+                (var newLevel, exp) = gameConst.AddExp(day.StartingExpData, spent * 12);
+                levelups = newLevel - level;
 
                 for (var i = 0; i < levelups; i++)
                 {
                     level += 1;
                     var newCap = gameConst.GetMaxSanity(level);
-                    // every levelup (and OP refresh) is (cap - 1) sanity
+                    // every levelup is (new cap - 1) sanity
                     // due to momentary loss of natural regen from overcap
                     sanLog.Log(newCap - 1, "Level up");
                 }
-            }
-            // OP is spent on the last day the target stage is available
-            // this is so that, if we level up/get more sanity cap prior, we get more sanity out of our OP
-            // though, you have to level up quite a lot to get even one extra run out of this
-            // theoretically, there are certain breakpoints where it's better to push and level
-            // e.g. 119->120 sanity cap lets you bank 4 runs of AP-5 instead of 3
-            // (which compounds more if done early)
-            // TODO simulate OP refresh strategies
-            // it's simulations all the way down
+            } while (levelups > 0);
 
             // TODO: precompute
             // loop over following days until target date

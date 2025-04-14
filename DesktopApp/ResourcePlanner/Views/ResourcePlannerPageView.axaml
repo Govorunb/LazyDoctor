@@ -115,6 +115,8 @@
                             Header="Medium Potions (+80)" />
               <fa:NumberBox Name="LargePots" Value="{Binding Setup.LargePots}"
                             Header="Large Potions (+120)" />
+              <fa:NumberBox Name="OpBudget" Value="{Binding Setup.OpBudget}"
+                            Header="OP Budget (+135)" />
               <fa:NumberBox Name="ExtraSanityValue" Value="{Binding Setup.ExtraSanity}"
                             Header="Extra Sanity Value" ToolTip.Tip="Misc sanity items like cakes" />
             </StackPanel>
