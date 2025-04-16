@@ -67,6 +67,30 @@
           </fa:SettingsExpanderItem.Footer>
         </fa:SettingsExpanderItem>
       </fa:SettingsExpander>
+      <fa:SettingsExpander Header="Logging"
+                           IconSource="Library"
+                           Description="Configure log levels, view logs">
+        <fa:SettingsExpanderItem>
+          <TextBlock Text="File log level" />
+          <fa:SettingsExpanderItem.Footer>
+            <ComboBox ItemsSource="{x:Static vm:ReactiveLogLevel.LogLevels}"
+                      SelectedItem="{Binding Prefs.General.FileLogLevel.Level, Mode=TwoWay}" />
+          </fa:SettingsExpanderItem.Footer>
+        </fa:SettingsExpanderItem>
+        <fa:SettingsExpanderItem>
+          <fa:SettingsExpanderItem.Footer>
+            <Button Command="{Binding OpenLogsFolder}" Content="Open logs folder" />
+          </fa:SettingsExpanderItem.Footer>
+        </fa:SettingsExpanderItem>
+        <fa:SettingsExpanderItem>
+          <TextBlock Text="Console log level" />
+          <fa:SettingsExpanderItem.Footer>
+            <ComboBox ItemsSource="{x:Static vm:ReactiveLogLevel.LogLevels}"
+                      SelectedItem="{Binding Prefs.General.ConsoleLogLevel.Level, Mode=TwoWay}" />
+          </fa:SettingsExpanderItem.Footer>
+        </fa:SettingsExpanderItem>
+        <!-- TODO: "log console" window -->
+      </fa:SettingsExpander>
     </StackPanel>
   </Border>
 </UserControl>

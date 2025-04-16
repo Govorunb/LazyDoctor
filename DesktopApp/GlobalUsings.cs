@@ -6,3 +6,4 @@ global using ReactiveUI.Fody.Helpers;
 global using Splat;
 global using static DesktopApp.Common.SplatHelpers;
 global using DayOfWeek = DesktopApp.Common.DayOfWeek;
+global using SeriLogLevel = Serilog.Events.LogEventLevel;

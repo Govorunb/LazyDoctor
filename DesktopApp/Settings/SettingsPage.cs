@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using DesktopApp.Data.GitHub;
 using DesktopApp.Utilities.Helpers;
 
@@ -18,6 +19,8 @@ public class SettingsPage : PageBase
     public DateTimeOffset LastRefresh { get; set; }
 
     public ReactiveCommand<Unit, Unit> RefreshDataSource { get; }
+    public ReactiveCommand<Unit, Unit> OpenLogsFolder { get; }
+    public Interaction<string, Unit> PlatformOpenFolder { get; } = new();
 
     public SettingsPage(UserPrefs prefs, TimeProvider time, GithubDataAdapter data)
     {
@@ -41,6 +44,7 @@ public class SettingsPage : PageBase
             RefreshCooldownLeft = _refreshCooldown.ToString("mm\\:ss", CultureInfo.InvariantCulture);
         }, this.WhenAnyValue(t => t.RefreshCooldownLeft).Select(cd => cd is null));
         RefreshDataSource.Execute().Subscribe();
+        OpenLogsFolder = ReactiveCommand.CreateFromTask(() => PlatformOpenFolder.Handle(AppData.GetFullPath("logs/")).ToTask());
     }
 }
 

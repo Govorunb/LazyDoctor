@@ -116,16 +116,13 @@
               <fa:NumberBox Name="LargePots" Value="{Binding Setup.LargePots}"
                             Header="Large Potions (+120)" />
               <fa:NumberBox Name="OpBudget" Value="{Binding Setup.OpBudget}"
-                            Header="OP Budget (+135)" />
+                            Header="Originium Prime (+135)" />
               <fa:NumberBox Name="ExtraSanityValue" Value="{Binding Setup.ExtraSanity}"
                             Header="Extra Sanity Value" ToolTip.Tip="Misc sanity items like cakes" />
             </StackPanel>
             <TextBlock Text="" />
             <StackPanel Orientation="Horizontal" Spacing="8">
               <TextBlock Text="Gain/Loss" Classes="Strong" VerticalAlignment="Center" />
-              <fa:NumberBox Name="OPBudget" Value="{Binding Setup.RefreshOpBudget}"
-                            Header="OP budget (refreshing)"
-                            ToolTip.Tip="Each OP restores 100% max sanity; It's marginally (not meaningfully) better to spend at the very end of a farming period" />
               <StackPanel Orientation="Vertical">
                 <CheckBox Name="MonthlyCardCheckBox"
                           Content="Use Monthly Card (+80 daily)" IsChecked="{Binding Setup.UseMonthlyCard}" />

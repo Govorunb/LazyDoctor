@@ -35,6 +35,12 @@ public static class ReactiveExtensions
         return disposable.DisposeWithMe(target);
     }
 
+    public static IDisposable NotifyProperty<TTarget, TDontCare>(this TTarget target, string prop, IObservable<TDontCare> observable)
+        where TTarget : ReactiveObjectBase
+    {
+        return observable.Subscribe(_ => target.RaisePropertyChanged(prop));
+    }
+
     /// <returns>A <see cref="Unit"/> observable that fires on each item in the <paramref name="source"/> observable equal to the given <paramref name="item"/>.</returns>
     public static IObservable<Unit> WhenIs<T>(this IObservable<T> source, T item, IEqualityComparer<T>? comparer = null)
         where T : IEquatable<T>

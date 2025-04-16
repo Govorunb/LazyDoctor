@@ -40,4 +40,5 @@ namespace DesktopApp.Data;
 [JsonSerializable(typeof(StageData))]
 [JsonSerializable(typeof(Zone))]
 [JsonSerializable(typeof(PlayerExpData))]
+[JsonSerializable(typeof(ReactiveLogLevel))]
 public sealed partial class JsonSourceGenContext : JsonSerializerContext;

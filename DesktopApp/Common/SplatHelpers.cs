@@ -1,3 +1,4 @@
+using System.Globalization;
 using DesktopApp.Common.OCR;
 using DesktopApp.Data;
 using DesktopApp.Data.GitHub;
@@ -9,7 +10,7 @@ using DesktopApp.Recruitment.Processing;
 using DesktopApp.ResourcePlanner;
 using DesktopApp.Settings;
 using Serilog;
-using Serilog.Events;
+using Serilog.Core;
 using Splat.Serilog;
 
 namespace DesktopApp.Common;
@@ -38,16 +39,16 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<GithubDataAdapter>();
 
         // TODO: move this out
-        const LogEventLevel FileLogLevel = LogEventLevel.Information;
-#pragma warning disable CA1305 // Defaults to CultureInfo.InvariantCulture, which is what I would've passed in anyway
+        // + figure out load order w/ log level prefs, there's some places where we log before prefs are loaded (e.g. while loading prefs)
+        var fileLogLevelSwitch = new LoggingLevelSwitch();
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.Console()
-            .WriteTo.File(AppData.GetFullPath("logs/log.txt"),
+            .WriteTo.File(AppData.GetFullPath("logs/.log"),
+                formatProvider: CultureInfo.CurrentCulture,
                 rollingInterval: RollingInterval.Day,
-                restrictedToMinimumLevel: FileLogLevel)
+                levelSwitch: fileLogLevelSwitch)
             .CreateLogger();
-#pragma warning restore CA1305 // Provide a value for the 'IFormatProvider' argument.
         SERVICES.UseSerilogFullLogger();
 
         SplatRegistrations.RegisterLazySingleton<WinRtOCR>();
