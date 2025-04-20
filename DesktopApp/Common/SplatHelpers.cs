@@ -43,7 +43,7 @@ internal static class SplatHelpers
         var fileLogLevelSwitch = new LoggingLevelSwitch();
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.Console()
+            .WriteTo.Console(formatProvider: CultureInfo.CurrentCulture)
             .WriteTo.File(AppData.GetFullPath("logs/.log"),
                 formatProvider: CultureInfo.CurrentCulture,
                 rollingInterval: RollingInterval.Day,

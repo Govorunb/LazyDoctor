@@ -21,16 +21,30 @@ public class ReactiveLogLevel : ReactiveObjectBase
         set => Switch.MinimumLevel = value;
     }
 
+    [JsonIgnore]
     public SeriLogLevel DefaultLevel { get; }
 
-    public ReactiveLogLevel(SeriLogLevel level = SeriLogLevel.Information)
+    public ReactiveLogLevel(LoggingLevelSwitch switcher)
     {
-        DefaultLevel = level;
-        Switch = new LoggingLevelSwitch(level);
-        this.NotifyProperty(nameof(Level),
-            Observable.FromEventPattern<LoggingLevelSwitchChangedEventArgs>(
-                eh => Switch.MinimumLevelChanged += eh,
-                eh => Switch.MinimumLevelChanged -= eh)
-        );
+        DefaultLevel = switcher.MinimumLevel;
+        Switch = switcher;
+        IDisposable? notifySubscription = null;
+        this.WhenAnyValue(t => t.Switch)
+            .Subscribe(sw =>
+            {
+                notifySubscription?.Dispose();
+                notifySubscription = this.NotifyProperty(nameof(Level),
+                    Observable.FromEventPattern<LoggingLevelSwitchChangedEventArgs>(
+                        eh => sw.MinimumLevelChanged += eh,
+                        eh => sw.MinimumLevelChanged -= eh)
+                );
+                this.RaisePropertyChanged(nameof(Level));
+            });
+    }
+
+    [JsonConstructor]
+    public ReactiveLogLevel(SeriLogLevel level = SeriLogLevel.Information)
+        : this(new LoggingLevelSwitch(level))
+    {
     }
 }

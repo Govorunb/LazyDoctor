@@ -24,8 +24,7 @@ internal static class Program
         => AppBuilder.Configure<App>()
             .UseSkia()
             .UseWin32()
-            .WithInterFont()
-            // .LogToTrace(Avalonia.Logging.LogEventLevel.Information)
+            // .LogToTrace(AvaLogLevel.Information)
             .LogToTrace()
             .UseReactiveUI();
 }

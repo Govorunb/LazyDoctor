@@ -91,40 +91,48 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
     }
 
     public override async Task<UserPrefsData> Reload()
-        => Data = await ReloadData();
+    {
+        UserPrefsData? data;
+        // TODO: set log levels from data
+        try
+        {
+            data = await ReloadData();
+            if (data is null)
+            {
+                this.Log().Warn("No prefs found, using default");
+                data = new();
+            }
+        }
+        catch (Exception e)
+        {
+            this.Log().Error(e, "Failed to load preferences, reverting to default");
+            data = new();
+        }
+        this.Log().Info("Loaded preferences");
+        data = UserPrefsMigrations.RunMigrations(data);
+        return Data = data;
+    }
 
-    private async Task<UserPrefsData> ReloadData()
+    private async Task<UserPrefsData?> ReloadData()
     {
         var appData = LOCATOR.GetService<IAppData>();
         AssertDI(appData);
 
         var json = await appData.ReadFile(PrefsFileName);
         if (json is null)
-        {
-            this.Log().Warn("No saved preferences, using default");
-            return new();
-        }
+            return null;
 
-        try
-        {
-            // ReSharper disable once RedundantAlwaysMatchSubpattern
-            // Version can be null here (but not in contract)
-            if (JsonSourceGenContext.Default.Deserialize<UserPrefsData>(json) is not { Version: { } } loaded)
-                throw new InvalidOperationException("Deserialization failed");
-            this.Log().Info("Loaded preferences");
-            // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-            // fixups for explicit nulls
-            loaded.Recruitment ??= new();
-            loaded.General ??= new();
-            loaded.Planner ??= new();
-            // ReSharper restore NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-            return UserPrefsMigrations.RunMigrations(loaded);
-        }
-        catch (Exception e)
-        {
-            this.Log().Error(e, "Failed to load preferences, reverting to default");
-            return new();
-        }
+        // ReSharper disable once RedundantAlwaysMatchSubpattern
+        // Version can't be null... except for right here (and only here)
+        if (JsonSourceGenContext.Default.Deserialize<UserPrefsData>(json) is not { Version: { } } loaded)
+            throw new InvalidOperationException("Data is malformed");
+        // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+        // fixups for explicit nulls
+        loaded.Recruitment ??= new();
+        loaded.General ??= new();
+        loaded.Planner ??= new();
+        // ReSharper restore NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+        return loaded;
     }
 
     private static void SetIfNotNull<T>(ref T field, T? value)

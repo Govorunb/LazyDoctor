@@ -20,12 +20,29 @@
         <Company>$(Authors)</Company>
         <AssemblyName>$(Title)</AssemblyName>
 
-        <!-- aot adds about +25% assembly size -->
+        <!--
+            counterintuitively, trimming adds ~20MB to the assembly size
+            it turns out something references Windows.Input.ICommand, which through a series of managers and type converters pulls in the entire kingdom of windows assemblies
+            (a huge chunk of System.Windows.Forms, WPF, printing for some reason, etc)
+        -->
+        <!-- <PublishTrimmed>true</PublishTrimmed> -->
+        <!-- aot adds another +25% over PublishTrimmed - it's moved to a conditional PropertyGroup below -->
         <!-- <PublishAot>true</PublishAot> -->
-        <PublishTrimmed>true</PublishTrimmed>
 
         <!-- WinRT OCR is used over OpenCvSharp for simplicity but it might be needed in the future -->
         <UseOpenCv>false</UseOpenCv>
+    </PropertyGroup>
+
+    <!--
+        PublishAot is not set directly from command line because of a pretty weird msbuild quirk:
+        build fails with NETSDK1207 because the analyzer project targets netstandard2.0 and thus can't be trimmed
+        the flags provided from cli seem to get set in some global namespace that affects all projects
+    -->
+    <PropertyGroup Condition="'$(aot)' == 'true'">
+        <PublishAot>true</PublishAot>
+        <!-- for debugging assembly size with https://github.com/MichalStrehovsky/sizoscope -->
+        <!-- <IlcGenerateMstatFile>true</IlcGenerateMstatFile> -->
+        <!-- <IlcGenerateDgmlFile>true</IlcGenerateDgmlFile> -->
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -53,13 +70,12 @@
         <ProjectReference Include="..\LazyDoctor.Analyzers\LazyDoctor.Analyzers.csproj"
                           OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 
-        <PackageReference Include="HotAvalonia" PrivateAssets="All" />
+        <PackageReference Include="HotAvalonia" PrivateAssets="all" />
         <PackageReference Include="Avalonia" />
         <PackageReference Include="Avalonia.Win32" />
         <PackageReference Include="Avalonia.Skia" />
 <!--        <PackageReference Include="Avalonia.Desktop" />--> <!-- includes X11/Metal, no point -->
         <PackageReference Include="Avalonia.Themes.Fluent" />
-        <PackageReference Include="Avalonia.Fonts.Inter" />
         <PackageReference Include="Avalonia.ReactiveUI" />
         <PackageReference Include="FluentAvaloniaUI" />
         <PackageReference Include="JetBrains.Annotations" />
@@ -70,12 +86,11 @@
         <!-- <PackageReference Include="ReactiveUI.SourceGenerators" />--> <!-- TODO: switch to this -->
         <PackageReference Include="Serilog.Sinks.Console" />
         <PackageReference Include="Serilog.Sinks.File" />
-        <PackageReference Include="Splat.DependencyInjection.SourceGenerator">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
+        <PackageReference Include="Splat.DependencyInjection.SourceGenerator" PrivateAssets="all" />
         <PackageReference Include="Splat.Serilog" />
 
+        <!-- HotAvalonia includes an older version of Xaml.Loader -->
+        <PackageReference Include="Avalonia.Markup.Xaml.Loader" Condition="'$(Configuration)' == 'Debug'" PrivateAssets="all" />
         <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
     </ItemGroup>
 
