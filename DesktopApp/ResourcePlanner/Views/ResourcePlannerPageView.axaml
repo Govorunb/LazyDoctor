@@ -49,57 +49,30 @@
   <Border Padding="20">
     <ScrollViewer>
       <StackPanel Orientation="Vertical" Spacing="4">
-        <Expander Header="Setup" IsExpanded="True">
+        <Expander Header="Setup" IsExpanded="{Binding Prefs.SetupExpanded}">
           <StackPanel Orientation="Vertical">
             <Label Classes="Title" Content="Targets" />
-            <Label Classes="Subtitle" Content="Target Stage" />
             <!-- TODO: data source -->
             <StackPanel Orientation="Horizontal" Spacing="8">
-              <ComboBox Name="ZonePicker" SelectedIndex="4">
-                <ComboBoxItem>Solid Defense</ComboBoxItem>
-                <ComboBoxItem>Fierce Attack</ComboBoxItem>
-                <ComboBoxItem>Unstoppable Charge</ComboBoxItem>
-                <ComboBoxItem>Fearless Protection</ComboBoxItem>
-                <ComboBoxItem>Tough Siege</ComboBoxItem>
-                <ComboBoxItem>Aerial Threat</ComboBoxItem>
-                <ComboBoxItem>Tactical Drill</ComboBoxItem>
-                <ComboBoxItem>Resource Search</ComboBoxItem>
-                <ComboBoxItem>Cargo Escort</ComboBoxItem>
-              </ComboBox>
-              <!-- TODO: items from zone -->
-              <ComboBox Name="StagePicker"
-                        SelectedValue="{Binding Setup.TargetStageCode, Mode=TwoWay}"
-                        SelectedValueBinding="{Binding Content, DataType=ComboBoxItem}">
-                <ComboBoxItem>AP-1</ComboBoxItem>
-                <ComboBoxItem>AP-2</ComboBoxItem>
-                <ComboBoxItem>AP-3</ComboBoxItem>
-                <ComboBoxItem>AP-4</ComboBoxItem>
-                <ComboBoxItem>AP-5</ComboBoxItem>
-              </ComboBox>
             </StackPanel>
-            <Label Content="Target Date" VerticalAlignment="Center" />
-            <CalendarDatePicker SelectedDate="{Binding Setup.TargetDate, Mode=TwoWay}"
-                                DisplayDate="{Binding Setup.TargetDate, Mode=TwoWay}" />
-            <Label Classes="Subtitle" Content="Drops" />
-            <StackPanel Orientation="Horizontal" Spacing="16">
-              <!-- TODO: item view (icon + name, clickable => link to wiki) -->
-              <Border BorderThickness="1" BorderBrush="Red" CornerRadius="8" Padding="2 4">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <fa:SymbolIcon Symbol="Admin" Width="32" FontSize="24" />
-                  <Label Content="Purchase Certificate" />
-                </StackPanel>
-              </Border>
-              <!-- TODO: multiple resources (grid?) -->
-              <fa:NumberBox Name="Resource1Owned" Header="In inventory"
-                            Minimum="0" Value="0" />
-            </StackPanel>
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,Auto,Auto,Auto">
+                <Label Grid.Column="0" Grid.Row="0" Content="Target Stage" Target="StagePicker" />
+                <AutoCompleteBox Grid.Column="0" Grid.Row="1" Name="StagePicker" Margin="0 0 8 0"
+                                 ItemsSource="{Binding StageCodes}" Text="{Binding Setup.TargetStageCode, Mode=TwoWay}"
+                                 MinWidth="100" />
+                <Label Grid.Column="1" Grid.Row="0" Content="Target Date" VerticalAlignment="Center" />
+                <CalendarDatePicker Grid.Column="1" Grid.Row="1" Margin="0 0 8 0"
+                                    SelectedDate="{Binding Setup.TargetDate, Mode=TwoWay}"
+                                    DisplayDate="{Binding Setup.TargetDate, Mode=TwoWay}" />
 
-            <Label /> <!-- spacer -->
-            <Label />
-            <Label />
+                <Label Grid.Column="2" Grid.Row="0" Content="Start Date" VerticalAlignment="Center" />
+                <CalendarDatePicker Grid.Column="2" Grid.Row="1"  Margin="0 0 8 0"
+                                    SelectedDate="{Binding Setup.InitialDate, Mode=TwoWay}" />
 
-            <Label Classes="Title" Content="Farming" />
-            <Label Classes="Subtitle" Content="Sanity" />
+                <Button Grid.Column="3" Grid.Row="1" Classes="accent" Content="Today" Command="{Binding SetInitialDateToTodayCommand}" />
+            </Grid>
+
+            <Label Classes="Title" Content="Sanity" Margin="0 24 0 0" />
             <StackPanel Orientation="Horizontal" Spacing="8">
               <Control.Styles>
                 <Style Selector="fa|NumberBox">
@@ -109,6 +82,8 @@
                 </Style>
               </Control.Styles>
               <TextBlock Text="Banked sanity" />
+              <fa:NumberBox Name="CurrentSanity" Value="{Binding Setup.CurrentSanity}"
+                            Header="Current Sanity" />
               <fa:NumberBox Name="SmallPots" Value="{Binding Setup.SmallPots}"
                             Header="Small Potions (+10)" />
               <fa:NumberBox Name="MediumPots" Value="{Binding Setup.MediumPots}"
@@ -129,8 +104,17 @@
                 <CheckBox Name="WeeklyPotsCheckBox"
                           Content="Use Weekly Potions (+240)" IsChecked="{Binding Setup.UseWeeklyPots}" />
               </StackPanel>
-              <fa:NumberBox Name="AnniLoss" Header="Weekly Anni spend"
-                            Value="{Binding Setup.WeeklyAnniLoss}" />
+              <fa:NumberBox Name="RegenEfficiencyAkaLazyLoss" Header="Daily Regen Efficiency"
+                            Minimum="0" Maximum="240"
+                            Value="{Binding Setup.DailySanityRegenEfficiency}"
+                            ToolTip.Tip="How much of the daily 240 regen you usually end up spending (on average).
+For example, if you log in once a day and your cap is 180, put in 180." />
+              <StackPanel Spacing="4">
+                <Label Content="Annihilation Map" />
+                <ComboBox Name="AnniMap" Classes="EnumPicker"
+                          ItemsSource="{x:Static vm:ResourcePlannerSettings.AnnihilationMaps}"
+                          SelectedValue="{Binding Setup.AnnihilationMap}"/>
+              </StackPanel>
             </StackPanel>
 
             <Label Classes="Title" Content="Time" />
@@ -154,12 +138,13 @@
           <Button Classes="accent" Margin="4" Content="Calculate" />
         </StackPanel>
 
-        <Expander Header="Results">
+        <Expander Header="Results" IsExpanded="{Binding Prefs.ResultsExpanded}">
           <StackPanel Orientation="Horizontal" Spacing="8">
+            <!-- TODO: table view? (TreeDataGrid) -->
             <Calendar Name="Calendar"
-                      DisplayDateStart="{Binding Setup.InitialState.Date}" DisplayDateEnd="{Binding Setup.TargetDate}"
-                      SelectedDate="{Binding Setup.TargetDate}"
-                      />
+                      DisplayDateStart="{Binding Setup.InitialDate}" DisplayDateEnd="{Binding Setup.TargetDate}"
+                      SelectedDate="{Binding Setup.TargetDate, Mode=OneTime}"
+            />
             <TextBlock Text="{Binding #Calendar.SelectedDate}" />
           </StackPanel>
         </Expander>

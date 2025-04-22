@@ -56,6 +56,7 @@ internal static class SplatHelpers
         // data sources
         SplatRegistrations.RegisterLazySingleton<UserPrefs>();
         // could be registered with an attribute but that needs a whole source gen (aot/generics)
+        RegisterTable<ZoneTable>("excel/zone_table.json");
         RegisterTable<OperatorTable>("excel/character_table.json");
         RegisterTable<StageTable>("excel/stage_table.json");
         RegisterTable<GachaTable>("excel/gacha_table.json");
@@ -65,6 +66,7 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<TagsDataSource>();
         SplatRegistrations.RegisterLazySingleton<StageRepository>();
         SplatRegistrations.RegisterLazySingleton<WeeklyStages>();
+        SplatRegistrations.RegisterLazySingleton<WeeklyFarmCalculator>();
 
         // processing
         SplatRegistrations.RegisterLazySingleton<TextParsingUtils>();

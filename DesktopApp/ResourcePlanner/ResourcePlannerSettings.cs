@@ -1,4 +1,8 @@
+using System.ComponentModel;
+using System.Reactive.Linq;
+using System.Text.Json.Serialization;
 using DesktopApp.Data;
+using DesktopApp.Data.Player;
 using DesktopApp.Utilities.Attributes;
 
 namespace DesktopApp.ResourcePlanner;
@@ -6,33 +10,27 @@ namespace DesktopApp.ResourcePlanner;
 [JsonClass]
 public sealed class ResourcePlannerSettings : ViewModelBase
 {
-    [Reactive]
-    public PlannerDay InitialState { get; set; } = new()
-    {
-        Date = DateTime.Now,
-        // TODO: player stats saved prefs?
-        StartingExpData = new(),
-    };
+    public static readonly AnnihilationMap[] AnnihilationMaps = Enum.GetValues<AnnihilationMap>();
 
-    #region Target
-    [Reactive] public string TargetStageCode { get; set; } = "AP-5";
-    // TODO: target mode switch (target date/target amount)
+    [Reactive] public DateTime InitialDate { get; set; } = DateTime.Now;
+    // TODO: dedicated prefs space for player stats/inventory
+    [Reactive] public PlayerExpData InitialExpData { get; set; } = new();
+
+    [Reactive] public string TargetStageCode { get; set; } = "";
     [Reactive] public DateTime TargetDate { get; set; } = DateTime.Now.AddDays(7);
-    #endregion Target
-
-    #region Time
-
+    // TODO: server presets/profiles
     [Reactive] public TimeOnly ServerReset { get; set; } = Constants.EnServerReset;
     [Reactive] public TimeSpan ServerTimezone { get; set; } = Constants.EnServerTimezone;
-    #endregion Time
 
     #region Potion/sanity settings
     [Reactive] public int CurrentSanity { get; set; }
 
-    // reoccurring
+    // reoccurring gain/loss
     [Reactive] public bool UseMonthlyCard { get; set; } // daily, 80 each
     [Reactive] public bool UseWeeklyPots { get; set; } = true; // 2x120 each
     [Reactive] public int DailySanityRegenEfficiency { get; set; } = 240; // can be manually set lower if you login once a day or something
+    [Reactive] public AnnihilationMap AnnihilationMap { get; set; }
+    [Reactive, JsonIgnore] public int WeeklyAnniLoss { get; private set; } = 124;
 
     // banked potions
     [Reactive] public int SmallPots { get; set; } // 10 each
@@ -41,8 +39,35 @@ public sealed class ResourcePlannerSettings : ViewModelBase
     [Reactive] public int OpBudget { get; set; } // 135 each
     [Reactive] public int ExtraSanity { get; set; }
 
-    // extra gain/loss
-    [Reactive] public int RefreshOpBudget { get; set; }
-    [Reactive] public int WeeklyAnniLoss { get; set; } = 124;
     #endregion Potion/sanity settings
+
+    public ResourcePlannerSettings()
+    {
+        this.WhenAnyValue(t => t.AnnihilationMap)
+            .Select(GetAnnihilationLoss)
+            .BindTo(this, t => t.WeeklyAnniLoss);
+    }
+
+    public static int GetAnnihilationLoss(AnnihilationMap map)
+    {
+        return map switch
+        {
+            AnnihilationMap.CurrentRotating => 124,
+            AnnihilationMap.Chernobog => 139,
+            AnnihilationMap.Outskirts => 140,
+            AnnihilationMap.Downtown => 133,
+            _ => throw new ArgumentOutOfRangeException(nameof(map), map, "Unknown annihilation map"),
+        };
+    }
+}
+
+public enum AnnihilationMap
+{
+    [DisplayName("Current rotating"), Description("The currently available rotating map")]
+    CurrentRotating,
+    Chernobog,
+    [DisplayName("Lungmen Outskirts")]
+    Outskirts,
+    [DisplayName("Lungmen Downtown")]
+    Downtown,
 }

@@ -6,6 +6,7 @@ namespace DesktopApp.Data.Stages;
 [JsonClass]
 public sealed class Zone
 {
+    [JsonPropertyName("zoneID")]
     public required string ZoneId { get; set; }
     public int ZoneIndex { get; set; }
     [JsonPropertyName("zoneNameFirst")]

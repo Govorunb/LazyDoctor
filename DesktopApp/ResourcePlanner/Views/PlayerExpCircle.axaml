@@ -8,6 +8,9 @@
              xmlns:conv="using:DesktopApp.Utilities.Converters"
              x:DataType="plrdata:PlayerExpData"
              x:Class="DesktopApp.ResourcePlanner.Views.PlayerExpCircle">
+  <Design.DataContext>
+    <plrdata:DesignPlayerExpData Level="50" Exp="25000" />
+  </Design.DataContext>
   <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <Panel>
       <fa:ProgressRing Value="{Binding Exp}"
@@ -15,7 +18,8 @@
                        IsIndeterminate="False"
                        ToolTip.Tip="{Binding Exp}" />
       <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-        <TextBlock Text="{Binding Level, StringFormat={}Lv {0}}" HorizontalAlignment="Center" FontSize="5" />
+        <TextBlock Text="{Binding Level, StringFormat={}Lv {0}}"
+                   HorizontalAlignment="Center" FontSize="5" />
       </StackPanel>
     </Panel>
   </Viewbox>

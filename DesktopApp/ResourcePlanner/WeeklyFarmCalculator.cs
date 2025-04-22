@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using DesktopApp.Data;
 using DesktopApp.Data.Stages;
@@ -9,6 +10,9 @@ namespace DesktopApp.ResourcePlanner;
 public class WeeklyFarmCalculator(WeeklyStages sched, GameConstants gameConst) : ServiceBase
 {
     public ResourcePlannerSettings Settings { get; } = new();
+
+    // for autocomplete
+    public ReadOnlyObservableCollection<string> StageCodes => sched.StageCodes;
 
     public IEnumerable<PlannerDay> Simulate(ResourcePlannerSettings? setup)
     {
@@ -33,10 +37,11 @@ public class WeeklyFarmCalculator(WeeklyStages sched, GameConstants gameConst) :
         sanLog.Log(yesterday.SanityLog.CurrentValue, "Banked sanity");
         sanLog.Log(natRegen, "Natural regen");
         var (level, exp) = day.StartingExpData;
-        var targetStage = sched.Stages.GetByCode(Settings.TargetStageCode);
+        var targetStage = sched.StagesRepo.GetByCode(Settings.TargetStageCode);
         Debug.Assert(targetStage is {}, $"No target stage found with code {Settings.TargetStageCode}");
-        // TODO: simulate inventory?
+        // simulate inventory?
         // e.g. op is +135, can't cleanly consume 120 without tacking on the extra "wasted" 15
+        // since the optimal strategy is to dump all banked sanity immediately, this is not a problem
         if (Settings.UseMonthlyCard)
             sanLog.Log(80, "Daily potion from monthly card");
         if (Settings.UseWeeklyPots && today.DayOfWeek == System.DayOfWeek.Monday)
@@ -74,19 +79,11 @@ public class WeeklyFarmCalculator(WeeklyStages sched, GameConstants gameConst) :
                     break;
                 }
             }
-
-            if (isLast)
-            {
-                sanLog.Log(Settings.RefreshOpBudget, "Refreshing sanity with OP");
-            }
         }
         else
         {
-            // TODO: anni
-            // done on first closed day of the week
-
-
             // save some sanity for tomorrow (unless today is the last day)
+            // doing it first makes things a lot easier
             if (tomorrow <= Settings.TargetDate && sched.IsOpen(Settings.TargetStageCode, tomorrow))
             {
                 // (multiple of target stage cost, up to player cap)
@@ -98,6 +95,9 @@ public class WeeklyFarmCalculator(WeeklyStages sched, GameConstants gameConst) :
                 day.FinishSanityValue = saved;
                 sanLog.Log(-saved, "Saved for tomorrow (target stage will be open)");
             }
+            // TODO: anni (done on closed days; if open all week, then immediately on Monday)
+            // e.g. Monday closed, Tuesday open; -124 total but we have to save 180 for Tuesday -> use 50 and waste 10
+            // takes prio over saving in one single case: today closed, rest of week is open, can't save full 180
         }
 
         day.FinishExpData = new(level, exp);

@@ -20,7 +20,7 @@ public class PlannerDay : ViewModelBase
     public int TargetStageCompletions { get; set; }
 }
 
-public sealed class DesignPlannerDay : PlannerDay
+internal sealed class DesignPlannerDay : PlannerDay
 {
     [SetsRequiredMembers]
     public DesignPlannerDay()

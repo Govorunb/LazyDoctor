@@ -19,7 +19,7 @@ public class ResultRow : ViewModelBase
 }
 
 [DesignClass]
-public sealed class DesignResultRow : ResultRow
+internal sealed class DesignResultRow : ResultRow
 {
     public DesignResultRow()
     {

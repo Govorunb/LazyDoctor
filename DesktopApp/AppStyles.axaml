@@ -1,5 +1,6 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="using:System"
         xmlns:fa="using:FluentAvalonia.UI.Controls">
   <Design.PreviewWith>
     <Border Padding="20">
@@ -118,5 +119,17 @@
   <!-- switch labels are on the wrong side and it bothers me (in WinUI, they're on the left) -->
   <Style Selector="fa|SettingsExpanderItem:footer:not(:footerBottom) /template/ #FooterPresenter /template/ ToggleSwitch">
     <Setter Property="FlowDirection" Value="RightToLeft" />
+  </Style>
+
+  <Style Selector="ComboBox.EnumPicker">
+    <Setter Property="ToolTip.Tip" Value="{Binding $self.SelectedItem, Converter={StaticResource EnumDescriptionConverter}}" />
+    <Setter Property="ItemTemplate">
+      <DataTemplate DataType="sys:Enum">
+        <TextBlock Text="{Binding Converter={StaticResource EnumDisplayNameConverter}}" />
+      </DataTemplate>
+    </Setter>
+    <Style Selector="^ ComboBoxItem">
+      <Setter Property="ToolTip.Tip" Value="{Binding Converter={StaticResource EnumDescriptionConverter}, DataType=sys:Enum}" />
+    </Style>
   </Style>
 </Styles>

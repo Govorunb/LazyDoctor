@@ -8,3 +8,4 @@ global using static DesktopApp.Common.SplatHelpers;
 global using DayOfWeek = DesktopApp.Common.DayOfWeek;
 global using SeriLogLevel = Serilog.Events.LogEventLevel;
 global using AvaLogLevel = Avalonia.Logging.LogEventLevel;
+global using DisplayNameAttribute = DesktopApp.Utilities.Attributes.DisplayNameAttribute;

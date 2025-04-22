@@ -3,7 +3,7 @@ using DesktopApp.Utilities.Attributes;
 namespace DesktopApp.Data.Player;
 
 [JsonClass]
-public sealed class PlayerExpData(int level = 1, int exp = 0)
+public class PlayerExpData(int level = 1, int exp = 0)
 {
     [Reactive] public int Level { get; set; } = level;
     [Reactive] public int Exp { get; set; } = exp;
@@ -14,3 +14,6 @@ public sealed class PlayerExpData(int level = 1, int exp = 0)
         exp = Exp;
     }
 }
+
+// xaml needs an actually parameterless ctor for some reason
+internal sealed class DesignPlayerExpData : PlayerExpData;

@@ -15,16 +15,10 @@
     <Label Name="Label" Target="FilterComboBox"
            Content="{Binding Stars, Converter={x:Static conv:FuncConverters.RarityStars}}"
            VerticalAlignment="Center" HorizontalAlignment="Center" />
-    <ComboBox Name="FilterComboBox"
+    <ComboBox Name="FilterComboBox" Classes="EnumPicker"
               MinWidth="100"
               ItemsSource="{x:Static views:RecruitPageView.FilterTypes}"
-              ToolTip.Tip="{Binding $self.SelectedItem, Converter={StaticResource EnumDescriptionConverter}}"
               SelectedItem="{Binding Filter, Mode=TwoWay}">
-      <ComboBox.Styles>
-        <Style Selector="ComboBoxItem">
-          <Setter Property="ToolTip.Tip" Value="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-        </Style>
-      </ComboBox.Styles>
     </ComboBox>
   </StackPanel>
 </UserControl>

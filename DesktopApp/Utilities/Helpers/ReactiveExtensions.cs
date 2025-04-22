@@ -122,4 +122,18 @@ public static class ReactiveExtensions
     /// <inheritdoc cref="System.Reactive.Linq.Observable.Throttle{T}(IObservable{T}, TimeSpan)"/>
     public static IObservable<T> Debounce<T>(this IObservable<T> source, TimeSpan dueTime)
         => source.Throttle(dueTime);
+
+    /// <summary>
+    /// Fully replace the contents of the SourceList with <paramref name="items"/>.<br/>
+    /// Unlike <see cref="SourceListEditConvenienceEx.EditDiff{T}"/>, this method doesn't bother to calculate the difference.
+    /// </summary>
+    public static void Reset<T>(this SourceList<T> source, IEnumerable<T> items)
+        where T : notnull
+    {
+        source.Edit(l =>
+        {
+            l.Clear();
+            l.AddRange(items);
+        });
+    }
 }

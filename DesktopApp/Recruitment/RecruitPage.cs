@@ -81,7 +81,7 @@ public class RecruitPage : PageBase
 }
 
 [DesignClass]
-public sealed class DesignRecruitPage()
+internal sealed class DesignRecruitPage()
     : RecruitPage(
         LOCATOR.GetService<TagsDataSource>()!,
         LOCATOR.GetService<RecruitmentFilter>()!,

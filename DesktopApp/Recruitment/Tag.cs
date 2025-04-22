@@ -58,4 +58,4 @@ public class Tag : ViewModelBase
 }
 
 [DesignClass]
-public sealed class DesignTag() : Tag("Test", "Example");
+internal sealed class DesignTag() : Tag("Test", "Example");
