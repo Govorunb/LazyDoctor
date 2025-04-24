@@ -9,7 +9,7 @@ public class ResourcePlannerPrefsData : ReactiveObjectBase
     [Reactive]
     public ResourcePlannerSettings Setup { get; set; } = new();
     [Reactive]
-    public List<PlannerDay> Results { get; set; } = [];
+    public PlannerSimulation? CurrentSim { get; set; }
 
     public ResourcePlannerPrefsData()
     {

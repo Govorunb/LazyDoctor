@@ -34,7 +34,7 @@ public class ResourcePlannerPage : PageBase
             .Replay().AutoConnect();
         this.NotifyProperty(nameof(Prefs), _prefs.Loaded);
         this.NotifyProperty(nameof(Setup), _prefs.Loaded);
-        prefsLoaded.Subscribe(_ => _resultsList.Reset(Prefs?.Results ?? []));
+        prefsLoaded.Subscribe(_ => _resultsList.Reset(Prefs?.CurrentSim?.Results ?? []));
 
         CalculateCommand = ReactiveCommand.Create(Simulate, prefsLoaded);
         SetInitialDateToTodayCommand = ReactiveCommand.Create(void () => Setup!.InitialDate = DateTime.Now, prefsLoaded);
@@ -47,7 +47,11 @@ public class ResourcePlannerPage : PageBase
     private void Simulate()
     {
         Debug.Assert(Prefs is { });
-        _resultsList.Reset(Prefs.Results = _calc.Simulate(Setup).ToList());
+        var sim = _calc.Simulate(Setup);
+        if (sim is null)
+            return;
+        Prefs.CurrentSim = sim;
+        _resultsList.Reset(sim.Results);
     }
 }
 

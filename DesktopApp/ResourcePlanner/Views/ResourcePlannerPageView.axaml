@@ -135,7 +135,7 @@ For example, if you log in once a day and your cap is 180, put in 180." />
         </Expander>
 
         <StackPanel Orientation="Horizontal" Spacing="8" Margin="8">
-          <Button Classes="accent" Margin="4" Content="Calculate" />
+          <Button Classes="accent" Margin="4" Content="Calculate" Command="{Binding CalculateCommand}" />
         </StackPanel>
 
         <Expander Header="Results" IsExpanded="{Binding Prefs.ResultsExpanded}">
