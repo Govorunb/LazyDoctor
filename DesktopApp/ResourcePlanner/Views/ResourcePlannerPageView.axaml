@@ -53,6 +53,16 @@
       <StackPanel Orientation="Vertical" Spacing="4">
         <Expander Header="Setup" IsExpanded="{Binding Prefs.SetupExpanded}">
           <StackPanel Orientation="Vertical">
+            <Label Classes="Title" Content="Player" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <fa:NumberBox Header="Level" Value="{Binding Setup.InitialExpData.Level, Mode=TwoWay}"
+                            Minimum="1" Maximum="120" />
+              <fa:NumberBox Header="Exp" Value="{Binding Setup.InitialExpData.Exp, Mode=TwoWay}" />
+              <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom" Margin="0 6">
+                <fa:SymbolIcon ToolTip.Tip="You can find out your current EXP by using a practice plan"
+                               FontSize="20" Symbol="59935" /> <!-- xEA1F, Info -->
+              </StackPanel>
+            </StackPanel>
             <Label Classes="Title" Content="Targets" />
             <!-- TODO: data source -->
             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -147,16 +157,18 @@ For example, if you log in once a day and your cap is 180, put in 180." />
         </StackPanel>
 
         <Expander Header="Results" IsExpanded="{Binding Prefs.ResultsExpanded}">
-          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Stretch">
+          <DockPanel HorizontalAlignment="Stretch">
             <!-- TODO: table view? (TreeDataGrid) -->
             <Calendar Name="Calendar"
+                      DockPanel.Dock="Left"
                       DisplayDateStart="{Binding Setup.InitialDate, Mode=OneWay}"
                       DisplayDateEnd="{Binding Setup.TargetDate}"
                       SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
             />
-            <v:PlannerDayView DataContext="{Binding SelectedDay}" IsVisible="{Binding !!.}"
-                              HorizontalAlignment="Stretch"/>
-          </StackPanel>
+            <v:PlannerDayView DataContext="{Binding SelectedDay}" IsVisible="{Binding .}"
+                              Margin="8 0"
+                              HorizontalAlignment="Stretch" />
+          </DockPanel>
         </Expander>
       </StackPanel>
     </ScrollViewer>

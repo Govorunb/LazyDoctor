@@ -8,8 +8,11 @@ public class ResourcePlannerPrefsData : ReactiveObjectBase
 {
     [Reactive]
     public ResourcePlannerSettings Setup { get; set; } = new();
+    // TODO: figure out deserialization (needs services)
+    // [Reactive]
+    // public PlannerSimulation? CurrentSim { get; set; }
     [Reactive]
-    public PlannerSimulation? CurrentSim { get; set; }
+    public List<PlannerDay> Results { get; set; } = [];
 
     public ResourcePlannerPrefsData()
     {

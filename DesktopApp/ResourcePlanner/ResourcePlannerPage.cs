@@ -28,7 +28,7 @@ public class ResourcePlannerPage : PageBase
     public string? Errors { get; private set; }
 
     [Reactive]
-    public DateTime SelectedDate { get; set; }
+    public DateTime SelectedDate { get; set; } = DateTime.Today; // otherwise, calendar has incorrect bounds (selects 0001-Jan-01 so the minimum extends down to there)
     [Reactive]
     public PlannerDay? SelectedDay { get; private set; }
 
@@ -56,7 +56,7 @@ public class ResourcePlannerPage : PageBase
         this.NotifyProperty(nameof(Setup), _prefs.Loaded);
         prefsLoaded
             .Do(_ => Setup?.RaisePropertyChanged(nameof(Setup.InitialDate)))
-            .Subscribe(_ => _resultsList.Reset(Prefs?.CurrentSim?.Results ?? []))
+            .Subscribe(_ => _resultsList.Reset(Prefs?.Results ?? []))
             .DisposeWith(this);
 
         CalculateCommand = ReactiveCommand.Create(Simulate, prefsLoaded);
@@ -72,7 +72,7 @@ public class ResourcePlannerPage : PageBase
         //     .BindTo(this, t => t.SelectedDate);
 
         this.WhenAnyValue(t => t.SelectedDate)
-            .Select(d => Prefs?.CurrentSim?.GetDay(d))
+            .Select(d => Prefs?.Results.FirstOrDefault(d2 => d2.Date.Date == d.Date))
             .Subscribe(d => SelectedDay = d);
 
         this.WhenAnyValue(t => t.Prefs!.Setup.TargetStageCode)
@@ -89,8 +89,8 @@ public class ResourcePlannerPage : PageBase
             return;
         Debug.Assert(Setup is {});
 
-        Prefs.CurrentSim = new(Setup, _sched, GameConst);
-        _resultsList.Reset(Prefs.CurrentSim.Results);
+        var sim = new PlannerSimulation(Setup, _sched, GameConst);
+        _resultsList.Reset(Prefs.Results = sim.Results);
         SelectedDate = Setup.InitialDate;
     }
 }

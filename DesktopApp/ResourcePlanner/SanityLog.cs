@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
 using DesktopApp.Utilities.Attributes;
 
 namespace DesktopApp.ResourcePlanner;
@@ -6,16 +7,14 @@ namespace DesktopApp.ResourcePlanner;
 [JsonClass]
 public sealed class SanityLog : ViewModelBase
 {
-    private readonly List<SanityChange> _changes;
+    // internal for deserialization
+    // ReSharper disable once InconsistentNaming
+    [JsonInclude, JsonPropertyName("changes")]
+    internal List<SanityChange> _changes = [];
+    [JsonIgnore]
     public ReadOnlyCollection<SanityChange> Changes => new(_changes);
     [Reactive]
     public int CurrentValue { get; private set; }
-
-    public SanityLog(params IEnumerable<SanityChange> changes)
-    {
-        _changes = changes.ToList();
-        CurrentValue = _changes.Sum(c => c.Delta);
-    }
 
     public void Log(int delta, string comment, string? details = null)
     {
@@ -32,7 +31,9 @@ public sealed class SanityChange(int delta, string comment, string? details = nu
     public string Comment { get; } = comment;
     public string? Details { get; } = details; // for tooltip
 
+    [JsonIgnore]
     public bool IsGain => Delta > 0;
+    [JsonIgnore]
     public bool IsLoss => Delta < 0;
     public override string ToString() => Comment;
 }

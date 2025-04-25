@@ -18,9 +18,9 @@
       <Setter Property="BorderThickness" Value="1" />
     </Style>
   </Control.Styles>
-  <Grid ColumnDefinitions="*,30,Auto,30,*" RowDefinitions="60,*,Auto">
+  <Grid ColumnDefinitions="*,30,Auto,30,*" RowDefinitions="60,*,Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <TextBlock Grid.Row="0" Grid.Column="2"
-               Text="{Binding Date, StringFormat=MMMM d}" FontSize="32" HorizontalAlignment="Center" />
+               Text="{Binding Date, StringFormat=MMMM d (\\server \\ti\\me)}" FontSize="32" HorizontalAlignment="Center" />
     <!-- start -->
     <Border Grid.Row="1" Grid.Column="0"
             Padding="-10" Margin="10,0,0,10">

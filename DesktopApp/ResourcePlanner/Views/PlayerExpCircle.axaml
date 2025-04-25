@@ -13,10 +13,15 @@
   </Design.DataContext>
   <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <Panel>
-      <fa:ProgressRing Value="{Binding Exp}"
+      <ToolTip.Tip>
+        <TextBlock>
+          <Run Text="{Binding Exp}" />/<Run Text="{Binding Level, Converter={x:Static conv:FuncConverters.PlayerLevelToExpRequirement}, FallbackValue=???}" />
+        </TextBlock>
+      </ToolTip.Tip>
+      <fa:ProgressRing Name="Ring" Value="{Binding Exp}"
                        Maximum="{Binding Level, Converter={x:Static conv:FuncConverters.PlayerLevelToExpRequirement}, FallbackValue=99999}"
-                       IsIndeterminate="False"
-                       ToolTip.Tip="{Binding Exp}" />
+                       IsIndeterminate="False">
+      </fa:ProgressRing>
       <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
         <TextBlock Text="{Binding Level, StringFormat={}Lv {0}}"
                    HorizontalAlignment="Center" FontSize="5" />
