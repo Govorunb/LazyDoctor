@@ -1,3 +1,4 @@
+using System.Reactive.Linq;
 using Avalonia.Data.Converters;
 using DesktopApp.Data;
 using DesktopApp.Utilities.Helpers;
@@ -11,8 +12,9 @@ internal static class FuncConverters
     public static FuncValueConverter<int, string> RarityStars { get; }
         = new(stars => '★'.Repeat(stars) + '☆'.Repeat(6 - stars));
 
+    // FIXME: ew
     public static FuncValueConverter<int, int> PlayerLevelToExpRequirement { get; }
-        = new(lvl => LOCATOR.GetService<GameConstants>()!.GetExpRequirementForNextLevel(lvl));
+        = new(lvl => LOCATOR.GetService<IDataSource<GameConstants>>()!.Values.MostRecent(null).First()!.GetExpRequirementForNextLevel(lvl));
 
     public static FuncValueConverter<double, string> DoubleWithPlusPrefix { get; }
         = new (utcOffset => (utcOffset >= 0 ? "+" : "") + utcOffset.ToString("N0"));

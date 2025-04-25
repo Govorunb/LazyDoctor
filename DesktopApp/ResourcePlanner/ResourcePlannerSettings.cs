@@ -12,7 +12,16 @@ public sealed class ResourcePlannerSettings : ViewModelBase
 {
     public static readonly AnnihilationMap[] AnnihilationMaps = Enum.GetValues<AnnihilationMap>();
 
-    [Reactive] public DateTime InitialDate { get; set; } = DateTime.Now;
+    [Reactive]
+    public DateTime InitialDate
+    {
+        get => field;
+        set
+        {
+            this.Log().Warn($"Setting initial date to {value}");
+            field = value;
+        }
+    } = DateTime.Now;
     // TODO: dedicated prefs space for player stats/inventory
     [Reactive] public PlayerExpData InitialExpData { get; set; } = new();
 

@@ -54,7 +54,9 @@ public class ResourcePlannerPage : PageBase
             .Replay().AutoConnect();
         this.NotifyProperty(nameof(Prefs), _prefs.Loaded);
         this.NotifyProperty(nameof(Setup), _prefs.Loaded);
-        prefsLoaded.Subscribe(_ => _resultsList.Reset(Prefs?.CurrentSim?.Results ?? []))
+        prefsLoaded
+            .Do(_ => Setup?.RaisePropertyChanged(nameof(Setup.InitialDate)))
+            .Subscribe(_ => _resultsList.Reset(Prefs?.CurrentSim?.Results ?? []))
             .DisposeWith(this);
 
         CalculateCommand = ReactiveCommand.Create(Simulate, prefsLoaded);
@@ -74,8 +76,10 @@ public class ResourcePlannerPage : PageBase
             .Subscribe(d => SelectedDay = d);
 
         this.WhenAnyValue(t => t.Prefs!.Setup.TargetStageCode)
+            .ToUnit()
+            .Merge(sched.StagesRepo.Values.ToUnit())
             // .Debounce(TimeSpan.FromMilliseconds(100))
-            .Select(code => _sched.StagesRepo.GetByCode(code))
+            .Select(_ => _sched.StagesRepo.GetByCode(Setup?.TargetStageCode))
             .Subscribe(stage => Errors = stage is { } ? null : "Stage not found");
     }
 

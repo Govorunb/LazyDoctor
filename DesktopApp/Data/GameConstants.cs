@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 using DesktopApp.Data.Player;
 using DesktopApp.Utilities.Attributes;
@@ -13,7 +14,11 @@ public sealed class GameConstants
     public required int[] MaxSanity { get; init; }
 
     public int GetExpRequirementForNextLevel(int currentLevel)
-        => PlayerExpMap[currentLevel - 1];
+    {
+        Debug.Assert(currentLevel <= 120);
+        return PlayerExpMap[currentLevel - 1];
+    }
+
     public int GetTotalExpRequirement(int level)
         => PlayerExpMap.Take(level).Sum();
     public int GetMaxSanity(int level)

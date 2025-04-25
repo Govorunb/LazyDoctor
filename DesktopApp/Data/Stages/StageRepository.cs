@@ -27,18 +27,18 @@ public sealed class StageRepository : DataSource<IReadOnlyCollection<StageData>>
             .DisposeWith(this);
     }
 
-    public StageData? GetById(string id)
+    public StageData? GetById(string? id)
     {
-        if (_byId is null) return null;
+        if (id is null || _byId is null) return null;
         if (_byId.TryGetValue(id, out var result)) return result;
 
         this.Log().Error($"Stage ID not found: {id}");
         return null;
     }
 
-    public StageData? GetByCode(string code)
+    public StageData? GetByCode(string? code)
     {
-        if (_byCode is null) return null;
+        if (code is null || _byCode is null) return null;
         if (_byCode.TryGetValue(code, out var op)) return op;
 
         this.Log().Debug($"Stage code not found: {code}");

@@ -32,7 +32,9 @@ public sealed class PlannerSimulation : ReactiveObjectBase
         _targetStage = sched.StagesRepo.GetByCode(setup.TargetStageCode)
             ?? throw new InvalidOperationException($"Invalid target stage code {setup.TargetStageCode}");
 
-        _days = setup.InitialDate.Range(setup.TargetDate, TimeSpan.FromDays(1));
+        // TODO: configurable server timezone
+        var initialDate = setup.InitialDate.ToUniversalTime() - TimeSpan.FromHours(7);
+        _days = initialDate.Range(setup.TargetDate, TimeSpan.FromDays(1));
         Results = new List<PlannerDay>(_days.Select(date => new PlannerDay
         {
             Date = date,
@@ -84,6 +86,12 @@ public sealed class PlannerSimulation : ReactiveObjectBase
 
         var sanLog = today.SanityLog;
         var natRegen = _setup.DailySanityRegenEfficiency;
+        if (day == 0)
+        {
+            // first day is partial
+            var part = (_days.ElementAt(1) - _days.First()).TotalDays;
+            natRegen = (int)Math.Floor(natRegen * part);
+        }
         if (today.StartingSanityValue > 0)
             sanLog.Log(today.StartingSanityValue, "Starting sanity");
         sanLog.Log(natRegen, "Natural regen");
@@ -104,9 +112,15 @@ public sealed class PlannerSimulation : ReactiveObjectBase
             }
         }
 
+        var loops = 0;
         var repeat = false;
         do
         {
+            if (loops++ > 5)
+            {
+                this.Log().Error("Something's wrong...");
+                Debugger.Break();
+            }
             var repeating = repeat;
             repeat = false;
             // anni is done on closed days
@@ -151,7 +165,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
                     LevelUp(levelups);
                 }
             }
-        } while (!repeat);
+        } while (repeat);
 
         today.FinishExpData = new(level, exp);
         return;
@@ -242,6 +256,8 @@ public sealed class PlannerSimulation : ReactiveObjectBase
             while (true)
             {
                 var runs = CalculateRuns(sanLog.CurrentValue, _targetStage.SanityCost, out var spent);
+                if (runs == 0)
+                    return hadLevelups;
                 sanLog.Log(-spent, $"Run {_setup.TargetStageCode} {runs} times");
                 today.TargetStageCompletions += runs;
 

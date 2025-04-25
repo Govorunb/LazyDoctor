@@ -7,6 +7,7 @@
              xmlns:v="using:DesktopApp.ResourcePlanner.Views"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
              xmlns:conv="using:DesktopApp.Utilities.Converters"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              x:Class="DesktopApp.ResourcePlanner.Views.ResourcePlannerPageView"
              x:DataType="vm:ResourcePlannerPage">
   <Design.DataContext>
@@ -146,13 +147,15 @@ For example, if you log in once a day and your cap is 180, put in 180." />
         </StackPanel>
 
         <Expander Header="Results" IsExpanded="{Binding Prefs.ResultsExpanded}">
-          <StackPanel Orientation="Horizontal" Spacing="8">
+          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Stretch">
             <!-- TODO: table view? (TreeDataGrid) -->
             <Calendar Name="Calendar"
-                      DisplayDateStart="{Binding Setup.InitialDate}" DisplayDateEnd="{Binding Setup.TargetDate}"
-                      SelectedDate="{Binding Setup.InitialDate, Mode=OneTime}"
+                      DisplayDateStart="{Binding Setup.InitialDate, Mode=OneWay}"
+                      DisplayDateEnd="{Binding Setup.TargetDate}"
+                      SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
             />
-            <v:PlannerDayView DataContext="{Binding SelectedDay}" IsVisible="{Binding !!.}" />
+            <v:PlannerDayView DataContext="{Binding SelectedDay}" IsVisible="{Binding !!.}"
+                              HorizontalAlignment="Stretch"/>
           </StackPanel>
         </Expander>
       </StackPanel>
