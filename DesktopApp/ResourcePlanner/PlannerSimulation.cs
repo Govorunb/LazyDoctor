@@ -24,8 +24,9 @@ public sealed class PlannerSimulation : ReactiveObjectBase
 
     public PlannerSimulation(ResourcePlannerSettings setup, WeeklyStages sched, GameConstants gameConst)
     {
+        AssertDI(setup);
         AssertDI(sched);
-        AssertDI(_gameConst = gameConst);
+        AssertDI(gameConst);
         _gameConst = gameConst;
         _setup = setup;
         _targetStage = sched.StagesRepo.GetByCode(setup.TargetStageCode)
@@ -40,8 +41,13 @@ public sealed class PlannerSimulation : ReactiveObjectBase
         SimulateFrom(0);
     }
 
-    private PlannerDay GetDay(DateTime date)
-        => Results[GetDayIndex(date)];
+    public PlannerDay? GetDay(DateTime date)
+    {
+        var i = GetDayIndex(date);
+        if (i < 0 || i >= Results.Count)
+            return null;
+        return Results[i];
+    }
 
     private int GetDayIndex(DateTime date) => (date - _setup.InitialDate).Days;
 
@@ -53,6 +59,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
 
     private void SimulateFrom(int day)
     {
+        // starting from a given day so that if some day is manually modified we can rerun the calculation for the following days
         for (var i = day; i < Results.Count; i++)
             SimulateDay(i);
     }
@@ -97,7 +104,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
             }
         }
 
-        bool repeat = false;
+        var repeat = false;
         do
         {
             var repeating = repeat;
@@ -171,11 +178,12 @@ public sealed class PlannerSimulation : ReactiveObjectBase
             // better to have leftovers maybe go towards tomorrow's runs than surplus
             // (no effect if daily gains cleanly divide into target stage cost - the surplus would be the same every day, meaning it's not actually "saved")
             // TODO investigate saving between open days
-            // TODO repeating (see closed day saved calc)
-            if (sanLog.CurrentValue > 0 && tomorrow?.IsTargetStageOpen == true)
+            var prevSaved = repeating ? today.FinishSanityValue : 0;
+            var saved = sanLog.CurrentValue;
+            if (tomorrow?.IsTargetStageOpen == true && prevSaved + saved > 0)
             {
-                today.FinishSanityValue = sanLog.CurrentValue;
-                sanLog.Log(-sanLog.CurrentValue, "Saved for tomorrow");
+                today.FinishSanityValue = prevSaved + saved;
+                sanLog.Log(prevSaved-saved, prevSaved == 0 ? "Saved for tomorrow" : "Adjust saved sanity");
             }
         }
 

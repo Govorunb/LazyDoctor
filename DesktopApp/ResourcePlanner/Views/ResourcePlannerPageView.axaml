@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:vm="using:DesktopApp.ResourcePlanner"
+             xmlns:v="using:DesktopApp.ResourcePlanner.Views"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
              xmlns:conv="using:DesktopApp.Utilities.Converters"
              x:Class="DesktopApp.ResourcePlanner.Views.ResourcePlannerPageView"
@@ -100,16 +101,18 @@
               <TextBlock Text="Gain/Loss" Classes="Strong" VerticalAlignment="Center" />
               <StackPanel Orientation="Vertical">
                 <CheckBox Name="MonthlyCardCheckBox"
-                          Content="Use Monthly Card (+80 daily)" IsChecked="{Binding Setup.UseMonthlyCard}" />
+                          Content="Monthly Card" ToolTip.Tip="Add a medium potion (+80) every day"
+                          IsChecked="{Binding Setup.UseMonthlyCard}" />
                 <CheckBox Name="WeeklyPotsCheckBox"
-                          Content="Use Weekly Potions (+240)" IsChecked="{Binding Setup.UseWeeklyPots}" />
+                          Content="Use Weekly Potions" ToolTip.Tip="2 large potions (+120 each); obtained on Monday for simplicity (tip: you can complete weekly missions with zero-cost stages like OF-1)"
+                          IsChecked="{Binding Setup.UseWeeklyPots}" />
               </StackPanel>
               <fa:NumberBox Name="RegenEfficiencyAkaLazyLoss" Header="Daily Regen Efficiency"
-                            Minimum="0" Maximum="240"
+                            Minimum="0" Maximum="999"
                             Value="{Binding Setup.DailySanityRegenEfficiency}"
                             ToolTip.Tip="How much of the daily 240 regen you usually end up spending (on average).
 For example, if you log in once a day and your cap is 180, put in 180." />
-              <StackPanel Spacing="4">
+              <StackPanel Spacing="2">
                 <Label Content="Annihilation Map" />
                 <ComboBox Name="AnniMap" Classes="EnumPicker"
                           ItemsSource="{x:Static vm:ResourcePlannerSettings.AnnihilationMaps}"
@@ -117,25 +120,29 @@ For example, if you log in once a day and your cap is 180, put in 180." />
               </StackPanel>
             </StackPanel>
 
-            <Label Classes="Title" Content="Time" />
+            <!-- limited to EN server for now -->
+            <!--<Label Classes="Title" Content="Time" />
             <StackPanel Orientation="Horizontal">
-              <!-- TODO: easy calc button
+              ~1~ TODO: easy calc button
               "what is the current server time? (shown on the main menu screen)"
-              -->
+              @1@
               <Label VerticalAlignment="Center" Target="ServerTimezoneSlider">Server Timezone</Label>
-              <!-- text input for wacky :45 timezones? (no) -->
-              <!-- TODO: move to settings and do "profiles" (CN, EN, etc) -->
+              ~1~ text input for wacky :45 timezones? (no) @1@
+              ~1~ TODO: move to settings and do "profiles" (CN, EN, etc) @1@
               <Slider Name="ServerTimezoneSlider"
                       Minimum="-12" Maximum="14" Value="-7"
                       MinWidth="200"
                       TickFrequency="1" IsSnapToTickEnabled="True" />
-              <Label VerticalAlignment="Center" Content="{Binding #ServerTimezoneSlider.Value, Converter={x:Static conv:FuncConverters.TimezoneConverter}}" />
-            </StackPanel>
+              <Label VerticalAlignment="Center" Content="{Binding #ServerTimezoneSlider.Value, Converter={x:Static conv:FuncConverters.NumberWithPlusPrefix}}" />
+            </StackPanel>-->
           </StackPanel>
         </Expander>
 
         <StackPanel Orientation="Horizontal" Spacing="8" Margin="8">
-          <Button Classes="accent" Margin="4" Content="Calculate" Command="{Binding CalculateCommand}" />
+          <Button Classes="accent" Margin="4"
+                  IsEnabled="{Binding !Errors}"
+                  Content="Calculate" Command="{Binding CalculateCommand}" />
+          <TextBlock Foreground="Red" Text="{Binding Errors}" />
         </StackPanel>
 
         <Expander Header="Results" IsExpanded="{Binding Prefs.ResultsExpanded}">
@@ -143,9 +150,9 @@ For example, if you log in once a day and your cap is 180, put in 180." />
             <!-- TODO: table view? (TreeDataGrid) -->
             <Calendar Name="Calendar"
                       DisplayDateStart="{Binding Setup.InitialDate}" DisplayDateEnd="{Binding Setup.TargetDate}"
-                      SelectedDate="{Binding Setup.TargetDate, Mode=OneTime}"
+                      SelectedDate="{Binding Setup.InitialDate, Mode=OneTime}"
             />
-            <TextBlock Text="{Binding #Calendar.SelectedDate}" />
+            <v:PlannerDayView DataContext="{Binding SelectedDay}" IsVisible="{Binding !!.}" />
           </StackPanel>
         </Expander>
       </StackPanel>

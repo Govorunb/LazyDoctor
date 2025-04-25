@@ -32,15 +32,17 @@ public sealed class WeeklyStages : ServiceBase
             .Subscribe();
     }
 
-    public bool IsOpen(string stageCode, DayOfWeek day)
+    public bool IsOpen(StageData? stage, DayOfWeek day)
     {
-        var stage = StagesRepo.GetByCode(stageCode);
         if (stage is null || _zt is null) return false;
 
         return !_zt.WeeklySchedule.TryGetValue(stage.ZoneId, out var schedule)
             || schedule.Days.Contains(day);
     }
-
+    public bool IsOpen(StageData? stage, DateTime date)
+        => IsOpen(stage, date.DayOfWeek.ToEuropean());
+    public bool IsOpen(string stageCode, DayOfWeek day)
+        => IsOpen(StagesRepo.GetByCode(stageCode), day);
     public bool IsOpen(string stage, DateTime date)
         => IsOpen(stage, date.DayOfWeek.ToEuropean());
 

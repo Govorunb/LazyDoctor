@@ -19,7 +19,7 @@ public sealed class SanityLog : ViewModelBase
 
     public void Log(int delta, string comment, string? details = null)
     {
-        // changes of 0 used to be ignored, now they just act as markers/comments
+        // changes of 0 act as markers/comments
         _changes.Add(new(delta, comment, details));
         CurrentValue += delta;
     }
@@ -33,5 +33,6 @@ public sealed class SanityChange(int delta, string comment, string? details = nu
     public string? Details { get; } = details; // for tooltip
 
     public bool IsGain => Delta > 0;
-    public override string ToString() => $"{(IsGain ? "+" : "")}{Delta} ({Comment})";
+    public bool IsLoss => Delta < 0;
+    public override string ToString() => Comment;
 }

@@ -6,69 +6,90 @@
              x:Class="DesktopApp.ResourcePlanner.Views.PlannerDayView"
              xmlns:rp="using:DesktopApp.ResourcePlanner"
              xmlns:rpv="using:DesktopApp.ResourcePlanner.Views"
+             xmlns:conv="using:DesktopApp.Utilities.Converters"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:DataType="rp:PlannerDay">
   <Design.DataContext>
     <rp:DesignPlannerDay />
   </Design.DataContext>
-  <!--
-  Alternative visualization: just the sanity log
-  level circle in tooltip
-    calculated on the fly?
-  -->
-  <Grid ColumnDefinitions="300,*,300" RowDefinitions="60,*">
-    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
-               HorizontalAlignment="Center" Text="{Binding Date, StringFormat=MMMM d}" FontSize="32" />
+  <Control.Styles>
+    <Style Selector="Border.Debug">
+      <Setter Property="BorderBrush" Value="Black" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+  </Control.Styles>
+  <Grid ColumnDefinitions="*,30,Auto,30,*" RowDefinitions="60,*,Auto">
+    <TextBlock Grid.Row="0" Grid.Column="2"
+               Text="{Binding Date, StringFormat=MMMM d}" FontSize="32" HorizontalAlignment="Center" />
     <!-- start -->
     <Border Grid.Row="1" Grid.Column="0"
-            BorderBrush="Black" BorderThickness="1"
-            Margin="20,10,20,20">
+            Padding="-10" Margin="10,0,0,10">
       <rpv:PlayerExpCircle DataContext="{Binding StartingExpData}" />
     </Border>
-    <TextBlock Grid.Column="1" Grid.Row="1"
-               Text="➡️"
-               VerticalAlignment="Center"
-               Margin="-9 0 0 30" />
+    <Border Grid.Column="1" Grid.Row="1">
+      <fa:SymbolIcon Symbol="ChevronRight" FontSize="32" Margin="0 0 0 20" />
+    </Border>
     <!-- log -->
-    <ListBox Grid.Row="1" Grid.Column="1"
-             HorizontalAlignment="Stretch"
-             IsHitTestVisible="False"
-             ItemsSource="{Binding SanityLog.Changes}">
-      <ListBox.ItemTemplate>
-        <!--
-          TODO: visualization of gain/loss
-          . = yellow (unchanged), g = green (gain), r = red (loss), _ = transparent (remaining capacity)
-          [...ggg___]
-          [.rrrrr___]
-          + breakdown on mouseover?
-          (30 sanity unchanged)
-            v
-          [...ggg___]
-        -->
-        <DataTemplate DataType="rp:SanityChange">
-          <Border Classes.Gain="{Binding IsGain}" BorderThickness="1" CornerRadius="3" Padding="5 0">
-            <Control.Styles>
-              <Style Selector="Border">
-                <Setter Property="BorderBrush" Value="Red" />
-                <Style Selector="^.Gain">
-                  <Setter Property="BorderBrush" Value="LightGreen" />
+    <ScrollViewer Grid.Row="1" Grid.Column="2">
+      <ItemsControl HorizontalAlignment="Stretch" ItemsSource="{Binding SanityLog.Changes}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Vertical" Spacing="6" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <!--
+            TODO: visualization of gain/loss
+            . (unchanged, blue)
+            > (gain, green)
+            < (loss, red)
+            _ (remaining capacity, transparent)
+            [...>>>___] +30
+            [.<<<<<___] -50
+            breakdown on mouseover?
+            (30 sanity unchanged)
+              v
+            [...>>>___]
+          -->
+          <DataTemplate DataType="rp:SanityChange">
+            <Border Padding="0 0 12 0" ToolTip.Tip="{Binding Details}">
+              <Control.Styles>
+                <Style Selector="TextBlock">
+                  <Style Selector="^.Loss">
+                    <Setter Property="Foreground" Value="Red" />
+                  </Style>
+                  <Style Selector="^.Gain">
+                    <Setter Property="Foreground" Value="DarkGreen" />
+                  </Style>
                 </Style>
-              </Style>
-            </Control.Styles>
-            <TextBlock Text="{Binding .}" />
-          </Border>
-        </DataTemplate>
-      </ListBox.ItemTemplate>
-    </ListBox>
-    <TextBlock Grid.Column="2" Grid.Row="1"
-               Text="➡️"
-               VerticalAlignment="Center"
-               Margin="-6 0 0 30" />
+              </Control.Styles>
+              <Grid ColumnDefinitions="40,5,*">
+                <TextBlock Grid.Column="0" Classes.Gain="{Binding IsGain}" Classes.Loss="{Binding IsLoss}"
+                           Text="{Binding Delta, Converter={x:Static conv:FuncConverters.IntWithPlusPrefix}}"
+                           HorizontalAlignment="Right" IsVisible="{Binding Delta}" />
+                <fa:SymbolIcon Grid.Column="0" Symbol="Comment"
+                               HorizontalAlignment="Right"
+                               IsVisible="{Binding !Delta}" />
+                <TextBlock Grid.Column="2" Text="{Binding Comment}" TextWrapping="Wrap" />
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+    <Border Grid.Column="3" Grid.Row="1">
+      <fa:SymbolIcon Symbol="ChevronRight" FontSize="32" Margin="0 0 0 20" />
+    </Border>
     <!-- finish -->
-    <Border Grid.Row="1" Grid.Column="2"
-            BorderBrush="Black" BorderThickness="1"
-            Margin="20,10,20,20">
+    <Border Grid.Row="1" Grid.Column="4"
+            Padding="-10" Margin="0,0,10,10">
       <rpv:PlayerExpCircle DataContext="{Binding FinishExpData}" />
     </Border>
+    <TextBlock Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="2"
+               HorizontalAlignment="Center"
+               IsVisible="{Binding SanityLog.CurrentValue}"
+               Foreground="Red" FontSize="16">
+      Unbalanced sanity calculation! Left with <Run Text="{Binding SanityLog.CurrentValue}" /> at the end of the day (excluding saved).
+    </TextBlock>
   </Grid>
 </UserControl>

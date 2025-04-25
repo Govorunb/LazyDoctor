@@ -66,7 +66,6 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<TagsDataSource>();
         SplatRegistrations.RegisterLazySingleton<StageRepository>();
         SplatRegistrations.RegisterLazySingleton<WeeklyStages>();
-        SplatRegistrations.RegisterLazySingleton<WeeklyFarmCalculator>();
 
         // processing
         SplatRegistrations.RegisterLazySingleton<TextParsingUtils>();

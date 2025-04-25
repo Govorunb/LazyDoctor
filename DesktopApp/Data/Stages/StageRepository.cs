@@ -41,7 +41,7 @@ public sealed class StageRepository : DataSource<IReadOnlyCollection<StageData>>
         if (_byCode is null) return null;
         if (_byCode.TryGetValue(code, out var op)) return op;
 
-        this.Log().Error($"Stage code not found: {code}");
+        this.Log().Debug($"Stage code not found: {code}");
         return null;
     }
 

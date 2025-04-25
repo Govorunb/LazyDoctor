@@ -32,11 +32,21 @@ internal sealed class DesignPlannerDay : PlannerDay
 
         SanityLog.Log(240, "Natural regen");
         SanityLog.Log(-300, "Run AP-5 9 times");
-        SanityLog.Log(120, "Use weekly potion");
-        SanityLog.Log(-30, "Run AP-5 once");
+        SanityLog.Log(0, "Get weekly potions", "+240 banked sanity");
+        SanityLog.Log(240, "Banked sanity");
+        SanityLog.Log(-180, "Saved for tomorrow");
+        SanityLog.Log(1, "Fraud");
+        SanityLog.Log(1, "Fraud");
+        SanityLog.Log(1, "Fraud");
+        SanityLog.Log(1, "Fraud");
+        SanityLog.Log(1, "Fraud");
+        SanityLog.Log(1, "Fraud");
+        SanityLog.Log(1, "Fraud");
+        SanityLog.Log(1, "Fraud");
+        SanityLog.Log(1, "Fraud");
 
         FinishExpData = new(101, 10000);
-        FinishSanityValue = 90;
+        FinishSanityValue = 180;
         TargetStageCompletions = 9;
     }
 }
