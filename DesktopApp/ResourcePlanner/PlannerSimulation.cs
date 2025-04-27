@@ -14,35 +14,50 @@ public sealed class PlannerSimulation : ReactiveObjectBase
 
     private readonly ResourcePlannerSettings _setup;
     private readonly GameConstants _gameConst;
+    private readonly TimeUtilsService _timeUtils;
 
     private readonly StageData _targetStage;
-    private readonly IEnumerable<DateTime> _days;
+    private readonly List<DateTime> _days;
     private int _anniSanityLeft;
     private int _bankedSanity;
     [JsonIgnore]
     public int TotalTargetStageRuns => Results.Select(d => d.TargetStageCompletions).Sum();
     private int AnniStageCost => _setup.AnnihilationMap is AnnihilationMap.Chernobog ? 20 : 25;
 
-    public PlannerSimulation(ResourcePlannerSettings setup, WeeklyStages sched, GameConstants gameConst)
+    public PlannerSimulation(UserPrefs prefs, TimeUtilsService timeUtils, WeeklyStages sched, GameConstants gameConst)
     {
-        AssertDI(setup);
+        AssertDI(prefs);
+        AssertDI(prefs.General);
+        AssertDI(prefs.Planner);
+        AssertDI(prefs.Planner.Setup);
         AssertDI(sched);
         AssertDI(gameConst);
+        _setup = prefs.Planner.Setup;
         _gameConst = gameConst;
-        _setup = setup;
-        _targetStage = sched.StagesRepo.GetByCode(setup.TargetStageCode)
-            ?? throw new InvalidOperationException($"Invalid target stage code {setup.TargetStageCode}");
+        _timeUtils = timeUtils;
 
-        // dates (after initial) should all be at midnight (or maybe local reset time - TODO)
-        // this is so the first day will have a proportion of the daily nat regen
-        var secondDay = setup.InitialDate.AddDays(1).Date;
-        _days = secondDay.Range(setup.TargetDate, TimeSpan.FromDays(1))
-            .Prepend(setup.InitialDate);
-        Results = new List<PlannerDay>(_days.Select(date => new PlannerDay
+        _targetStage = sched.StagesRepo.GetByCode(_setup.TargetStageCode)
+            ?? throw new InvalidOperationException($"Invalid target stage code {_setup.TargetStageCode}");
+
+        // each day lasts until the next reset
+        // if initial datetime is before today's reset, second day will overlap with first
+        var secondDayStart = timeUtils.NextReset(_setup.InitialDate);
+
+        _days = secondDayStart.Range(_setup.TargetDate, TimeSpan.FromDays(1))
+            .Prepend(_setup.InitialDate).ToList();
+        Results = new List<PlannerDay>(_days.Count);
+        for (var i = 0; i < _days.Count-1; i++)
         {
-            Date = date,
-            IsTargetStageOpen = sched.IsOpen(setup.TargetStageCode, date),
-        }));
+            var start = _days[i];
+            Results.Add(new()
+            {
+                Start = start,
+                End = start.AddDays(1).AddSeconds(-1),
+                IsTargetStageOpen = sched.IsOpen(_setup.TargetStageCode, start),
+            });
+        }
+
+        Results[0].End = secondDayStart.AddSeconds(-1);
         SimulateFrom(0);
     }
 
@@ -57,7 +72,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
     private int GetDayIndex(DateTime date) => (date - _setup.InitialDate).Days;
 
     public void SimulateFrom(PlannerDay fromDay)
-        => SimulateFrom(fromDay.Date);
+        => SimulateFrom(fromDay.Start);
 
     public void SimulateFrom(DateTime fromDate)
         => SimulateFrom(GetDayIndex(fromDate));
@@ -67,7 +82,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
         // starting from a given day so that if some day is manually modified we can rerun the calculation for the following days
         for (var i = dayIdx; i < Results.Count; i++)
         {
-            var day = Results[dayIdx];
+            var day = Results[i];
             day.TargetStageCompletions = 0;
             day.FinishSanityValue = 0;
             SimulateDay(i);
@@ -103,7 +118,8 @@ public sealed class PlannerSimulation : ReactiveObjectBase
             _bankedSanity += 80;
         }
 
-        if (today.Date.DayOfWeek == System.DayOfWeek.Monday)
+        var serverDayOfWeek = _timeUtils.ToServerTime(today.Start).DayOfWeek;
+        if (serverDayOfWeek == System.DayOfWeek.Monday)
         {
             _anniSanityLeft = _setup.WeeklyAnniLoss;
             if (_setup.UseWeeklyPots)
@@ -136,9 +152,11 @@ public sealed class PlannerSimulation : ReactiveObjectBase
             if (_anniSanityLeft > 0)
             {
                 // anni *must* be done by end of week
-                var isSunday = today.Date.DayOfWeek == System.DayOfWeek.Sunday;
+                var isSunday = serverDayOfWeek == System.DayOfWeek.Sunday;
                 // normally we do it on closed days, but if there are no closed days left this week then anni takes priority over the target stage
-                if (isSunday || Results.Skip(day + 1).TakeWhile(d => d.Date.DayOfWeek != System.DayOfWeek.Monday).All(d => d.IsTargetStageOpen))
+                if (isSunday || Results.Skip(day + 1)
+                        .TakeWhile(d => _timeUtils.ToServerTime(d.Start).DayOfWeek != System.DayOfWeek.Monday)
+                        .All(d => d.IsTargetStageOpen))
                 {
                     sanLog.Log(-_anniSanityLeft,
                         $"Annihilation (forced - {(isSunday ? "today is Sunday" : $"{_targetStage.Code} is open on all remaining days")})");
@@ -156,6 +174,8 @@ public sealed class PlannerSimulation : ReactiveObjectBase
                 SimClosedDay(repeating);
             }
 
+            // TODO: move anni here
+            // currently open days can't do anni even if there's surplus
             var surplus = sanLog.CurrentValue;
             if (surplus > 0)
             {
@@ -188,17 +208,16 @@ public sealed class PlannerSimulation : ReactiveObjectBase
 
             Debug.Assert(sanLog.CurrentValue < _targetStage.SanityCost, "spent sanity on target stage but still have enough for more runs");
 
-            // TODO investigate saving between open days
-            // might be better to have leftovers maybe go towards tomorrow's runs than surplus
-            // (no effect if daily gains cleanly divide into target stage cost - the surplus would be the same every day, meaning it's not actually "saved")
-
-            // var prevSaved = repeating ? today.FinishSanityValue : 0;
-            // var saved = sanLog.CurrentValue;
-            // if (tomorrow?.IsTargetStageOpen == true && prevSaved + saved > 0)
-            // {
-            //     today.FinishSanityValue = prevSaved + saved;
-            //     sanLog.Log(prevSaved-saved, prevSaved == 0 ? "Saved for tomorrow" : "Adjust saved sanity");
-            // }
+            // it's better to have leftovers maybe go towards tomorrow's runs than surplus
+            // (only if gains don't cleanly divide into target stage cost;
+            // otherwise the surplus would be the same every day, meaning it's not actually "saved")
+            var prevSaved = repeating ? today.FinishSanityValue : 0;
+            var saved = sanLog.CurrentValue;
+            if (tomorrow?.IsTargetStageOpen == true && prevSaved + saved > 0)
+            {
+                today.FinishSanityValue = prevSaved + saved;
+                sanLog.Log(prevSaved-saved, prevSaved == 0 ? "Saved for tomorrow" : "Adjust saved sanity");
+            }
         }
 
         void SimClosedDay(bool repeating)
@@ -242,8 +261,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
                 else
                 {
                     var maxUsed = Math.Min(_anniSanityLeft, sanLog.CurrentValue);
-                    var anniRuns = CalculateRuns(maxUsed, AnniStageCost, out used);
-                    sanLog.Log(0, $"(debug) Anni runs: {anniRuns} (used {used} sanity)");
+                    CalculateRuns(maxUsed, AnniStageCost, out used);
                 }
                 sanLog.Log(-used, "Annihilation");
                 _anniSanityLeft -= used;

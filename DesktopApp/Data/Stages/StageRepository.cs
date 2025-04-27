@@ -17,6 +17,9 @@ public sealed class StageRepository : DataSource<IReadOnlyCollection<StageData>>
     [Reactive]
     public StageTable? StageTable { get; private set; }
 
+    [Reactive]
+    public StageTable.ForceOpenPeriod[] ForceOpenSchedule { get; private set; } = [];
+
     public StageRepository(IDataSource<ZoneTable> zones, IDataSource<StageTable> stages)
     {
         _zones = zones;
@@ -56,6 +59,10 @@ public sealed class StageRepository : DataSource<IReadOnlyCollection<StageData>>
         _byId = table.Stages.ToFrozenDictionary();
         _byCode = StagesByCode(table.Stages.Values).ToFrozenDictionary(s => s.Code);
         StageTable = table;
+        ForceOpenSchedule = table.ForceOpenTable
+            .OrderBy(pair => pair.Key)
+            .Select(pair => pair.Value)
+            .ToArray();
 
         return _byId.Values;
     }

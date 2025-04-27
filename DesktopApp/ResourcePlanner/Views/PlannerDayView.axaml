@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="250"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
              x:Class="DesktopApp.ResourcePlanner.Views.PlannerDayView"
              xmlns:rp="using:DesktopApp.ResourcePlanner"
              xmlns:rpv="using:DesktopApp.ResourcePlanner.Views"
@@ -18,11 +18,13 @@
       <Setter Property="BorderThickness" Value="1" />
     </Style>
   </Control.Styles>
-  <Grid ColumnDefinitions="*,30,Auto,30,*" RowDefinitions="60,*,Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-    <TextBlock Grid.Row="0" Grid.Column="2"
-               Text="{Binding Date, StringFormat=MMMM d (\\server \\ti\\me)}" FontSize="32" HorizontalAlignment="Center" />
+  <!-- TODO: try two columns (log, then exp circles top to bottom) -->
+  <Grid ColumnDefinitions="*,30,Auto,30,*" RowDefinitions="48,*,Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"
+               FontSize="32" HorizontalAlignment="Center"
+               Text="{Binding DateRangeString}" />
     <!-- start -->
-    <Border Grid.Row="1" Grid.Column="0"
+    <Border Grid.Row="1" Grid.Column="0" Classes="Debug"
             Padding="-10" Margin="10,0,0,10">
       <rpv:PlayerExpCircle DataContext="{Binding StartingExpData}" />
     </Border>
@@ -58,7 +60,7 @@
                   <Style Selector="^.Loss">
                     <Setter Property="Foreground" Value="Red" />
                   </Style>
-                  <Style Selector="^.Gain">
+                  <Style Selector="^.Gain"> <!-- TODO: dark/light theme stuff -->
                     <Setter Property="Foreground" Value="DarkGreen" />
                   </Style>
                 </Style>

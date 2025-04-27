@@ -17,8 +17,7 @@ public class TestStageRewardCalculations
         ("CE-6", 360,432,8325,10000),
     ];
 
-    private static readonly StageRepository _stages = SplatHelpers.LOCATOR.GetService<StageRepository>()
-                                                        ?? throw new InvalidOperationException();
+    private static readonly StageRepository _stages = SplatHelpers.LOCATOR.GetService<StageRepository>()!;
 
     [Theory]
     [MemberData(nameof(Cases))]

@@ -35,11 +35,14 @@ internal static class SplatHelpers
         // infra/plumbing
         SplatRegistrations.RegisterConstant(TimeProvider.System); // for unit tests, register the mock TimeProvider after this one
         SplatRegistrations.RegisterLazySingleton<IAppData, AppData>();
+        SplatRegistrations.RegisterLazySingleton<UserPrefs>();
+        SplatRegistrations.RegisterLazySingleton<TimeUtilsService>();
         SplatRegistrations.RegisterLazySingleton<GithubAkavache>();
         SplatRegistrations.RegisterLazySingleton<GithubDataAdapter>();
 
         // TODO: move this out
         // + figure out load order w/ log level prefs, there's some places where we log before prefs are loaded (e.g. while loading prefs)
+        // in the future, prefs will always load before data sources (they will depend on prefs for which repo to use)
         var fileLogLevelSwitch = new LoggingLevelSwitch();
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
@@ -54,7 +57,6 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<WinRtOCR>();
 
         // data sources
-        SplatRegistrations.RegisterLazySingleton<UserPrefs>();
         // could be registered with an attribute but that needs a whole source gen (aot/generics)
         RegisterTable<ZoneTable>("excel/zone_table.json");
         RegisterTable<OperatorTable>("excel/character_table.json");

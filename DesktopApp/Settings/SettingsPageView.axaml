@@ -12,13 +12,12 @@
   </Design.DataContext>
   <Border Padding="20">
     <StackPanel Orientation="Vertical" Spacing="8">
+      <!-- TODO: server data (timezone, gamedata repo) -->
+      <!-- limited to EN server for now -->
       <!--
-      <fa:SettingsExpander Header="Recruitment" IconSource="People" DataContext="{Binding Prefs.Recruitment}">
-        <fa:SettingsExpanderItem>
-          Nothing yet
-        </fa:SettingsExpanderItem>
-      </fa:SettingsExpander>
-      -->
+        for time: easy wizard ("what is the current server time? (shown at the top of the main menu screen)")
+        at least the EN server doesn't observe DST (no clue about others) so no need for an actual TZ picker
+       -->
       <fa:SettingsExpander Header="Game data"
                            IconSource="Globe"
                            Description="Manually refresh data source">
@@ -29,7 +28,7 @@
            </fa:SettingsExpanderItem.Footer>
         </fa:SettingsExpanderItem>
         -->
-        <fa:SettingsExpanderItem IconSource="Important">
+        <fa:SettingsExpanderItem IconSource="Important" IsVisible="{Binding !Prefs.General.ManualRefreshAcknowledged}">
           <StackPanel>
             <TextBlock Foreground="OrangeRed"
                        VerticalAlignment="Center"

@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using DesktopApp.Data.Player;
 using DesktopApp.Utilities.Attributes;
 
@@ -7,7 +8,9 @@ namespace DesktopApp.ResourcePlanner;
 [JsonClass]
 public class PlannerDay : ViewModelBase
 {
-    public DateTime Date { get; set; } = DateTime.Today;
+    // each day lasts until the next reset
+    public DateTime Start { get; set; } = DateTime.Now;
+    public DateTime End { get; set; } = DateTime.Today.AddDays(1);
 
     public PlayerExpData StartingExpData { get; set; } = new();
     public int StartingSanityValue { get; set; }
@@ -18,14 +21,26 @@ public class PlannerDay : ViewModelBase
     public PlayerExpData FinishExpData { get; set; } = new();
     public int FinishSanityValue { get; set; }
     public int TargetStageCompletions { get; set; }
+
+    [JsonIgnore]
+    public string DateRangeString => GetDateRangeString();
+
+    public string GetDateRangeString()
+    {
+        var isSameDay = Start.Date == End.Date;
+        return isSameDay ? $"{Start:MMM dd} {Start:t} - {End:t}"
+            : $"{Start:MMM dd} {Start:t} - {End:MMM dd} {End:t}";
+    }
 }
 
 internal sealed class DesignPlannerDay : PlannerDay
 {
-    [SetsRequiredMembers]
     public DesignPlannerDay()
     {
-        Date = DateTime.Today;
+        Start = DateTime.Now;
+        End = Start.Date.AddHours(4);
+        if (End < Start)
+            End = End.AddDays(1);
         StartingExpData = new(100, 5000);
         StartingSanityValue = 60;
         IsTargetStageOpen = true;

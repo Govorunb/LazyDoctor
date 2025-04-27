@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Reactive.Linq;
+using DesktopApp.Utilities.Helpers;
 using DynamicData;
 using JetBrains.Annotations;
 
@@ -8,22 +9,27 @@ namespace DesktopApp.Data.Stages;
 [PublicAPI]
 public sealed class WeeklyStages : ServiceBase
 {
+    private readonly TimeUtilsService _timeUtils;
     private ZoneTable? _zt;
     private SourceList<StageData> StagesList { get; set; }
     private ReadOnlyObservableCollection<string> _stageCodes;
     public ReadOnlyObservableCollection<string> StageCodes => _stageCodes;
     public StageRepository StagesRepo { get; }
 
-    public WeeklyStages(IDataSource<ZoneTable> zoneTable, StageRepository stagesRepo)
+    public WeeklyStages(IDataSource<ZoneTable> zoneTable, StageRepository stagesRepo, TimeUtilsService timeUtils)
     {
         AssertDI(zoneTable);
         AssertDI(stagesRepo);
+        AssertDI(timeUtils);
         StagesRepo = stagesRepo;
+        _timeUtils = timeUtils;
         StagesList = new();
-        zoneTable.Values.Subscribe(zt => _zt = zt);
+        zoneTable.Values.Subscribe(zt => _zt = zt)
+            .DisposeWith(this);
         zoneTable.Values.CombineLatest(stagesRepo.Values)
-            .Select(t => t.Item2.Where(s => t.Item1.WeeklySchedule.ContainsKey(s.ZoneId)))
-            .Subscribe(l => StagesList.EditDiff(l));
+            .Select(t => t.Second.Where(s => t.First.WeeklySchedule.ContainsKey(s.ZoneId)))
+            .Subscribe(l => StagesList.EditDiff(l))
+            .DisposeWith(this);
 
         StagesList.Connect()
             .Transform(s => s.Code)
@@ -32,22 +38,27 @@ public sealed class WeeklyStages : ServiceBase
             .Subscribe();
     }
 
-    public bool IsOpen(StageData? stage, DayOfWeek day)
+    public bool IsOpen(StageData? stage, DateTime date)
     {
         if (stage is null || _zt is null) return false;
 
-        return !_zt.WeeklySchedule.TryGetValue(stage.ZoneId, out var schedule)
-            || schedule.Days.Contains(day);
-    }
-    public bool IsOpen(StageData? stage, DateTime date)
-        => IsOpen(stage, date.DayOfWeek.ToEuropean());
-    public bool IsOpen(string stageCode, DayOfWeek day)
-        => IsOpen(StagesRepo.GetByCode(stageCode), day);
-    public bool IsOpen(string stage, DateTime date)
-        => IsOpen(stage, date.DayOfWeek.ToEuropean());
+        if (!_zt.WeeklySchedule.TryGetValue(stage.ZoneId, out var schedule))
+            return true;
 
-    public IEnumerable<StageData> GetOpen(DayOfWeek day)
-        => StagesList.Items.Where(s => IsOpen(s.Code, day));
-    public IEnumerable<StageData> GetOpen(DateTime date)
-        => GetOpen(date.DayOfWeek.ToEuropean());
+        var day = _timeUtils.ToServerTime(date).DayOfWeek.ToEuropean();
+        if (schedule.Days.Contains(day))
+            return true;
+
+        var utcTime = _timeUtils.ToUtc(date);
+        return StagesRepo.ForceOpenSchedule.AsEnumerable()
+            // they're already ordered by date asc, so it's faster to iterate from end
+            .Reverse()
+            // in fact, we should never ever have to check more than two items
+            .TakeWhile(fop => fop.EndsAt >= utcTime)
+            .Any(fop => fop.StartsAt <= utcTime && fop.ZoneList.Contains(stage.ZoneId));
+    }
+    public bool IsOpen(string stageCode, DateTime date)
+        => IsOpen(StagesRepo.GetByCode(stageCode), date);
+    public IEnumerable<StageData> GetOpen(DateTime dateTime)
+        => StagesList.Items.Where(s => IsOpen(s.Code, dateTime));
 }

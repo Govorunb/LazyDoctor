@@ -13,23 +13,12 @@ public sealed class ResourcePlannerSettings : ViewModelBase
     public static readonly AnnihilationMap[] AnnihilationMaps = Enum.GetValues<AnnihilationMap>();
 
     [Reactive]
-    public DateTime InitialDate
-    {
-        get => field;
-        set
-        {
-            this.Log().Warn($"Setting initial date to {value}");
-            field = value;
-        }
-    } = DateTime.Now;
-    // TODO: dedicated prefs space for player stats/inventory
+    public DateTime InitialDate { get; set; } = DateTime.Now;
+    // TODO: dedicated prefs space for player data (stats, inventory, base rotation or something idk)
     [Reactive] public PlayerExpData InitialExpData { get; set; } = new();
 
     [Reactive] public string TargetStageCode { get; set; } = "";
-    [Reactive] public DateTime TargetDate { get; set; } = DateTime.Now.AddDays(7);
-    // TODO: server presets/profiles
-    [Reactive] public TimeOnly ServerReset { get; set; } = Constants.EnServerReset;
-    [Reactive] public TimeSpan ServerTimezone { get; set; } = Constants.EnServerTimezone;
+    [Reactive] public DateTime TargetDate { get; set; } = DateTime.Today.AddDays(7);
 
     #region Potion/sanity settings
     [Reactive] public int CurrentSanity { get; set; }

@@ -2,12 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="450"
              xmlns:vm="using:DesktopApp.ResourcePlanner"
              xmlns:v="using:DesktopApp.ResourcePlanner.Views"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
-             xmlns:conv="using:DesktopApp.Utilities.Converters"
-             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              x:Class="DesktopApp.ResourcePlanner.Views.ResourcePlannerPageView"
              x:DataType="vm:ResourcePlannerPage">
   <Design.DataContext>
@@ -56,17 +54,14 @@
             <Label Classes="Title" Content="Player" />
             <StackPanel Orientation="Horizontal" Spacing="8">
               <fa:NumberBox Header="Level" Value="{Binding Setup.InitialExpData.Level, Mode=TwoWay}"
-                            Minimum="1" Maximum="120" />
+                            Minimum="1" Maximum="{Binding GameConst.MaxPlayerLevel}" />
               <fa:NumberBox Header="Exp" Value="{Binding Setup.InitialExpData.Exp, Mode=TwoWay}" />
               <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom" Margin="0 6">
-                <fa:SymbolIcon ToolTip.Tip="You can find out your current EXP by using a practice plan"
+                <fa:SymbolIcon ToolTip.Tip="You can find out your current EXP without spending sanity by using a practice plan"
                                FontSize="20" Symbol="59935" /> <!-- xEA1F, Info -->
               </StackPanel>
             </StackPanel>
             <Label Classes="Title" Content="Targets" />
-            <!-- TODO: data source -->
-            <StackPanel Orientation="Horizontal" Spacing="8">
-            </StackPanel>
             <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,Auto,Auto,Auto">
                 <Label Grid.Column="0" Grid.Row="0" Content="Target Stage" Target="StagePicker" />
                 <AutoCompleteBox Grid.Column="0" Grid.Row="1" Name="StagePicker" Margin="0 0 8 0"
@@ -75,13 +70,14 @@
                 <Label Grid.Column="1" Grid.Row="0" Content="Target Date" VerticalAlignment="Center" />
                 <CalendarDatePicker Grid.Column="1" Grid.Row="1" Margin="0 0 8 0"
                                     SelectedDate="{Binding Setup.TargetDate, Mode=TwoWay}"
+                                    DisplayDateStart="{Binding Setup.InitialDate}"
                                     DisplayDate="{Binding Setup.TargetDate, Mode=TwoWay}" />
 
                 <Label Grid.Column="2" Grid.Row="0" Content="Start Date" VerticalAlignment="Center" />
                 <CalendarDatePicker Grid.Column="2" Grid.Row="1"  Margin="0 0 8 0"
                                     SelectedDate="{Binding Setup.InitialDate, Mode=TwoWay}" />
 
-                <Button Grid.Column="3" Grid.Row="1" Classes="accent" Content="Today" Command="{Binding SetInitialDateToTodayCommand}" />
+                <Button Grid.Column="3" Grid.Row="1" Classes="accent" Content="Now" Command="{Binding SetInitialDateToTodayCommand}" />
             </Grid>
 
             <Label Classes="Title" Content="Sanity" Margin="0 24 0 0" />
@@ -130,22 +126,6 @@ For example, if you log in once a day and your cap is 180, put in 180." />
                           SelectedValue="{Binding Setup.AnnihilationMap}"/>
               </StackPanel>
             </StackPanel>
-
-            <!-- limited to EN server for now -->
-            <!--<Label Classes="Title" Content="Time" />
-            <StackPanel Orientation="Horizontal">
-              ~1~ TODO: easy calc button
-              "what is the current server time? (shown on the main menu screen)"
-              @1@
-              <Label VerticalAlignment="Center" Target="ServerTimezoneSlider">Server Timezone</Label>
-              ~1~ text input for wacky :45 timezones? (no) @1@
-              ~1~ TODO: move to settings and do "profiles" (CN, EN, etc) @1@
-              <Slider Name="ServerTimezoneSlider"
-                      Minimum="-12" Maximum="14" Value="-7"
-                      MinWidth="200"
-                      TickFrequency="1" IsSnapToTickEnabled="True" />
-              <Label VerticalAlignment="Center" Content="{Binding #ServerTimezoneSlider.Value, Converter={x:Static conv:FuncConverters.NumberWithPlusPrefix}}" />
-            </StackPanel>-->
           </StackPanel>
         </Expander>
 
@@ -156,19 +136,28 @@ For example, if you log in once a day and your cap is 180, put in 180." />
           <TextBlock Foreground="Red" Text="{Binding Errors}" />
         </StackPanel>
 
-        <Expander Header="Results" IsExpanded="{Binding Prefs.ResultsExpanded}">
-          <DockPanel HorizontalAlignment="Stretch">
-            <!-- TODO: table view? (TreeDataGrid) -->
-            <Calendar Name="Calendar"
-                      DockPanel.Dock="Left"
-                      DisplayDateStart="{Binding Setup.InitialDate, Mode=OneWay}"
-                      DisplayDateEnd="{Binding Setup.TargetDate}"
-                      SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
-            />
-            <v:PlannerDayView DataContext="{Binding SelectedDay}" IsVisible="{Binding .}"
-                              Margin="8 0"
-                              HorizontalAlignment="Stretch" />
-          </DockPanel>
+        <Border Padding="8">
+          <TextBlock FontSize="22" IsVisible="{Binding !!Results.Count}">
+            <Run Text="Total target stage runs:" />
+            <Run Text="{Binding TotalTargetStageRuns}" />
+          </TextBlock>
+        </Border>
+        <Expander Header="Details" IsExpanded="{Binding Prefs.ResultsExpanded}" IsVisible="{Binding !!Results.Count}">
+          <StackPanel Orientation="Vertical" Spacing="8">
+            <DockPanel HorizontalAlignment="Stretch">
+              <!-- TODO: table view? (TreeDataGrid) -->
+              <Calendar Name="Calendar"
+                        DockPanel.Dock="Left"
+                        VerticalAlignment="Top"
+                        DisplayDateStart="{Binding Setup.InitialDate, Mode=OneWay}"
+                        DisplayDateEnd="{Binding Setup.TargetDate}"
+                        SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
+              />
+              <v:PlannerDayView DataContext="{Binding SelectedDay}" IsVisible="{Binding !!DateRangeString.Length, TargetNullValue=false}"
+                                Margin="8 0"
+                                HorizontalAlignment="Stretch" />
+            </DockPanel>
+          </StackPanel>
         </Expander>
       </StackPanel>
     </ScrollViewer>
