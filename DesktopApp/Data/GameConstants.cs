@@ -43,6 +43,8 @@ public sealed class GameConstants
             {
                 nextExp = rem;
                 level++;
+                if (level == MaxPlayerLevel)
+                    return new(MaxPlayerLevel);
             }
         } while (rem >= 0);
 

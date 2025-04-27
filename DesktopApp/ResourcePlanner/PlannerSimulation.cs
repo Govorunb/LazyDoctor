@@ -42,6 +42,11 @@ public sealed class PlannerSimulation : ReactiveObjectBase
         // each day lasts until the next reset
         // if initial datetime is before today's reset, second day will overlap with first
         var secondDayStart = timeUtils.NextReset(_setup.InitialDate);
+        _bankedSanity = _setup.SmallPots * 10
+                        + _setup.MediumPots * 80
+                        + _setup.LargePots * 120
+                        + _setup.OpBudget * 135
+                        + _setup.ExtraSanity;
 
         _days = secondDayStart.Range(_setup.TargetDate, TimeSpan.FromDays(1))
             .Prepend(_setup.InitialDate).ToList();
@@ -57,7 +62,10 @@ public sealed class PlannerSimulation : ReactiveObjectBase
             });
         }
 
-        Results[0].End = secondDayStart.AddSeconds(-1);
+        var initialDay = Results[0];
+        initialDay.StartingSanityValue = _setup.CurrentSanity;
+        initialDay.StartingExpData = _setup.InitialExpData;
+        initialDay.End = secondDayStart.AddSeconds(-1);
         SimulateFrom(0);
     }
 
@@ -94,11 +102,14 @@ public sealed class PlannerSimulation : ReactiveObjectBase
         if (day >= Results.Count)
             return;
         var today = Results[day];
-        var yesterday = day > 0 ? Results[day - 1] : null;
         var tomorrow = day + 1 < Results.Count ? Results[day+1] : null;
 
-        today.StartingExpData = yesterday?.FinishExpData ?? _setup.InitialExpData;
-        today.StartingSanityValue = yesterday?.FinishSanityValue ?? _setup.CurrentSanity;
+        if (day > 0)
+        {
+            var yesterday = Results[day - 1];
+            today.StartingExpData = yesterday.FinishExpData;
+            today.StartingSanityValue = yesterday.FinishSanityValue;
+        }
 
         var sanLog = today.SanityLog;
         var natRegen = _setup.DailySanityRegenEfficiency;
@@ -174,7 +185,8 @@ public sealed class PlannerSimulation : ReactiveObjectBase
                 SimClosedDay(repeating);
             }
 
-            if (_anniSanityLeft > 0)
+            var surplus = sanLog.CurrentValue;
+            if (surplus > 0 && _anniSanityLeft > 0)
             {
                 int used;
                 if (sanLog.CurrentValue >= _anniSanityLeft)
@@ -191,7 +203,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
                 GainExp(used * 10); // anni is always 10x
             }
 
-            var surplus = sanLog.CurrentValue;
+            surplus = sanLog.CurrentValue;
             if (surplus > 0)
             {
                 sanLog.Log(-surplus, "Surplus", "Spend this on any stage to get EXP");
@@ -305,9 +317,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
             for (var i = 0; i < levelups; i++)
             {
                 var newCap = _gameConst.GetMaxSanity(++level);
-                // every levelup is (new cap - 45) sanity
-                // you also lose at least 1 more due to momentary loss of natural regen from overcap
-                // technically... if you're level 1 and you level up more than once in 6 minutes you still only lose 1 sanity...
+                // every levelup is (new cap - 45) sanity; you also lose at least 1 more due to momentary loss of natural regen from overcap
                 sanFromLevels += newCap - 46;
             }
             sanLog.Log(sanFromLevels,

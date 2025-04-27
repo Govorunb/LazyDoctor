@@ -65,7 +65,7 @@
                   </Style>
                 </Style>
               </Control.Styles>
-              <Grid ColumnDefinitions="40,5,*">
+              <Grid ColumnDefinitions="48,5,*">
                 <TextBlock Grid.Column="0" Classes.Gain="{Binding IsGain}" Classes.Loss="{Binding IsLoss}"
                            Text="{Binding Delta, Converter={x:Static conv:FuncConverters.IntWithPlusPrefix}}"
                            HorizontalAlignment="Right" IsVisible="{Binding Delta}" />

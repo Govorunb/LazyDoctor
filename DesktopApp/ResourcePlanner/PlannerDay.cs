@@ -50,15 +50,15 @@ internal sealed class DesignPlannerDay : PlannerDay
         SanityLog.Log(0, "Get weekly potions", "+240 banked sanity");
         SanityLog.Log(240, "Banked sanity");
         SanityLog.Log(-180, "Saved for tomorrow");
-        SanityLog.Log(1, "Fraud");
-        SanityLog.Log(1, "Fraud");
-        SanityLog.Log(1, "Fraud");
-        SanityLog.Log(1, "Fraud");
-        SanityLog.Log(1, "Fraud");
-        SanityLog.Log(1, "Fraud");
-        SanityLog.Log(1, "Fraud");
-        SanityLog.Log(1, "Fraud");
-        SanityLog.Log(1, "Fraud");
+        SanityLog.Log(10000, "Fraud");
+        SanityLog.Log(10000, "Fraud");
+        SanityLog.Log(10000, "Fraud");
+        SanityLog.Log(10000, "Fraud");
+        SanityLog.Log(10000, "Fraud");
+        SanityLog.Log(10000, "Fraud");
+        SanityLog.Log(10000, "Fraud");
+        SanityLog.Log(10000, "Fraud");
+        SanityLog.Log(10000, "Fraud");
 
         FinishExpData = new(101, 10000);
         FinishSanityValue = 180;
