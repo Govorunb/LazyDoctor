@@ -11,15 +11,12 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Avalonia">
-    <AvaloniaVersion>11.2.2</AvaloniaVersion> <!-- TODO: https://github.com/AvaloniaUI/Avalonia/issues/17809 -->
+    <AvaloniaVersion>11.2.8</AvaloniaVersion>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

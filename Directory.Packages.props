@@ -19,14 +19,14 @@
     <PackageVersion Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Themes.Simple" Version="$(AvaloniaVersion)" />
-    <PackageVersion Include="FluentAvaloniaUI" Version="2.2.0" />
+    <PackageVersion Include="FluentAvaloniaUI" Version="2.3.0" />
     <PackageVersion Include="HotAvalonia" Version="3.0.0" />
     <!-- Data/Infra/Utils -->
     <PackageVersion Include="OpenCvSharp4.Windows" Version="4.10.0.20241108" />
     <PackageVersion Include="ReactiveMarbles.CacheDatabase.Sqlite3" Version="1.3.1" />
-    <PackageVersion Include="ReactiveUI" Version="20.1.63" />
+    <PackageVersion Include="ReactiveUI" Version="20.2.45" />
     <PackageVersion Include="ReactiveUI.Fody" Version="19.5.41" />
-    <PackageVersion Include="ReactiveUI.SourceGenerators" Version="2.1.8" />
+    <PackageVersion Include="ReactiveUI.SourceGenerators" Version="2.1.27" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageVersion Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageVersion Include="Splat.DependencyInjection.SourceGenerator" Version="1.2.31" />
@@ -40,10 +40,7 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageVersion>
-    <PackageVersion Include="xunit.v3" Version="1.1.0" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" PrivateAssets="all" />
+    <PackageVersion Include="xunit.v3" Version="2.0.1" />
   </ItemGroup>
 </Project>
