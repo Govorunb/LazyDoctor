@@ -174,8 +174,23 @@ public sealed class PlannerSimulation : ReactiveObjectBase
                 SimClosedDay(repeating);
             }
 
-            // TODO: move anni here
-            // currently open days can't do anni even if there's surplus
+            if (_anniSanityLeft > 0)
+            {
+                int used;
+                if (sanLog.CurrentValue >= _anniSanityLeft)
+                {
+                    used = _anniSanityLeft; // last run with partial refund
+                }
+                else
+                {
+                    var maxUsed = Math.Min(_anniSanityLeft, sanLog.CurrentValue);
+                    CalculateRuns(maxUsed, AnniStageCost, out used);
+                }
+                sanLog.Log(-used, "Annihilation");
+                _anniSanityLeft -= used;
+                GainExp(used * 10); // anni is always 10x
+            }
+
             var surplus = sanLog.CurrentValue;
             if (surplus > 0)
             {
@@ -222,6 +237,9 @@ public sealed class PlannerSimulation : ReactiveObjectBase
 
         void SimClosedDay(bool repeating)
         {
+            if (tomorrow?.IsTargetStageOpen != true)
+                return;
+
             // save some sanity for tomorrow (unless today is the last day)
             // subtracting it first makes things a lot easier
             // teeeeechnically, there's an edge case where you could:
@@ -229,43 +247,24 @@ public sealed class PlannerSimulation : ReactiveObjectBase
             // - level up from it (where, if saved, you otherwise wouldn't)
             // - still have enough to save the full amount, but now you might have 1 higher sanity cap or something
             // but in this case you'll get more value out of leveling up tomorrow instead of today
-            if (tomorrow?.IsTargetStageOpen == true)
+
+            // grrrr the edge cases around saving sanity are really annoying
+            // TODO: it might actually be more sanity efficient to overcap if it saves a levelup for tomorrow's open stage
+
+            // deals with this edge case:
+            // - cap 149, save 120
+            // - *unavoidable* level up (e.g. from anni)
+            // - cap now 150, can save 150 instead of 120
+            //   -> saved amount needs to be adjusted
+            var prevSaved = repeating ? today.FinishSanityValue : 0;
+
+            // multiple of target stage cost, up to sanity cap
+            var maxSaved = Math.Min(_gameConst.GetMaxSanity(expData.Level), sanLog.CurrentValue + prevSaved);
+            CalculateRuns(maxSaved, _targetStage.SanityCost, out var saved);
+            if (saved != prevSaved)
             {
-                // grrrr the edge cases around saving sanity are really annoying
-                // TODO: it might actually be more sanity efficient to overcap if it saves a levelup for tomorrow's open stage
-
-                // deals with this edge case:
-                // - cap 149, save 120
-                // - *unavoidable* level up (e.g. from anni)
-                // - cap now 150, can save 150 instead of 120
-                //   -> saved amount needs to be adjusted
-                var prevSaved = repeating ? today.FinishSanityValue : 0;
-
-                // multiple of target stage cost, up to sanity cap
-                var maxSaved = Math.Min(_gameConst.GetMaxSanity(expData.Level), sanLog.CurrentValue + prevSaved);
-                CalculateRuns(maxSaved, _targetStage.SanityCost, out var saved);
-                if (saved != prevSaved)
-                {
-                    today.FinishSanityValue = saved;
-                    sanLog.Log(prevSaved-saved, prevSaved == 0 ? "Saved for tomorrow" : "Adjust saved sanity due to cap increase");
-                }
-            }
-
-            if (_anniSanityLeft > 0)
-            {
-                int used;
-                if (sanLog.CurrentValue >= _anniSanityLeft)
-                {
-                    used = _anniSanityLeft; // last run with partial refund
-                }
-                else
-                {
-                    var maxUsed = Math.Min(_anniSanityLeft, sanLog.CurrentValue);
-                    CalculateRuns(maxUsed, AnniStageCost, out used);
-                }
-                sanLog.Log(-used, "Annihilation");
-                _anniSanityLeft -= used;
-                GainExp(used * 10); // anni is always 10x
+                today.FinishSanityValue = saved;
+                sanLog.Log(prevSaved-saved, prevSaved == 0 ? "Saved for tomorrow" : "Adjust saved sanity due to cap increase");
             }
         }
 
