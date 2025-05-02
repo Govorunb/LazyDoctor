@@ -8,7 +8,6 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.ReactiveUI;
-using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Recruitment.Views;
 

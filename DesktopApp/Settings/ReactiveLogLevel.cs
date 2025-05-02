@@ -1,7 +1,3 @@
-using System.Reactive.Linq;
-using System.Text.Json.Serialization;
-using DesktopApp.Utilities.Attributes;
-using DesktopApp.Utilities.Helpers;
 using Serilog.Core;
 
 namespace DesktopApp.Settings;

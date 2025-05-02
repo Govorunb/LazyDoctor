@@ -1,5 +1,3 @@
-using DesktopApp.Utilities.Attributes;
-
 namespace DesktopApp.Data.Player;
 
 [JsonClass]

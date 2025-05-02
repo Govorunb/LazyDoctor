@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace DesktopApp.Utilities.Helpers;
 
 [PublicAPI]

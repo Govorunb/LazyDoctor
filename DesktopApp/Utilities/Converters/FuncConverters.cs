@@ -1,8 +1,5 @@
-using System.Reactive.Linq;
 using Avalonia.Data.Converters;
 using DesktopApp.Data;
-using DesktopApp.Utilities.Helpers;
-using JetBrains.Annotations;
 
 namespace DesktopApp.Utilities.Converters;
 

@@ -1,5 +1,4 @@
 using Avalonia;
-using JetBrains.Annotations;
 
 namespace DesktopApp.Common.OCR;
 

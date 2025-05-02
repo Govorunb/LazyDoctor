@@ -1,9 +1,7 @@
 using System.Diagnostics;
-using System.Text.Json.Serialization;
 using DesktopApp.Data;
 using DesktopApp.Data.Player;
 using DesktopApp.Data.Stages;
-using DesktopApp.Utilities.Attributes;
 
 namespace DesktopApp.ResourcePlanner;
 
@@ -258,7 +256,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
             // - spend sanity as surplus
             // - level up from it (where, if saved, you otherwise wouldn't)
             // - still have enough to save the full amount, but now you might have 1 higher sanity cap or something
-            // but in this case you'll get more value out of leveling up tomorrow instead of today
+            // but in this case you still get more value (runs) out of leveling up tomorrow instead of today
 
             // grrrr the edge cases around saving sanity are really annoying
             // TODO: it might actually be more sanity efficient to overcap if it saves a levelup for tomorrow's open stage
@@ -276,7 +274,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
             if (saved != prevSaved)
             {
                 today.FinishSanityValue = saved;
-                sanLog.Log(prevSaved-saved, prevSaved == 0 ? "Saved for tomorrow" : "Adjust saved sanity due to cap increase");
+                sanLog.Log(prevSaved-saved, prevSaved == 0 ? "Saved for tomorrow" : "Adjust saved sanity");
             }
         }
 

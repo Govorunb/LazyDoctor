@@ -1,16 +1,11 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using DesktopApp.Data;
 using DesktopApp.Recruitment;
 using DesktopApp.ResourcePlanner;
 using DesktopApp.Settings;
-using DesktopApp.Utilities.Attributes;
-using DesktopApp.Utilities.Helpers;
-using JetBrains.Annotations;
 
 namespace DesktopApp.Common;
 

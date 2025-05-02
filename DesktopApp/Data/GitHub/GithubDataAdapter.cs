@@ -1,7 +1,5 @@
 using System.Net;
-using System.Reactive.Linq;
 using System.Reflection;
-using DesktopApp.Utilities.Helpers;
 using ReactiveMarbles.CacheDatabase.Core;
 
 namespace DesktopApp.Data.GitHub;

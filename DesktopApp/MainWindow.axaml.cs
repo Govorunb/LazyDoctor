@@ -1,4 +1,3 @@
-using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.ReactiveUI;
 using FluentAvalonia.UI.Controls;

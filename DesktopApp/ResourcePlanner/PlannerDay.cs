@@ -1,7 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Serialization;
 using DesktopApp.Data.Player;
-using DesktopApp.Utilities.Attributes;
 
 namespace DesktopApp.ResourcePlanner;
 

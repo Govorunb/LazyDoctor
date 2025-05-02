@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using DesktopApp.Data.GitHub;
 using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;

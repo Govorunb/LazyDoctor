@@ -1,6 +1,4 @@
-using System.Reactive.Linq;
 using System.Text.Json;
-using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Data.GitHub;
 

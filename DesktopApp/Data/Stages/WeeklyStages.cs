@@ -1,8 +1,5 @@
 using System.Collections.ObjectModel;
-using System.Reactive.Linq;
-using DesktopApp.Utilities.Helpers;
 using DynamicData;
-using JetBrains.Annotations;
 
 namespace DesktopApp.Data.Stages;
 

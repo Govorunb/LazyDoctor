@@ -1,7 +1,4 @@
-using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
-using DesktopApp.Utilities.Attributes;
-using DesktopApp.Utilities.Helpers;
 using ReactiveMarbles.CacheDatabase.Core;
 
 namespace DesktopApp.Data.GitHub;

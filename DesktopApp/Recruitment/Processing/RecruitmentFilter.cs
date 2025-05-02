@@ -1,10 +1,8 @@
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Reactive.Linq;
 using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
-using DesktopApp.Utilities.Helpers;
 using DynamicData;
 using DynamicData.Binding;
 

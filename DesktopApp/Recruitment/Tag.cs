@@ -1,7 +1,5 @@
 using System.Diagnostics;
-using System.Reactive.Linq;
 using DesktopApp.Data.Operators;
-using DesktopApp.Utilities.Attributes;
 
 namespace DesktopApp.Recruitment;
 

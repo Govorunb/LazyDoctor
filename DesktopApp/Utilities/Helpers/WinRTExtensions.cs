@@ -1,5 +1,4 @@
 using Windows.Foundation;
-using JetBrains.Annotations;
 using AvaRect = Avalonia.Rect;
 
 namespace DesktopApp.Utilities.Helpers;

@@ -1,9 +1,6 @@
 using System.ComponentModel;
-using System.Reactive.Linq;
-using System.Text.Json.Serialization;
 using DesktopApp.Data;
 using DesktopApp.Data.Player;
-using DesktopApp.Utilities.Attributes;
 
 namespace DesktopApp.ResourcePlanner;
 

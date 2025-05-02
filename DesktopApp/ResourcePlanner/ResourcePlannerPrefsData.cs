@@ -1,6 +1,3 @@
-using DesktopApp.Utilities.Attributes;
-using DesktopApp.Utilities.Helpers;
-
 namespace DesktopApp.ResourcePlanner;
 
 [JsonClass]

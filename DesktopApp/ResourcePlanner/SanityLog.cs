@@ -1,6 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Text.Json.Serialization;
-using DesktopApp.Utilities.Attributes;
 
 namespace DesktopApp.ResourcePlanner;
 

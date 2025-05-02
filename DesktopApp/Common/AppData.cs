@@ -1,5 +1,4 @@
 using System.Reflection;
-using DesktopApp.Utilities.Helpers;
 using ReactiveMarbles.CacheDatabase.Core;
 using ReactiveMarbles.CacheDatabase.Sqlite3;
 

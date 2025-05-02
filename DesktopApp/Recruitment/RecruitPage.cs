@@ -1,11 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Reactive;
-using System.Reactive.Linq;
 using Windows.Storage.Streams;
 using DesktopApp.Data.Recruitment;
 using DesktopApp.Recruitment.Processing;
-using DesktopApp.Utilities.Attributes;
-using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Recruitment;
 

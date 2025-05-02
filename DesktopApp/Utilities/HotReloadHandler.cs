@@ -3,7 +3,6 @@ using System.Reactive.Subjects;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
-using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Utilities;
 

@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Specialized;
 using System.Reactive;
-using System.Reactive.Linq;
 using DynamicData;
 using DynamicData.Binding;
-using JetBrains.Annotations;
 
 namespace DesktopApp.Utilities.Helpers;
 

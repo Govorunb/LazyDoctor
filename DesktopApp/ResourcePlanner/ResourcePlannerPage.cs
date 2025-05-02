@@ -1,10 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reactive;
-using System.Reactive.Linq;
 using DesktopApp.Data;
 using DesktopApp.Data.Stages;
-using DesktopApp.Utilities.Helpers;
 using DynamicData;
 using DynamicData.Aggregation;
 

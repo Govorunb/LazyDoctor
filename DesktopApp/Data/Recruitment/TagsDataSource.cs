@@ -1,8 +1,6 @@
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
-using System.Reactive.Linq;
 using DesktopApp.Recruitment;
-using DesktopApp.Utilities.Helpers;
 using DynamicData;
 using DynamicData.Binding;
 
