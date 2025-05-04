@@ -26,12 +26,20 @@ public class ResourcePlannerPage : PageBase
     [Reactive]
     public string? Errors { get; private set; }
 
+    // start/end for results calendar
     [Reactive]
-    public DateTime SelectedDate { get; set; } = DateTime.Today; // otherwise, calendar has incorrect bounds (selects 0001-Jan-01 so the minimum extends down to there)
+    public DateTime StartDate { get; private set; }
+    [Reactive]
+    public DateTime EndDate { get; private set; }
+    [Reactive]
+    public DateTime SelectedDate { get; set; } = DateTime.Today;
     [Reactive]
     public PlannerDay? SelectedDay { get; private set; }
     [Reactive]
     public int TotalTargetStageRuns { get; private set; }
+
+    [Reactive]
+    private bool DayDateIsEnd { get; set; }
 
     internal ReadOnlyObservableCollection<string> StageCodes => _sched.StageCodes;
     public ReactiveCommand<Unit, Unit> CalculateCommand { get; }
@@ -61,10 +69,16 @@ public class ResourcePlannerPage : PageBase
             .Subscribe(_ => _resultsList.Reset(Prefs?.Results ?? []))
             .DisposeWith(this);
 
-        // picked from the calendar
         this.WhenAnyValue(t => t.Setup!.InitialDate)
-            .Where(d => d.TimeOfDay == TimeSpan.Zero)
-            .Subscribe(d => Setup!.InitialDate = timeUtils.NextReset(d))
+            .Subscribe(d =>
+            {
+                d = d.WithKind(DateTimeKind.Local);
+                // FIXME: scrolling on the form field doesn't reset the time of day (eugh)
+                // workaround in the ui layer (literally on scroll event)
+                if (d.TimeOfDay == TimeSpan.Zero) // picked from the calendar
+                    d = timeUtils.NextReset(d);
+                Setup!.InitialDate = d;
+            })
             .DisposeWith(this);
 
         CalculateCommand = ReactiveCommand.Create(Simulate, prefsLoaded);
@@ -72,32 +86,29 @@ public class ResourcePlannerPage : PageBase
 
         _resultsList.Connect()
             .Bind(out _results)
+            .Do(_ =>
+            {
+                // the dates have two patterns depending on where the initial day falls relative to the reset
+                // the point is that intuitively the initial date ("now") should be "today"
+                // (i.e. if the form field shows May 1st, the results calendar should start from May 1st as well)
+                // usually "the date" of a planner day is when the day starts - but if "now" is before today's reset, the second day would have the same date
+                // so "the date" is made to be the end instead (you do end up with the same number of days in both cases)
+                if (_results is not [var firstDay, ..])
+                    return;
+                DayDateIsEnd = firstDay.Start.Date == firstDay.End.Date;
+                StartDate = firstDay.Start.Date;
+                var endDay = _results.Last();
+                EndDate = (DayDateIsEnd ? endDay.End : endDay.Start).Date;
+                SelectedDate = firstDay.Start.Date;
+            })
             .Sum(d => d.TargetStageCompletions)
             .Subscribe(runs => TotalTargetStageRuns = runs);
 
-        // should only change when recalculated
-        // this.WhenAnyValue(t => t.Setup!.InitialDate, t => t.Setup!.TargetDate)
-        //     .Select(pair => SelectedDate.Clamp(pair.Item1, pair.Item2))
-        //     .BindTo(this, t => t.SelectedDate);
-
-        // the dates have two patterns depending on where the initial day falls relative to the reset
-        // the point is that intuitively the initial date ("now") should be "today"
-        // (i.e. if the form field shows May 1st, the results calendar should start from May 1st as well)
-        // usually "the date" of a planner day is when the day starts
-        // but if "now" is before today's reset, the second day would overlap the first - so "the date" is made to be the end instead
-        // (you do end up with the same number of days in both cases)
         this.WhenAnyValue(t => t.SelectedDate)
-            .Select(d =>
-            {
-                if (Prefs is null)
-                    return null;
-                var days = Prefs.Results;
-                var firstDay = days.First();
-                var firstIsBeforeReset = firstDay.Start.Date == firstDay.End.Date;
-                return firstIsBeforeReset
-                    ? days.FirstOrDefault(d2 => d2.End.Date == d.Date)
-                    : days.FirstOrDefault(d2 => d2.Start.Date == d.Date);
-            }).Subscribe(d => SelectedDay = d);
+            .Select(d => DayDateIsEnd
+                ? _results.FirstOrDefault(d2 => d2.End.Date == d.Date)
+                : _results.FirstOrDefault(d2 => d2.Start.Date == d.Date))
+            .Subscribe(d => SelectedDay = d);
 
         this.WhenAnyValue(t => t.Prefs!.Setup.TargetStageCode)
             .ToUnit()
@@ -105,6 +116,7 @@ public class ResourcePlannerPage : PageBase
             // .Debounce(TimeSpan.FromMilliseconds(100))
             .Select(_ => _sched.StagesRepo.GetByCode(Setup?.TargetStageCode))
             .Subscribe(stage => Errors = stage is { } ? null : "Stage not found");
+        // TODO: more validation (e.g. initial date must be before target date)
     }
 
     private void Simulate()

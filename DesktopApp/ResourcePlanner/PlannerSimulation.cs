@@ -18,6 +18,9 @@ public sealed class PlannerSimulation : ReactiveObjectBase
     private readonly List<DateTime> _days;
     private int _anniSanityLeft;
     private int _bankedSanity;
+    private readonly DateTime _simStart;
+    private readonly DateTime _simEnd;
+
     [JsonIgnore]
     public int TotalTargetStageRuns => Results.Select(d => d.TargetStageCompletions).Sum();
     private int AnniStageCost => _setup.AnnihilationMap is AnnihilationMap.Chernobog ? 20 : 25;
@@ -37,17 +40,27 @@ public sealed class PlannerSimulation : ReactiveObjectBase
         _targetStage = sched.StagesRepo.GetByCode(_setup.TargetStageCode)
             ?? throw new InvalidOperationException($"Invalid target stage code {_setup.TargetStageCode}");
 
+        _simStart = _timeUtils.ToLocal(_setup.InitialDate);
+        _simEnd = _timeUtils.ToLocal(_setup.TargetDate);
+        if (_simEnd < _simStart)
+        {
+            Results = [];
+            _days = [];
+            return;
+        }
+
+
         // each day lasts until the next reset
         // if initial datetime is before today's reset, second day will overlap with first
-        var secondDayStart = timeUtils.NextReset(_setup.InitialDate);
+        var secondDayStart = timeUtils.NextReset(_simStart);
         _bankedSanity = _setup.SmallPots * 10
                         + _setup.MediumPots * 80
                         + _setup.LargePots * 120
                         + _setup.OpBudget * 135
                         + _setup.ExtraSanity;
 
-        _days = secondDayStart.Range(_setup.TargetDate, TimeSpan.FromDays(1))
-            .Prepend(_setup.InitialDate).ToList();
+        _days = secondDayStart.Range(_simEnd, TimeSpan.FromDays(1))
+            .Prepend(_simStart).ToList();
         Results = new List<PlannerDay>(_days.Count);
         for (var i = 0; i < _days.Count-1; i++)
         {
@@ -75,7 +88,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
         return Results[i];
     }
 
-    private int GetDayIndex(DateTime date) => (date - _setup.InitialDate).Days;
+    private int GetDayIndex(DateTime date) => (date - _simStart).Days;
 
     public void SimulateFrom(PlannerDay fromDay)
         => SimulateFrom(fromDay.Start);
@@ -225,7 +238,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
                 // e.g. op is +135, can't cleanly consume 120 without tacking on the extra "wasted" 15; medium pots also suffer a bit with 30san stages
                 // i'm choosing to leave these on the table due to complexity
                 // at least we don't have to worry about expiration :)
-                sanLog.Log(_bankedSanity, "Banked sanity (potions, OP, etc)");
+                sanLog.Log(_bankedSanity, "Banked sanity", "Potions, OP, cakes, etc");
                 _bankedSanity = 0;
             }
 
@@ -315,12 +328,12 @@ public sealed class PlannerSimulation : ReactiveObjectBase
             for (var i = 0; i < levelups; i++)
             {
                 var newCap = _gameConst.GetMaxSanity(++level);
-                // every levelup is (new cap - 45) sanity; you also lose at least 1 more due to momentary loss of natural regen from overcap
-                sanFromLevels += newCap - 46;
+                // every levelup is (new cap − 45) sanity
+                sanFromLevels += newCap - 45;
             }
             sanLog.Log(sanFromLevels,
                 $"Level up{(levelups == 1 ? "" : $" {levelups} times")}",
-                "Each levelup restores (new cap-45) sanity; you also lose 1 more due to the momentary loss of regen from overcap");
+                "Each levelup restores (new cap − 45) sanity");
         }
     }
 

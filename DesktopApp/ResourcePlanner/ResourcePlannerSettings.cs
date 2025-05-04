@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using DesktopApp.Data;
 using DesktopApp.Data.Player;
 
 namespace DesktopApp.ResourcePlanner;

@@ -18,29 +18,20 @@
       <Setter Property="BorderThickness" Value="1" />
     </Style>
   </Control.Styles>
-  <!-- TODO: try two columns (log, then exp circles top to bottom) -->
-  <Grid ColumnDefinitions="*,30,Auto,30,*" RowDefinitions="48,*,Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5"
-               FontSize="32" HorizontalAlignment="Center"
+  <StackPanel Orientation="Vertical" Margin="10" Spacing="4">
+    <TextBlock FontSize="32" HorizontalAlignment="Center"
                Text="{Binding DateRangeString}" />
-    <!-- start -->
-    <Border Grid.Row="1" Grid.Column="0" Classes="Debug"
-            Padding="-10" Margin="10,0,0,10">
-      <rpv:PlayerExpCircle DataContext="{Binding StartingExpData}" />
-    </Border>
-    <Border Grid.Column="1" Grid.Row="1">
-      <fa:SymbolIcon Symbol="ChevronRight" FontSize="32" Margin="0 0 0 20" />
-    </Border>
-    <!-- log -->
-    <ScrollViewer Grid.Row="1" Grid.Column="2">
-      <ItemsControl HorizontalAlignment="Stretch" ItemsSource="{Binding SanityLog.Changes}">
-        <ItemsControl.ItemsPanel>
-          <ItemsPanelTemplate>
-            <StackPanel Orientation="Vertical" Spacing="6" />
-          </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-        <ItemsControl.ItemTemplate>
-          <!--
+    <WrapPanel Orientation="Horizontal">
+      <!-- log -->
+      <ScrollViewer>
+        <ItemsControl HorizontalAlignment="Stretch" ItemsSource="{Binding SanityLog.Changes}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Vertical" Spacing="6" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <!--
             TODO: visualization of gain/loss
             . (unchanged, blue)
             > (gain, green)
@@ -53,45 +44,49 @@
               v
             [...>>>___]
           -->
-          <DataTemplate DataType="rp:SanityChange">
-            <Border Padding="0 0 12 0" ToolTip.Tip="{Binding Details}">
-              <Control.Styles>
-                <Style Selector="TextBlock">
-                  <Style Selector="^.Loss">
-                    <Setter Property="Foreground" Value="Red" />
+            <DataTemplate DataType="rp:SanityChange">
+              <Border Padding="0 0 12 0" ToolTip.Tip="{Binding Details}">
+                <Control.Styles>
+                  <Style Selector="TextBlock">
+                    <!-- TODO: theming (dark/light, red for gain in cn, etc) -->
+                    <Style Selector="^.Loss">
+                      <Setter Property="Foreground" Value="Red" />
+                    </Style>
+                    <Style Selector="^.Gain">
+                      <Setter Property="Foreground" Value="DarkGreen" />
+                    </Style>
                   </Style>
-                  <Style Selector="^.Gain"> <!-- TODO: dark/light theme stuff -->
-                    <Setter Property="Foreground" Value="DarkGreen" />
-                  </Style>
-                </Style>
-              </Control.Styles>
-              <Grid ColumnDefinitions="48,5,*">
-                <TextBlock Grid.Column="0" Classes.Gain="{Binding IsGain}" Classes.Loss="{Binding IsLoss}"
-                           Text="{Binding Delta, Converter={x:Static conv:FuncConverters.IntWithPlusPrefix}}"
-                           HorizontalAlignment="Right" IsVisible="{Binding Delta}" />
-                <fa:SymbolIcon Grid.Column="0" Symbol="Comment"
-                               HorizontalAlignment="Right"
-                               IsVisible="{Binding !Delta}" />
-                <TextBlock Grid.Column="2" Text="{Binding Comment}" TextWrapping="Wrap" />
-              </Grid>
-            </Border>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
-    </ScrollViewer>
-    <Border Grid.Column="3" Grid.Row="1">
-      <fa:SymbolIcon Symbol="ChevronRight" FontSize="32" Margin="0 0 0 20" />
-    </Border>
-    <!-- finish -->
-    <Border Grid.Row="1" Grid.Column="4"
-            Padding="-10" Margin="0,0,10,10">
-      <rpv:PlayerExpCircle DataContext="{Binding FinishExpData}" />
-    </Border>
-    <TextBlock Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="2"
+                </Control.Styles>
+                <Grid ColumnDefinitions="48,5,*">
+                  <TextBlock Grid.Column="0" Classes.Gain="{Binding IsGain}" Classes.Loss="{Binding IsLoss}"
+                             Text="{Binding Delta, Converter={x:Static conv:FuncConverters.IntWithPlusPrefix}}"
+                             HorizontalAlignment="Right" IsVisible="{Binding Delta}" />
+                  <fa:SymbolIcon Grid.Column="0" Symbol="Comment"
+                                 HorizontalAlignment="Right"
+                                 IsVisible="{Binding !Delta}" />
+                  <TextBlock Grid.Column="2" Text="{Binding Comment}" TextWrapping="Wrap" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+      <Border Margin="10,0,10,10"
+              Classes="Debug"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch"
+              IsVisible="{Binding ShouldShowExpData}">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <rpv:PlayerExpCircle DataContext="{Binding StartingExpData}" MinWidth="200" />
+          <fa:SymbolIcon Symbol="ChevronRight" FontSize="32" Margin="0 0 0 4" />
+          <rpv:PlayerExpCircle DataContext="{Binding FinishExpData}" MinWidth="200" />
+        </StackPanel>
+      </Border>
+    </WrapPanel>
+    <TextBlock IsVisible="{Binding SanityLog.CurrentValue}"
                HorizontalAlignment="Center"
-               IsVisible="{Binding SanityLog.CurrentValue}"
                Foreground="Red" FontSize="16">
       Unbalanced sanity calculation! Left with <Run Text="{Binding SanityLog.CurrentValue}" /> at the end of the day (excluding saved).
     </TextBlock>
-  </Grid>
+  </StackPanel>
 </UserControl>

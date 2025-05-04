@@ -46,8 +46,8 @@
       </Style>
     </Style>
   </Control.Styles>
-  <Border Padding="20">
-    <ScrollViewer>
+  <ScrollViewer>
+    <Border HorizontalAlignment="Center">
       <StackPanel Orientation="Vertical" Spacing="4">
         <Expander Header="Setup" IsExpanded="{Binding Prefs.SetupExpanded}">
           <StackPanel Orientation="Vertical">
@@ -119,8 +119,8 @@
                             Value="{Binding Setup.DailySanityRegenEfficiency}"
                             ToolTip.Tip="How much of the daily 240 regen you usually end up spending (on average).
 For example, if you log in once a day and your cap is 180, put in 180." />
-              <StackPanel Spacing="2">
-                <Label Content="Annihilation Map" />
+              <StackPanel Spacing="2" ToolTip.Tip="Determines your sanity efficiency in doing the weekly Annihilation.&#10;The current rotating map is always the most efficient at 125 san/week.">
+                <Label Content="Annihilation Map" Target="AnniMap" />
                 <ComboBox Name="AnniMap" Classes="EnumPicker"
                           ItemsSource="{x:Static vm:ResourcePlannerSettings.AnnihilationMaps}"
                           SelectedValue="{Binding Setup.AnnihilationMap}"/>
@@ -143,23 +143,24 @@ For example, if you log in once a day and your cap is 180, put in 180." />
           </TextBlock>
         </Border>
         <Expander Header="Details" IsExpanded="{Binding Prefs.ResultsExpanded}" IsVisible="{Binding !!Results.Count}">
-          <StackPanel Orientation="Vertical" Spacing="8">
-            <DockPanel HorizontalAlignment="Stretch">
-              <!-- TODO: table view? (TreeDataGrid) -->
-              <Calendar Name="Calendar"
-                        DockPanel.Dock="Left"
-                        VerticalAlignment="Top"
-                        DisplayDateStart="{Binding Setup.InitialDate, Mode=OneWay}"
-                        DisplayDateEnd="{Binding Setup.TargetDate}"
-                        SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
-              />
-              <v:PlannerDayView DataContext="{Binding SelectedDay}" IsVisible="{Binding !!DateRangeString.Length, TargetNullValue=false}"
+          <Grid ColumnDefinitions="Auto, *">
+            <!-- switch for timezone? (server/local)
+            does look a bit weird to have monday stuff listed on tuesday -->
+            <Calendar Name="Calendar"
+                      Grid.Column="0"
+                      VerticalAlignment="Top"
+                      DisplayDateStart="{Binding StartDate, Mode=OneWay}"
+                      DisplayDateEnd="{Binding EndDate, Mode=OneWay}"
+                      SelectedDate="{Binding SelectedDate, Mode=TwoWay}" />
+              <v:PlannerDayView DataContext="{Binding SelectedDay}"
+                                Grid.Column="1"
+                                IsVisible="{Binding !!DateRangeString.Length, TargetNullValue=false}"
                                 Margin="8 0"
-                                HorizontalAlignment="Stretch" />
-            </DockPanel>
-          </StackPanel>
+                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                />
+          </Grid>
         </Expander>
       </StackPanel>
-    </ScrollViewer>
-  </Border>
+    </Border>
+  </ScrollViewer>
 </UserControl>

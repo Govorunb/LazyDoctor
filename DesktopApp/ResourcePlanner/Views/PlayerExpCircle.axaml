@@ -9,13 +9,13 @@
              x:DataType="plrdata:PlayerExpData"
              x:Class="DesktopApp.ResourcePlanner.Views.PlayerExpCircle">
   <Design.DataContext>
-    <plrdata:DesignPlayerExpData Level="50" Exp="25000" />
+    <plrdata:DesignPlayerExpData Level="50" Exp="2500" />
   </Design.DataContext>
-  <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-    <Panel>
+  <Viewbox MinWidth="150" MinHeight="150">
+    <Panel Background="Transparent"> <!-- enables hit testing -->
       <ToolTip.Tip>
         <TextBlock>
-          <Run Text="{Binding Exp}" />/<Run Text="{Binding Level, Converter={x:Static conv:FuncConverters.PlayerLevelToExpRequirement}, FallbackValue=???}" />
+          <Run Text="{Binding Exp}" />/<Run Text="{Binding Level, Converter={x:Static conv:FuncConverters.PlayerLevelToExpRequirement}, FallbackValue=???}" /> Exp
         </TextBlock>
       </ToolTip.Tip>
       <fa:ProgressRing Name="Ring" Value="{Binding Exp}"

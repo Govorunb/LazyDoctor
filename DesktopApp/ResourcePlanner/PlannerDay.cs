@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using DesktopApp.Data.Player;
 
 namespace DesktopApp.ResourcePlanner;
@@ -22,6 +21,8 @@ public class PlannerDay : ViewModelBase
 
     [JsonIgnore]
     public string DateRangeString => GetDateRangeString();
+    [JsonIgnore]
+    public bool ShouldShowExpData => FinishExpData != StartingExpData;
 
     public string GetDateRangeString()
     {

@@ -25,12 +25,13 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 
         public GeneralPrefsData General { get; set => SetIfNotNull(ref field, value); } = new();
 
-        // preserve newer configs on older versions
+        // preserve newer configs on older versions (TODO: config should load "read-only")
         [JsonExtensionData] internal Dictionary<string, object> UnknownProperties { get; set; } = new();
 
         internal static JsonSerializerOptions SerializerOptions { get; } = new(JsonSourceGenContext.Default.Options)
         {
-            WriteIndented = true, // more human-readable (and editable) (but still not yaml, all my homies hate yaml)
+            WriteIndented = true, // more human-editable
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
     }
 
@@ -79,8 +80,8 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 #pragma warning disable IL2026 // Type is used (whole assembly is rooted, too)
 #pragma warning disable IL3050 // type resolver will use source generated code
         var json = JsonSerializer.Serialize(Data, UserPrefsData.SerializerOptions);
-#pragma warning restore IL2026 // RequiresUnreferencedCode
 #pragma warning restore IL3050 // RequiresDynamicCode
+#pragma warning restore IL2026 // RequiresUnreferencedCode
         this.Log().Info("Saving preferences");
         await _appData.WriteFile(PrefsFileName, json);
     }
@@ -100,6 +101,8 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
         }
         catch (Exception e)
         {
+            // FIXME: fail to load one value somewhere -> whole prefs trashed
+            // should back up previous file, and/or enter "safe mode"
             this.Log().Error(e, "Failed to load preferences, reverting to default");
             data = new();
         }
@@ -122,7 +125,7 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
         if (JsonSourceGenContext.Default.Deserialize<UserPrefsData>(json) is not { Version: { } } loaded)
             throw new InvalidOperationException("Data is malformed");
         // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-        // fixups for explicit nulls
+        // fixups for explicit nulls (malformed/in-dev)
         loaded.Recruitment ??= new();
         loaded.General ??= new();
         loaded.Planner ??= new();
@@ -147,7 +150,6 @@ file static class UserPrefsMigrations
         new(new("0.1.2.0"), d =>
         {
             // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-            // json
             d.General ??= new();
             return d;
         }),
@@ -172,6 +174,7 @@ file static class UserPrefsMigrations
 
             if (migration.Version > App.Version)
             {
+                // dirty backport?
                 data.Log().Warn($"Ending migrations, migration v{migration.Version} is newer than current app version ({App.Version})");
                 break;
             }
