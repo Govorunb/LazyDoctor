@@ -6,7 +6,7 @@ using Avalonia.Threading;
 
 namespace DesktopApp.Utilities;
 
-// does not get called in Rider
+// does not get called in Rider :(
 internal static class HotReloadHandler
 {
     private static readonly Subject<Type[]?> _update = new();
@@ -17,13 +17,14 @@ internal static class HotReloadHandler
         _update.LogDebug(nameof(UpdateApplication)).Subscribe(_ =>
         {
             // invalidate all bindings
+            // FIXME: hot reload seems to work just fine on rider (i.e. without this), remove later
             Dispatcher.UIThread.Post(() =>
             {
-                if (Application.Current is not { ApplicationLifetime: IClassicDesktopStyleApplicationLifetime { MainWindow.DataContext: { } vm } lifetime })
+                if (App.Current?.MainWindow is not { DataContext: { } vm } mainWindow)
                     return;
 
-                lifetime.MainWindow.DataContext = null;
-                lifetime.MainWindow.DataContext = vm;
+                mainWindow.DataContext = null;
+                mainWindow.DataContext = vm;
             });
         });
         _clear.LogDebug(nameof(ClearCache)).Subscribe();

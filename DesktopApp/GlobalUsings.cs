@@ -1,6 +1,7 @@
 global using System.Reactive.Linq;
 global using System.Runtime.CompilerServices;
 global using System.Text.Json.Serialization;
+global using Avalonia.Media;
 global using DesktopApp.Common;
 global using DesktopApp.Utilities;
 global using DesktopApp.Utilities.Attributes;

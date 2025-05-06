@@ -1,5 +1,4 @@
 using System.Globalization;
-using Avalonia.Media;
 using DesktopApp.Utilities.Converters;
 
 namespace DesktopApp.Common.Operators;

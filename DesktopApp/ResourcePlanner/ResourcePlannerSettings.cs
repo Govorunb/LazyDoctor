@@ -24,7 +24,7 @@ public sealed class ResourcePlannerSettings : ViewModelBase
     [Reactive] public bool UseWeeklyPots { get; set; } = true; // 2x120 each
     [Reactive] public int DailySanityRegenEfficiency { get; set; } = 240; // can be manually set lower if you login once a day or something
     [Reactive] public AnnihilationMap AnnihilationMap { get; set; }
-    [Reactive, JsonIgnore] public int WeeklyAnniLoss { get; private set; } = 124;
+    [Reactive] public int WeeklyAnniLoss { get; private set; } = 124;
 
     // banked potions
     [Reactive] public int SmallPots { get; set; } // 10 each

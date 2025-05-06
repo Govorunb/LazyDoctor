@@ -26,11 +26,14 @@ internal static class ChronoHelpers
     }
 
     /// <summary>
-    /// Returns a copy of the given <see cref="DateTime" /> with the specified <see cref="DateTimeKind" /> set.
+    /// Returns a copy of the given <see cref="DateTime" /> with the specified <see cref="DateTimeKind" /> set.<br/>
+    /// Essentially just a fluent extension for <see cref="DateTime.SpecifyKind(DateTime, DateTimeKind)" />.
     /// </summary>
     public static DateTime WithKind(this DateTime source, DateTimeKind kind)
     {
-        return source.Kind == kind ? source
-            : new DateTime(DateOnly.FromDateTime(source), TimeOnly.FromDateTime(source), kind);
+        return source.Kind == kind ? source : DateTime.SpecifyKind(source, kind);
     }
+
+    public static DateTime AsUnixTimestamp(this int seconds)
+        => DateTime.UnixEpoch + TimeSpan.FromSeconds(seconds);
 }

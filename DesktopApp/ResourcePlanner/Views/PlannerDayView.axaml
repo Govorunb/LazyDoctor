@@ -30,45 +30,6 @@
               <StackPanel Orientation="Vertical" Spacing="6" />
             </ItemsPanelTemplate>
           </ItemsControl.ItemsPanel>
-          <ItemsControl.ItemTemplate>
-            <!--
-            TODO: visualization of gain/loss
-            . (unchanged, blue)
-            > (gain, green)
-            < (loss, red)
-            _ (remaining capacity, transparent)
-            [...>>>___] +30
-            [.<<<<<___] -50
-            breakdown on mouseover?
-            (30 sanity unchanged)
-              v
-            [...>>>___]
-          -->
-            <DataTemplate DataType="rp:SanityChange">
-              <Border Padding="0 0 12 0" ToolTip.Tip="{Binding Details}">
-                <Control.Styles>
-                  <Style Selector="TextBlock">
-                    <!-- TODO: theming (dark/light, red for gain in cn, etc) -->
-                    <Style Selector="^.Loss">
-                      <Setter Property="Foreground" Value="Red" />
-                    </Style>
-                    <Style Selector="^.Gain">
-                      <Setter Property="Foreground" Value="DarkGreen" />
-                    </Style>
-                  </Style>
-                </Control.Styles>
-                <Grid ColumnDefinitions="48,5,*">
-                  <TextBlock Grid.Column="0" Classes.Gain="{Binding IsGain}" Classes.Loss="{Binding IsLoss}"
-                             Text="{Binding Delta, Converter={x:Static conv:FuncConverters.IntWithPlusPrefix}}"
-                             HorizontalAlignment="Right" IsVisible="{Binding Delta}" />
-                  <fa:SymbolIcon Grid.Column="0" Symbol="Comment"
-                                 HorizontalAlignment="Right"
-                                 IsVisible="{Binding !Delta}" />
-                  <TextBlock Grid.Column="2" Text="{Binding Comment}" TextWrapping="Wrap" />
-                </Grid>
-              </Border>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
         </ItemsControl>
       </ScrollViewer>
       <Border Margin="10,0,10,10"

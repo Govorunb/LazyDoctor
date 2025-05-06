@@ -13,6 +13,15 @@ public static class LinqExtensions
         return reference!;
     }
 
+    public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, Func<TKey, TValue> valueFactory)
+        where TKey : notnull
+    {
+        ref var reference = ref CollectionsMarshal.GetValueRefOrAddDefault(dict, key, out var exists);
+        if (!exists)
+            reference = valueFactory(key);
+        return reference!;
+    }
+
     public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, TValue defaultValue)
         where TKey : notnull
     {

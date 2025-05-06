@@ -21,7 +21,6 @@ public sealed class PlannerSimulation : ReactiveObjectBase
     private readonly DateTime _simStart;
     private readonly DateTime _simEnd;
 
-    [JsonIgnore]
     public int TotalTargetStageRuns => Results.Select(d => d.TargetStageCompletions).Sum();
     private int AnniStageCost => _setup.AnnihilationMap is AnnihilationMap.Chernobog ? 20 : 25;
 
@@ -176,12 +175,15 @@ public sealed class PlannerSimulation : ReactiveObjectBase
                 // anni *must* be done by end of week
                 var isSunday = serverDayOfWeek == System.DayOfWeek.Sunday;
                 // normally we do it on closed days, but if there are no closed days left this week then anni takes priority over the target stage
+                // FIXME: if target date is before sunday, don't force anni on last day (it can be done after farming ends)
                 if (isSunday || Results.Skip(day + 1)
                         .TakeWhile(d => _timeUtils.ToServerTime(d.Start).DayOfWeek != System.DayOfWeek.Monday)
                         .All(d => d.IsTargetStageOpen))
                 {
                     sanLog.Log(-_anniSanityLeft,
-                        $"Annihilation (forced - {(isSunday ? "today is Sunday" : $"{_targetStage.Code} is open on all remaining days")})");
+                        "Annihilation (forced)",
+                        isSunday ? "Last day before anni resets"
+                            : $"Farming {_targetStage.Code} on all remaining days of the week");
                     GainExp(_anniSanityLeft * 10); // anni is always 10x
                     _anniSanityLeft = 0;
                 }

@@ -8,7 +8,7 @@ public abstract class ReactiveObjectBase : ReactiveObject, ICancelable
 {
     private CompositeDisposable? _disposables;
     protected CompositeDisposable Disposables => _disposables ??= [];
-    [Reactive, JsonIgnore]
+    [Reactive]
     public bool IsDisposed { get; private set; } // CompositeDisposable has IsDisposed but it does not notify
 
     [Conditional("DEBUG")]

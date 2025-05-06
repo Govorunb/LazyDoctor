@@ -47,7 +47,7 @@
     </Style>
   </Control.Styles>
   <ScrollViewer>
-    <Border HorizontalAlignment="Center">
+    <Border Padding="32 16">
       <StackPanel Orientation="Vertical" Spacing="4">
         <Expander Header="Setup" IsExpanded="{Binding Prefs.SetupExpanded}">
           <StackPanel Orientation="Vertical">

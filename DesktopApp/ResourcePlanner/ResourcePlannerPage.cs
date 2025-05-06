@@ -89,8 +89,10 @@ public class ResourcePlannerPage : PageBase
             .Do(_ =>
             {
                 // the dates have two patterns depending on where the initial day falls relative to the reset
-                // the point is that intuitively the initial date ("now") should be "today"
-                // (i.e. if the form field shows May 1st, the results calendar should start from May 1st as well)
+                // the premise is that intuitively:
+                // - the initial date ("now") should be "today"
+                //   (i.e. if the form field shows May 1st, the results calendar should start from May 1st as well)
+                // - each day on the calendar has one and only one planner "day"
                 // usually "the date" of a planner day is when the day starts - but if "now" is before today's reset, the second day would have the same date
                 // so "the date" is made to be the end instead (you do end up with the same number of days in both cases)
                 if (_results is not [var firstDay, ..])

@@ -19,9 +19,7 @@ public sealed class Operator : ViewModelBase
     public string[]? TagList { get; set; }
     #endregion JSON
 
-    [JsonIgnore]
     public int RarityStars => Rarity?[^1] is { } c && char.IsAsciiDigit(c) ? c - '0' : -1;
-    [JsonIgnore]
     public OperatorClass Class => (OperatorClass)_classStrings.AsSpan().IndexOf(JsonClass!);
 
     public override string ToString() => Name ?? "unnamed";

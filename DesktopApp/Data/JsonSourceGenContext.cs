@@ -14,7 +14,9 @@ namespace DesktopApp.Data;
     // keep ctor assignments if not explicitly declared in json
     // e.g. a newly added ABCPrefsData property (with a new() initializer)
     //      should not deserialize to null if it's not present in an older prefs.json
-    PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate
+    PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate,
+    IgnoreReadOnlyProperties = true,
+    IgnoreReadOnlyFields = true
 )]
 // all classes marked with [JsonClass] are checked for a matching [JsonSerializable] attribute here
 [JsonSerializable(typeof(RawTagData))]

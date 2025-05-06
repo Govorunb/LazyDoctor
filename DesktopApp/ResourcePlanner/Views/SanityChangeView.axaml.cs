@@ -2,9 +2,9 @@ using Avalonia.ReactiveUI;
 
 namespace DesktopApp.ResourcePlanner.Views;
 
-public sealed partial class PlannerDayView : ReactiveUserControl<PlannerDay>
+public partial class SanityChangeView : ReactiveUserControl<SanityChange>
 {
-    public PlannerDayView()
+    public SanityChangeView()
     {
         InitializeComponent();
     }

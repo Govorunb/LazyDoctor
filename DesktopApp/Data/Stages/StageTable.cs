@@ -18,9 +18,7 @@ public sealed class StageTable
         public required List<string> ZoneList { get; set; }
 
         // utc; not necessarily on reset
-        [JsonIgnore]
-        public DateTime StartsAt => DateTimeOffset.FromUnixTimeSeconds(StartTime).DateTime;
-        [JsonIgnore]
-        public DateTime EndsAt => DateTimeOffset.FromUnixTimeSeconds(EndTime).DateTime;
+        public DateTime StartsAt => StartTime.AsUnixTimestamp();
+        public DateTime EndsAt => EndTime.AsUnixTimestamp();
     }
 }

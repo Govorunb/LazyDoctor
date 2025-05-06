@@ -17,7 +17,6 @@ public class ReactiveLogLevel : ReactiveObjectBase
         set => Switch.MinimumLevel = value;
     }
 
-    [JsonIgnore]
     public SeriLogLevel DefaultLevel { get; }
 
     public ReactiveLogLevel(LoggingLevelSwitch switcher)

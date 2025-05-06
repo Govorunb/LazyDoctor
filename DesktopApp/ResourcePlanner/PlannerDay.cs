@@ -19,9 +19,7 @@ public class PlannerDay : ViewModelBase
     public int FinishSanityValue { get; set; }
     public int TargetStageCompletions { get; set; }
 
-    [JsonIgnore]
     public string DateRangeString => GetDateRangeString();
-    [JsonIgnore]
     public bool ShouldShowExpData => FinishExpData != StartingExpData;
 
     public string GetDateRangeString()
