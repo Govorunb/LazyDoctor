@@ -67,6 +67,6 @@ public sealed class TagsDataSource : DataSource<Tag[]>
         return allTags;
     }
 
-    public Tag? GetByName(string name) => _byName.GetValueOrDefault(name);
+    public Tag? GetByName(ReadOnlySpan<char> name) => _byName.GetAlternateLookup<ReadOnlySpan<char>>().GetValueOrDefault(name);
     public override Task Reload() => _gachaTable.Reload();
 }

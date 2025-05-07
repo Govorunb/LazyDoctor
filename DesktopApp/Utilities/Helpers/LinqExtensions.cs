@@ -60,4 +60,11 @@ public static class LinqExtensions
             // select seq.Append(item)
         );
     }
+
+    public static TValue? GetValueOrDefault<TKey, TAltKey, TValue>(this Dictionary<TKey, TValue>.AlternateLookup<TAltKey> lookup, TAltKey key)
+        where TKey : notnull
+        where TAltKey : notnull, allows ref struct
+    {
+        return lookup.TryGetValue(key, out var value) ? value : default;
+    }
 }

@@ -11,7 +11,7 @@ public class RecruitPage : PageBase
     private readonly TagsDataSource _tagSource;
     private readonly RecruitmentFilter _filter;
     private readonly IRecruitTagsOCR _ocr;
-    private readonly TextParsingUtils _parser;
+    private readonly TagParsingUtils _parser;
 
     public ReadOnlyObservableCollection<TagCategory> Categories => _tagSource.Categories;
     public ReadOnlyObservableCollection<Tag> SelectedTags => _filter.SelectedTags;
@@ -26,7 +26,7 @@ public class RecruitPage : PageBase
 
     public ReactiveCommand<Unit, Unit> ClearSelectedTags { get; }
 
-    public RecruitPage(TagsDataSource tagSource, RecruitmentFilter filter, IRecruitTagsOCR ocr, UserPrefs prefs, TextParsingUtils parser)
+    public RecruitPage(TagsDataSource tagSource, RecruitmentFilter filter, IRecruitTagsOCR ocr, UserPrefs prefs, TagParsingUtils parser)
     {
         AssertDI(tagSource);
         AssertDI(filter);
@@ -64,7 +64,7 @@ public class RecruitPage : PageBase
         );
     }
 
-    private void SetTagsFromPaste(List<Tag> tags)
+    private void SetTagsFromPaste(IReadOnlyCollection<Tag> tags)
     {
         if (tags.Count == 0)
         {
@@ -84,5 +84,5 @@ internal sealed class DesignRecruitPage()
         LOCATOR.GetService<RecruitmentFilter>()!,
         LOCATOR.GetService<IRecruitTagsOCR>()!,
         LOCATOR.GetService<UserPrefs>()!,
-        LOCATOR.GetService<TextParsingUtils>()!
+        LOCATOR.GetService<TagParsingUtils>()!
     );

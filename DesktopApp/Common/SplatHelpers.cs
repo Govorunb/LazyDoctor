@@ -70,7 +70,7 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<WeeklyStages>();
 
         // processing
-        SplatRegistrations.RegisterLazySingleton<TextParsingUtils>();
+        SplatRegistrations.RegisterLazySingleton<TagParsingUtils>();
         SplatRegistrations.RegisterLazySingleton<RecruitmentFilter>();
 
         // theoretically manual OCR (with OpenCvSharp) could be better with enough time investment since we know text layout/constraints
