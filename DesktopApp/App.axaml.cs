@@ -23,6 +23,7 @@ public sealed class App : Application
         if (DesktopLifetime is { } desktop)
         {
             desktop.MainWindow = new MainWindow { DataContext = LOCATOR.GetService<MainWindowViewModel>() };
+            UiWorkarounds.CalendarDatePickerScrollShouldResetTimeComponent();
         }
 #pragma warning disable IL2026 // Own assembly is rooted
         ViewLocator.RegisterViews();

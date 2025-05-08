@@ -32,7 +32,6 @@
         </ItemsControl>
       </ScrollViewer>
       <Border Margin="10,0,10,10"
-              Classes="Debug"
               HorizontalAlignment="Stretch"
               VerticalAlignment="Stretch"
               IsVisible="{Binding ShouldShowExpData}">

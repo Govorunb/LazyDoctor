@@ -1,7 +1,7 @@
 namespace DesktopApp.Data.Player;
 
 [JsonClass]
-public class PlayerExpData(int level = 1, int exp = 0) : IEquatable<PlayerExpData>
+public class PlayerExpData(int level = 1, int exp = 0) : ViewModelBase, IEquatable<PlayerExpData>
 {
     [Reactive] public int Level { get; set; } = level;
     [Reactive] public int Exp { get; set; } = exp;

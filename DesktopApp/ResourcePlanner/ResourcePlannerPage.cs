@@ -76,16 +76,11 @@ public class ResourcePlannerPage : PageBase, IValidatableViewModel
             .DisposeWith(this);
 
         this.WhenAnyValue(t => t.Setup!.InitialDate)
-            .Subscribe(d =>
-            {
-                d = d.WithKind(DateTimeKind.Local);
-                // FIXME: scrolling on the form field doesn't reset the time of day (eugh)
-                // workaround in the ui layer (literally on scroll event)
-                if (d.TimeOfDay == TimeSpan.Zero) // picked from the calendar
-                    d = timeUtils.NextReset(d);
-                Setup!.InitialDate = d;
-            })
-            .DisposeWith(this);
+            .Select(MidnightToReset)
+            .BindTo(this, t => t.Setup!.InitialDate);
+        this.WhenAnyValue(t => t.Setup!.TargetDate)
+            .Select(MidnightToReset)
+            .BindTo(this, t => t.Setup!.TargetDate);
 
         CalculateCommand = ReactiveCommand.Create(Simulate, prefsLoaded);
         SetInitialDateToTodayCommand = ReactiveCommand.Create(void () => Setup!.InitialDate = DateTime.Now, prefsLoaded);
@@ -135,6 +130,11 @@ public class ResourcePlannerPage : PageBase, IValidatableViewModel
         ValidationContext.ValidationStatusChange
             .Select(s => s.IsValid ? null : s.Text.ToSingleLine("; "))
             .Subscribe(t => Errors = t);
+
+        this.WhenAnyValue(t => t.Setup!.InitialExpData.Exp, t => t.GameConst)
+            .Where(pair => pair is (>0, { MaxPlayerLevel: var maxLvl }) && Setup!.InitialExpData.Level == maxLvl)
+            .Subscribe(_ => Setup!.InitialExpData.Exp = 0)
+            .DisposeWith(this);
     }
 
     private void Simulate()
@@ -146,6 +146,15 @@ public class ResourcePlannerPage : PageBase, IValidatableViewModel
         var sim = new PlannerSimulation(_prefs, _timeUtils, _sched, GameConst);
         _resultsList.Reset(Prefs.Results = sim.Results);
         SelectedDate = Setup.InitialDate;
+    }
+
+    private DateTime MidnightToReset(DateTime dt)
+    {
+        dt = dt.WithKind(DateTimeKind.Local);
+        // calendar picker changes time component to midnight
+        if (dt.TimeOfDay == TimeSpan.Zero && _timeUtils.LocalResetTime != default)
+            dt = _timeUtils.NextReset(dt);
+        return dt;
     }
 }
 

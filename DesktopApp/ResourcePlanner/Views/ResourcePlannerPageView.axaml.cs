@@ -4,7 +4,7 @@ using ReactiveUI.Validation.Extensions;
 
 namespace DesktopApp.ResourcePlanner.Views;
 
-public partial class ResourcePlannerPageView : ReactiveUserControl<ResourcePlannerPage>
+public sealed partial class ResourcePlannerPageView : ReactiveUserControl<ResourcePlannerPage>
 {
     public ResourcePlannerPageView()
     {
@@ -19,6 +19,7 @@ public partial class ResourcePlannerPageView : ReactiveUserControl<ResourcePlann
     private object? DateErrors
     {
         get => DataValidationErrors.GetErrors(InitialDatePicker);
+        [UsedImplicitly]
         set
         {
             var errors = ParseErrors(value)?.ToArray();
@@ -30,6 +31,7 @@ public partial class ResourcePlannerPageView : ReactiveUserControl<ResourcePlann
     private object? StageErrors
     {
         get => DataValidationErrors.GetErrors(StagePicker);
+        [UsedImplicitly]
         set => DataValidationErrors.SetErrors(StagePicker, ParseErrors(value));
     }
 

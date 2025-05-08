@@ -6,6 +6,7 @@
              xmlns:vm="using:DesktopApp.ResourcePlanner"
              xmlns:v="using:DesktopApp.ResourcePlanner.Views"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
+             xmlns:conv="using:DesktopApp.Utilities.Converters"
              x:Class="DesktopApp.ResourcePlanner.Views.ResourcePlannerPageView"
              x:DataType="vm:ResourcePlannerPage">
   <Design.DataContext>
@@ -53,9 +54,10 @@
           <StackPanel Orientation="Vertical">
             <Label Classes="Title" Content="Player" />
             <StackPanel Orientation="Horizontal" Spacing="8">
-              <fa:NumberBox Header="Level" Value="{Binding Setup.InitialExpData.Level, Mode=TwoWay}"
+              <fa:NumberBox Header="Level" Value="{Binding Setup.InitialExpData.Level, Mode=TwoWay, FallbackValue=1}"
                             Minimum="1" Maximum="{Binding GameConst.MaxPlayerLevel}" />
-              <fa:NumberBox Header="Exp" Value="{Binding Setup.InitialExpData.Exp, Mode=TwoWay}" />
+              <fa:NumberBox Header="Exp" Minimum="0" Maximum="{Binding Setup.InitialExpData.Level, Converter={x:Static conv:FuncConverters.PlayerLevelToExpRequirement}}"
+                            Value="{Binding Setup.InitialExpData.Exp, Mode=TwoWay, FallbackValue=0}" />
               <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom" Margin="0 6">
                 <fa:SymbolIcon ToolTip.Tip="You can find out your current EXP without spending sanity by using a practice plan"
                                FontSize="20" Symbol="59935" /> <!-- xEA1F, Info -->
@@ -75,6 +77,7 @@
                   <Label Grid.Column="1" Grid.Row="0" Content="Target Date" VerticalAlignment="Center" />
                   <DataValidationErrors Grid.Column="1" Grid.Row="1"
                                         Owner="{Binding #TargetDatePicker}">
+                    <!-- TODO: just use DatePicker (requires swapping to DateTimeOffset (which is better than manually swapping timezones anyway)) -->
                     <CalendarDatePicker Margin="0 0 8 0"
                                         Name="TargetDatePicker"
                                         SelectedDate="{Binding Setup.TargetDate, Mode=TwoWay}"
