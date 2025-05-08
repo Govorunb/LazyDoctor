@@ -39,26 +39,27 @@ public static class LinqExtensions
 
     public static IEnumerable<IEnumerable<T>> CartesianProduct<T>(this IEnumerable<IEnumerable<T>> sources)
     {
-        // with inputs [ABCDE,123,xyzw], this aggregates as follows:
-        // ([], ABCDE) --SelectMany--> [ , , , , ] --Append--> [A,B,C,D,E]
-        //     collectionSelector^            resultSelector^
+        // formally - transforms N sequences of lengths (a,b,c,...) into a×b×c×... sequences each of length N
+        // e.g. with inputs [ABCDE,123,xyzw], this aggregates as follows:
+        // ([], ABCDE) --> [ , , , , ] --> [A,B,C,D,E]
         // ([A,B,C,D,E], 123) --> [A,A,A, B,B,B, ..., E,E,E] --> [A1,A2,A3, B1,B2, ..., E2,E3]
         // (..., xyzw) --> [A1x, A1y, ..., E3z, E3w]
-        var empty = Enumerable.Empty<IEnumerable<T>>();
-        return sources.Aggregate(empty, (acc, curr) =>
-            // allocates N closures (where N is the number of sources)
-            curr.SelectMany(
-                collectionSelector: _ => acc,
-                resultSelector: (item, seq) => seq.Append(item)
-            )
-            // alternative (worse because it allocates M^N closures, where M is the number of items in a source)
-            // curr.SelectMany(item => acc.Select(seq => seq.Append(item))
+        List<List<T>> acc = [[]];
+        foreach (var source in sources)
+        {
+            var items = source.ToArray();
+            if (items.Length == 0)
+                continue;
+            var newAcc = new List<List<T>>(acc.Count * items.Length);
+            foreach (var accItem in acc)
+            {
+                newAcc.AddRange(items.Select(t => accItem.Append(t).ToList()));
+            }
 
-            // the one single case where query syntax is the clearest way
-            // from item in curr
-            // from seq in acc
-            // select seq.Append(item)
-        );
+            acc = newAcc;
+        }
+
+        return acc;
     }
 
     public static TValue? GetValueOrDefault<TKey, TAltKey, TValue>(this Dictionary<TKey, TValue>.AlternateLookup<TAltKey> lookup, TAltKey key)

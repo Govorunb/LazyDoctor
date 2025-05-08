@@ -49,10 +49,10 @@ public readonly struct RangeInterpolatedStringHandler : IEnumerable<string>
 
         var substitutions = ranges switch
         {
-            [var (_, r)] => [Enumerable.Range(r.Start.Value, r.End.Value - r.Start.Value)],
+            [var (_, r)] => EnumerateRangeInclusive(r).Select(i => new[] { i }),
             _ => ranges
                 .Select(p => p.Range)
-                .Select(r => Enumerable.Range(r.Start.Value, r.End.Value - r.Start.Value))
+                .Select(EnumerateRangeInclusive)
                 .CartesianProduct(),
         };
 
@@ -72,6 +72,9 @@ public readonly struct RangeInterpolatedStringHandler : IEnumerable<string>
             sb.Clear();
         }
     }
+
+    private static IEnumerable<int> EnumerateRangeInclusive(Range range)
+        => Enumerable.Range(range.Start.Value, 1 + range.End.Value - range.Start.Value);
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
