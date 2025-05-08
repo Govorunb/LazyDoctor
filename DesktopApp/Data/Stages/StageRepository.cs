@@ -84,6 +84,7 @@ public sealed class StageRepository : DataSource<IReadOnlyCollection<StageData>>
                 // - Il Siracusano missions (IS-QT)
                 // - two stages with the code ??? (cool)
                 // - TR-1 to TR-3 (yep)
+                // - "Regular Mode" (Stronghold Protocol aka autochess)
                 .ToList()))
             .Select(g => g.Item2 switch
             {
@@ -108,5 +109,6 @@ public sealed class StageRepository : DataSource<IReadOnlyCollection<StageData>>
         "Ursus", "Yan", "Kazimierz", "Siesta", "Iberia", "Sargon", "Columbia", "Victoria",
         "???",
         ..StringHelpers.Enumerate($"TR-{1..3}"),
+        "Regular Mode",
     ]).ToFrozenSet();
 }
