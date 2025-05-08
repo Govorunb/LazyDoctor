@@ -4,14 +4,38 @@ using DesktopApp.Settings;
 
 namespace DesktopApp;
 
-public sealed class MainWindowViewModel(
-    RecruitPage recruitPage,
-    ResourcePlannerPage resPlannerPage,
-    SettingsPage settingsPage
-) : ViewModelBase
+public sealed class MainWindowViewModel : ViewModelBase
 {
-    public RecruitPage RecruitPage { get; } = recruitPage;
-    public ResourcePlannerPage ResourcePlannerPage { get; } = resPlannerPage;
-    public SettingsPage SettingsPage { get; } = settingsPage;
+    public MainWindowViewModel(RecruitPage recruitPage, ResourcePlannerPage resPlannerPage, SettingsPage settingsPage, UserPrefs prefs)
+    {
+        RecruitPage = recruitPage;
+        ResourcePlannerPage = resPlannerPage;
+        SettingsPage = settingsPage;
+
+        PageBase[] pages =
+        [
+            recruitPage,
+            resPlannerPage,
+            settingsPage,
+        ];
+
+        prefs.Loaded.Subscribe(_ =>
+        {
+            var pageId = prefs.Data?.SelectedPage;
+            if (pageId == SelectedPage?.PageId)
+                return;
+            var idx = pages.Index()
+                .FirstOrDefault(pair => pair.Item.PageId == pageId)
+                .Index; // defaults to 0
+            SelectedPage = pages[idx];
+        });
+        this.WhenAnyValue(t => t.SelectedPage)
+            .Subscribe(p => prefs.Data!.SelectedPage = p!.PageId);
+    }
+
+    public RecruitPage RecruitPage { get; }
+    public ResourcePlannerPage ResourcePlannerPage { get; }
+    public SettingsPage SettingsPage { get; }
+    [Reactive]
     public PageBase? SelectedPage { get; set; }
 }

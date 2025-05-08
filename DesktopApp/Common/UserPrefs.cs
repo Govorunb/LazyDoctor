@@ -20,6 +20,9 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
         public Version Version { get; set; } = null!; // populated on save
         public string Language { get; set; } = "en_US";
 
+        [Reactive]
+        public string SelectedPage { get; set; } = Constants.RecruitPageId;
+
         public RecruitmentPrefsData Recruitment { get; set => SetIfNotNull(ref field, value); } = new();
         public ResourcePlannerPrefsData Planner { get; set => SetIfNotNull(ref field, value); } = new();
 
@@ -61,7 +64,8 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
                 this.RaisePropertyChanged(nameof(Planner));
             })
             .WhereNotNull()
-            .Switch(d => d.Recruitment.Changed
+            .Switch(d => d.Changed
+                .Merge(d.Recruitment.Changed)
                 .Merge(d.General.Changed)
                 .Merge(d.Planner.Changed)
             );
@@ -147,10 +151,9 @@ file static class UserPrefsMigrations
 
     private static readonly List<Migration> _migrations = new Migration[]
     {
-        new(new("0.1.2.0"), d =>
+        new(new("0.2.0.0"), d =>
         {
-            // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-            d.General ??= new();
+            d.SelectedPage = Constants.RecruitPageId;
             return d;
         }),
     }.OrderBy(m => m.Version).ToList();

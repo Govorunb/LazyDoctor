@@ -8,18 +8,16 @@ namespace DesktopApp.Utilities;
                     "(future language designers, please name this kind of interface Countable instead of ReadOnlyCollection...)")]
 internal sealed class DateRange(DateTime from, DateTime to, TimeSpan interval, bool endBoundIsInclusive = true) : IReadOnlyCollection<DateTime>, ICollection<DateTime>
 {
+    private DateTime To { get; } = endBoundIsInclusive ? to.AddTicks(1) : to;
     public IEnumerator<DateTime> GetEnumerator()
     {
-        var actualTo = endBoundIsInclusive
-            ? to + TimeSpan.FromTicks(1)
-            : to;
-        for (var date = from; date < actualTo; date += interval)
+        for (var date = from; date < To; date += interval)
             yield return date;
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public int Count { get; } = CalculateCount(from, to, interval, endBoundIsInclusive);
+    public int Count => CalculateCount();
 
     public bool IsReadOnly => true;
     // enumerable size check fast path only checks for ICollection... and not IReadOnlyCollection
@@ -35,13 +33,11 @@ internal sealed class DateRange(DateTime from, DateTime to, TimeSpan interval, b
     }
     public bool Remove(DateTime item) => throw new NotSupportedException();
 
-    internal static int CalculateCount(DateTime from, DateTime to, TimeSpan interval, bool endBoundIsInclusive)
-    {
-        if (endBoundIsInclusive)
-            to += TimeSpan.FromTicks(1); // small epsilon so e.g. exactly 1 day turns to 2
+    private int CalculateCount() => To < from ? 0
+        : (int)Math.Ceiling((To - from).TotalDays / interval.TotalDays);
 
-        return to < from ? 0 : (int)Math.Ceiling((to - from).TotalDays / interval.TotalDays);
-    }
+    public static implicit operator DateRange((DateTime from, DateTime to, TimeSpan interval, bool endBoundIsInclusive) tuple)
+        => new(tuple.from, tuple.to, tuple.interval, tuple.endBoundIsInclusive);
 }
 
 internal static class DateRangeExtensions

@@ -13,6 +13,8 @@ namespace DesktopApp.ResourcePlanner;
 
 public class ResourcePlannerPage : PageBase, IValidatableViewModel
 {
+    public override string PageId => Constants.PlannerPageId;
+
     private readonly WeeklyStages _sched;
     private readonly UserPrefs _prefs;
     private readonly TimeUtilsService _timeUtils;

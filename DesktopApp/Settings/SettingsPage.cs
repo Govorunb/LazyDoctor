@@ -1,12 +1,15 @@
 using System.Globalization;
 using System.Reactive;
 using System.Reactive.Threading.Tasks;
+using DesktopApp.Data;
 using DesktopApp.Data.GitHub;
 
 namespace DesktopApp.Settings;
 
 public class SettingsPage : PageBase
 {
+    public override string PageId => Constants.SettingsPageId;
+
     private static readonly TimeSpan _refreshCooldown = TimeSpan.FromMinutes(1);
     private static readonly TimeSpan _refreshCooldownTextUpdateInterval = TimeSpan.FromSeconds(1);
     public UserPrefs Prefs { get; }

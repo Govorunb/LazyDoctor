@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Reactive;
 using Windows.Storage.Streams;
+using DesktopApp.Data;
 using DesktopApp.Data.Recruitment;
 using DesktopApp.Recruitment.Processing;
 
@@ -8,6 +9,8 @@ namespace DesktopApp.Recruitment;
 
 public class RecruitPage : PageBase
 {
+    public override string PageId => Constants.RecruitPageId;
+
     private readonly TagsDataSource _tagSource;
     private readonly RecruitmentFilter _filter;
     private readonly IRecruitTagsOCR _ocr;
