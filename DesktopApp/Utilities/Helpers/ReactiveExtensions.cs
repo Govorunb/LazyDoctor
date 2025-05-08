@@ -134,4 +134,7 @@ public static class ReactiveExtensions
             l.AddRange(items);
         });
     }
+
+    public static IObservable<bool> And(this IObservable<bool> first, IObservable<bool> second)
+        => first.CombineLatest(second).Select(p => p.First && p.Second);
 }

@@ -5,10 +5,13 @@ using DesktopApp.Data;
 using DesktopApp.Data.Stages;
 using DynamicData;
 using DynamicData.Aggregation;
+using ReactiveUI.Validation.Abstractions;
+using ReactiveUI.Validation.Contexts;
+using ReactiveUI.Validation.Extensions;
 
 namespace DesktopApp.ResourcePlanner;
 
-public class ResourcePlannerPage : PageBase
+public class ResourcePlannerPage : PageBase, IValidatableViewModel
 {
     private readonly WeeklyStages _sched;
     private readonly UserPrefs _prefs;
@@ -25,6 +28,7 @@ public class ResourcePlannerPage : PageBase
 
     [Reactive]
     public string? Errors { get; private set; }
+    public IValidationContext ValidationContext { get; } = new ValidationContext();
 
     // start/end for results calendar
     [Reactive]
@@ -112,13 +116,23 @@ public class ResourcePlannerPage : PageBase
                 : _results.FirstOrDefault(d2 => d2.Start.Date == d.Date))
             .Subscribe(d => SelectedDay = d);
 
-        this.WhenAnyValue(t => t.Prefs!.Setup.TargetStageCode)
-            .ToUnit()
-            .Merge(sched.StagesRepo.Values.ToUnit())
-            // .Debounce(TimeSpan.FromMilliseconds(100))
-            .Select(_ => _sched.StagesRepo.GetByCode(Setup?.TargetStageCode))
-            .Subscribe(stage => Errors = stage is { } ? null : "Stage not found");
-        // TODO: more validation (e.g. initial date must be before target date)
+        this.ValidationRule(t => t.Setup!.TargetStageCode,
+            this.WhenAnyValue(t => t.Setup!.TargetStageCode)
+                .ToUnit()
+                .Merge(sched.StagesRepo.Values.ToUnit())
+                .Select(_ => _sched.StagesRepo.GetByCode(Setup?.TargetStageCode) is { })
+                .Prepend(false),
+            v => v,
+            _ => $"Stage '{Setup?.TargetStageCode}' not found");
+
+        this.ValidationRule(t => t.Setup!.TargetDate,
+            this.WhenAnyValue(t => t.Setup!.TargetDate, t => t.Setup!.InitialDate)
+                .Select(p => p.Item1 > p.Item2),
+            "Target date must be after initial date"
+        );
+        ValidationContext.ValidationStatusChange
+            .Select(s => s.IsValid ? null : s.Text.ToSingleLine("; "))
+            .Subscribe(t => Errors = t);
     }
 
     private void Simulate()

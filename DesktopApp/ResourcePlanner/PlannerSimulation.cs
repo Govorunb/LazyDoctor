@@ -39,8 +39,8 @@ public sealed class PlannerSimulation : ReactiveObjectBase
         _targetStage = sched.StagesRepo.GetByCode(_setup.TargetStageCode)
             ?? throw new InvalidOperationException($"Invalid target stage code {_setup.TargetStageCode}");
 
-        _simStart = _timeUtils.ToLocal(_setup.InitialDate);
-        _simEnd = _timeUtils.ToLocal(_setup.TargetDate);
+        _simStart = _setup.InitialDate.WithKind(DateTimeKind.Local);
+        _simEnd = _setup.TargetDate.WithKind(DateTimeKind.Local);
         if (_simEnd < _simStart)
         {
             Results = [];

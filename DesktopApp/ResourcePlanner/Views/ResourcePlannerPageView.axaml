@@ -61,24 +61,38 @@
                                FontSize="20" Symbol="59935" /> <!-- xEA1F, Info -->
               </StackPanel>
             </StackPanel>
-            <Label Classes="Title" Content="Targets" />
-            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,Auto,Auto,Auto">
-                <Label Grid.Column="0" Grid.Row="0" Content="Target Stage" Target="StagePicker" />
-                <AutoCompleteBox Grid.Column="0" Grid.Row="1" Name="StagePicker" Margin="0 0 8 0"
-                                 ItemsSource="{Binding StageCodes}" Text="{Binding Setup.TargetStageCode, Mode=TwoWay}"
-                                 MinWidth="100" />
-                <Label Grid.Column="1" Grid.Row="0" Content="Target Date" VerticalAlignment="Center" />
-                <CalendarDatePicker Grid.Column="1" Grid.Row="1" Margin="0 0 8 0"
-                                    SelectedDate="{Binding Setup.TargetDate, Mode=TwoWay}"
-                                    DisplayDateStart="{Binding Setup.InitialDate}"
-                                    DisplayDate="{Binding Setup.TargetDate, Mode=TwoWay}" />
+            <StackPanel Name="TargetsSection">
+              <Label Classes="Title" Content="Targets" />
+              <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,Auto,Auto,Auto">
+                  <Label Grid.Column="0" Grid.Row="0" Content="Target Stage" Target="StagePicker" />
+                  <DataValidationErrors Grid.Column="0" Grid.Row="1" Margin="0 0 8 0"
+                                        Owner="{Binding #StagePicker}">
+                    <AutoCompleteBox Name="StagePicker"
+                                     ItemsSource="{Binding StageCodes}" Text="{Binding Setup.TargetStageCode, Mode=TwoWay}"
+                                     MinWidth="100" />
+                  </DataValidationErrors>
 
-                <Label Grid.Column="2" Grid.Row="0" Content="Start Date" VerticalAlignment="Center" />
-                <CalendarDatePicker Grid.Column="2" Grid.Row="1"  Margin="0 0 8 0"
-                                    SelectedDate="{Binding Setup.InitialDate, Mode=TwoWay}" />
+                  <Label Grid.Column="1" Grid.Row="0" Content="Target Date" VerticalAlignment="Center" />
+                  <DataValidationErrors Grid.Column="1" Grid.Row="1"
+                                        Owner="{Binding #TargetDatePicker}">
+                    <CalendarDatePicker Margin="0 0 8 0"
+                                        Name="TargetDatePicker"
+                                        SelectedDate="{Binding Setup.TargetDate, Mode=TwoWay}"
+                                        DisplayDateStart="{Binding Setup.InitialDate}"
+                                        DisplayDate="{Binding Setup.TargetDate, Mode=TwoWay}" />
+                  </DataValidationErrors>
 
-                <Button Grid.Column="3" Grid.Row="1" Classes="accent" Content="Now" Command="{Binding SetInitialDateToTodayCommand}" />
-            </Grid>
+                  <Label Grid.Column="2" Grid.Row="0" Content="Start Date" VerticalAlignment="Center" />
+                  <DataValidationErrors Grid.Column="2" Grid.Row="1"
+                                        Owner="{Binding #InitialDatePicker}">
+                    <CalendarDatePicker Margin="0 0 8 0"
+                                        Name="InitialDatePicker"
+                                        SelectedDate="{Binding Setup.InitialDate, Mode=TwoWay}" />
+                  </DataValidationErrors>
+
+                  <Button Grid.Column="3" Grid.Row="1" Classes="accent" Content="Now" Command="{Binding SetInitialDateToTodayCommand}" />
+              </Grid>
+            </StackPanel>
 
             <Label Classes="Title" Content="Sanity" Margin="0 24 0 0" />
             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -131,16 +145,17 @@ For example, if you log in once a day and your cap is 180, put in 180." />
 
         <StackPanel Orientation="Horizontal" Spacing="8" Margin="8">
           <Button Classes="accent" Margin="4"
-                  IsEnabled="{Binding !Errors}"
+                  IsEnabled="{Binding ValidationContext.IsValid}"
                   Content="Calculate" Command="{Binding CalculateCommand}" />
-          <TextBlock Foreground="Red" Text="{Binding Errors}" />
+          <TextBlock Foreground="Red" Text="{Binding Errors}" IsVisible="{Binding !!Errors.Length}" />
         </StackPanel>
 
         <Border Padding="8">
-          <TextBlock FontSize="22" IsVisible="{Binding !!Results.Count}">
-            <Run Text="Total target stage runs:" />
-            <Run Text="{Binding TotalTargetStageRuns}" />
-          </TextBlock>
+          <StackPanel>
+            <TextBlock FontSize="22" IsVisible="{Binding !!Results.Count}">
+              Total target stage runs: <Run Text="{Binding TotalTargetStageRuns}" />
+            </TextBlock>
+          </StackPanel>
         </Border>
         <Expander Header="Details" IsExpanded="{Binding Prefs.ResultsExpanded}" IsVisible="{Binding !!Results.Count}">
           <Grid ColumnDefinitions="Auto, *">

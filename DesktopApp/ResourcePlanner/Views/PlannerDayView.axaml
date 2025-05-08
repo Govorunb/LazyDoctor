@@ -6,7 +6,6 @@
              x:Class="DesktopApp.ResourcePlanner.Views.PlannerDayView"
              xmlns:rp="using:DesktopApp.ResourcePlanner"
              xmlns:rpv="using:DesktopApp.ResourcePlanner.Views"
-             xmlns:conv="using:DesktopApp.Utilities.Converters"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:DataType="rp:PlannerDay">
   <Design.DataContext>

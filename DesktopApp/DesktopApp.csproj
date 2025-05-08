@@ -83,6 +83,7 @@
         <PackageReference Include="ReactiveMarbles.CacheDatabase.Sqlite3" />
         <PackageReference Include="ReactiveUI" />
         <PackageReference Include="ReactiveUI.Fody" />
+        <PackageReference Include="ReactiveUI.Validation" />
         <!-- <PackageReference Include="ReactiveUI.SourceGenerators" />--> <!-- TODO: switch to this -->
         <PackageReference Include="Serilog.Sinks.Console" />
         <PackageReference Include="Serilog.Sinks.File" />

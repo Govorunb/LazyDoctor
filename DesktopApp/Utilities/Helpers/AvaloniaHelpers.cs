@@ -21,5 +21,5 @@ public static class AvaloniaHelpers
     internal static TopLevel? GetTopLevel(Visual? visual)
         => visual is { }
             ? TopLevel.GetTopLevel(visual)
-            : App.Current.MainWindow;
+            : App.Current?.MainWindow;
 }

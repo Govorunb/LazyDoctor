@@ -132,4 +132,11 @@
       <Setter Property="ToolTip.Tip" Value="{Binding Converter={StaticResource EnumDescriptionConverter}, DataType=sys:Enum}" />
     </Style>
   </Style>
+
+  <Style Selector="TextBox">
+    <Setter Property="UndoLimit" Value="32" />
+  </Style>
+  <Style Selector="DataValidationErrors">
+    <Setter Property="Theme" Value="{DynamicResource TooltipDataValidationErrors}" />
+  </Style>
 </Styles>

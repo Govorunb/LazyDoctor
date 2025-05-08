@@ -1,7 +1,5 @@
 using System.ComponentModel;
 using System.Reactive.Subjects;
-using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 
 namespace DesktopApp.Utilities;

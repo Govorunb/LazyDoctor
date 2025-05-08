@@ -40,7 +40,7 @@ public static class LinqExtensions
     public static IEnumerable<IEnumerable<T>> CartesianProduct<T>(this IEnumerable<IEnumerable<T>> sources)
     {
         // with inputs [ABCDE,123,xyzw], this aggregates as follows:
-        // ([], ABCDE) --SelectMany--> [[],[],[],[],[]] --Append--> [A,B,C,D,E]
+        // ([], ABCDE) --SelectMany--> [ , , , , ] --Append--> [A,B,C,D,E]
         //     collectionSelector^            resultSelector^
         // ([A,B,C,D,E], 123) --> [A,A,A, B,B,B, ..., E,E,E] --> [A1,A2,A3, B1,B2, ..., E2,E3]
         // (..., xyzw) --> [A1x, A1y, ..., E3z, E3w]
