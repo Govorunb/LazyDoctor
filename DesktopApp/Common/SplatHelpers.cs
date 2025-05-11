@@ -43,16 +43,19 @@ internal static class SplatHelpers
         // TODO: move this out
         // + figure out load order w/ log level prefs, there's some places where we log before prefs are loaded (e.g. while loading prefs)
         // in the future, prefs will always load before data sources (they will depend on prefs for which repo to use)
-        var fileLogLevelSwitch = new LoggingLevelSwitch();
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
-            .WriteTo.Console(formatProvider: CultureInfo.CurrentCulture)
-            .WriteTo.File(AppData.GetFullPath("logs/.log"),
-                formatProvider: CultureInfo.CurrentCulture,
-                rollingInterval: RollingInterval.Day,
-                levelSwitch: fileLogLevelSwitch)
-            .CreateLogger();
-        SERVICES.UseSerilogFullLogger();
+        if (!ModeDetector.InUnitTestRunner() && !Avalonia.Controls.Design.IsDesignMode)
+        {
+            var fileLogLevelSwitch = new LoggingLevelSwitch();
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console(formatProvider: CultureInfo.CurrentCulture)
+                .WriteTo.File(AppData.GetFullPath("logs/.log"),
+                    formatProvider: CultureInfo.CurrentCulture,
+                    rollingInterval: RollingInterval.Day,
+                    levelSwitch: fileLogLevelSwitch)
+                .CreateLogger();
+            SERVICES.UseSerilogFullLogger();
+        }
 
         SplatRegistrations.RegisterLazySingleton<WinRtOCR>();
 

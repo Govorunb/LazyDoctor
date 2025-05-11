@@ -9,26 +9,36 @@
   </Design.PreviewWith>
 
   <Style Selector=":is(Button).Danger">
-    <Setter Property="Background" Value="#ffDD0000" />
+    <Setter Property="Background" Value="{DynamicResource DangerBackground}" />
     <!-- there has to be a better way... really wish styles/templates/themes in avalonia worked better than this -->
     <Style Selector="^:disabled">
       <!-- ava button -->
       <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#808B0000" />
+        <Setter Property="Background" Value="{DynamicResource DangerBackgroundDisabled}" />
       </Style>
       <!-- FA command bar button -->
       <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-        <Setter Property="Background" Value="#808B0000" />
+        <Setter Property="Background" Value="{DynamicResource DangerBackgroundDisabled}" />
       </Style>
     </Style>
     <Style Selector="^:pointerover">
       <!-- ava button -->
       <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="OrangeRed" />
+        <Setter Property="Background" Value="{DynamicResource DangerBackgroundHover}" />
       </Style>
       <!-- FA command bar button -->
       <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-        <Setter Property="Background" Value="OrangeRed" />
+        <Setter Property="Background" Value="{DynamicResource DangerBackgroundHover}" />
+      </Style>
+    </Style>
+    <Style Selector="^:pressed">
+      <!-- ava button -->
+      <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DangerBackgroundPressed}" />
+      </Style>
+      <!-- FA command bar button -->
+      <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
+        <Setter Property="Background" Value="{DynamicResource DangerBackgroundPressed}" />
       </Style>
     </Style>
   </Style>

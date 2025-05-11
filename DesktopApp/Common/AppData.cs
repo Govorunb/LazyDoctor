@@ -4,7 +4,7 @@ using ReactiveMarbles.CacheDatabase.Sqlite3;
 
 namespace DesktopApp.Common;
 
-public sealed class AppData : ReactiveObjectBase, IAppData
+public sealed class AppData : ServiceBase, IAppData
 {
     private static readonly string _basePath = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),

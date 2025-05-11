@@ -15,8 +15,6 @@ public sealed class StageData
     public required string Description { get; set; }
     [JsonPropertyName("apCost")]
     public int SanityCost { get; set; }
-    // TODO: decide whether to keep using these or just calc from sanity cost like a normal human being
-    // SanityCost * 10
     [JsonInclude, JsonPropertyName("expGain")]
     public int TwoStarClearExpReward { get; set; }
     // generally (sanity cost * 10) just like exp

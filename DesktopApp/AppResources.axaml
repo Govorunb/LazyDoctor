@@ -1,6 +1,26 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:conv="using:DesktopApp.Utilities.Converters">
+
   <conv:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />
   <conv:EnumDisplayNameConverter x:Key="EnumDisplayNameConverter" />
+
+  <StaticResource x:Key="LossBrush" ResourceKey="SystemFillColorCriticalBrush" />
+  <StaticResource x:Key="GainBrush" ResourceKey="SystemFillColorSuccessBrush" />
+
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Default">
+      <SolidColorBrush x:Key="DangerBackground" Color="#ffDD0000" />
+      <SolidColorBrush x:Key="DangerBackgroundDisabled" Color="#808B0000" />
+      <SolidColorBrush x:Key="DangerBackgroundHover" Color="#ffFF0000" />
+      <SolidColorBrush x:Key="DangerBackgroundPressed" Color="#D0DD0000" />
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="DangerBackground" Color="#ffDD0000" />
+      <SolidColorBrush x:Key="DangerBackgroundDisabled" Color="#808B0000" />
+      <SolidColorBrush x:Key="DangerBackgroundHover" Color="#ffFF0000" />
+      <SolidColorBrush x:Key="DangerBackgroundPressed" Color="#D0DD0000" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+
 </ResourceDictionary>

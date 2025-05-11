@@ -17,9 +17,14 @@ public sealed partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         {
             this.WhenAnyValue(t => t.ViewModel!.SelectedPage)
                 .WhereNotNull()
-                .Subscribe(p => Nav.SelectedItem = Nav.MenuItems.Cast<NavigationViewItem>().FirstOrDefault(nvi => nvi.DataContext == p));
+                .Select(p => Nav.MenuItems.Cast<NavigationViewItem>()
+                    .Append(Nav.SettingsItem)
+                    .FirstOrDefault(page => page.DataContext == p))
+                .Subscribe(nvi => Nav.SelectedItem = nvi);
             Nav.GetBindingObservable(NavigationView.SelectedItemProperty, o => (NavigationViewItem)o)
-                .Select(viewitem => viewitem.Value.DataContext)
+                .Select(bv => bv.Value)
+                .WhereNotNull()
+                .Select(viewitem => viewitem.DataContext)
                 .Where(_ => ViewModel is { })
                 .Subscribe(p => ViewModel!.SelectedPage = p as PageBase);
         }

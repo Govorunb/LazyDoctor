@@ -3,6 +3,7 @@ using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Test.Utilities;
 
+[TestClass]
 public sealed class TestRangeInterpolatedStringHandler
 {
     public static readonly TheoryData<RangeInterpolatedStringHandler, string[]> Cases =

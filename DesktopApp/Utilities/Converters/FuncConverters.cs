@@ -9,7 +9,6 @@ internal static class FuncConverters
     public static FuncValueConverter<int, string> RarityStars { get; }
         = new(stars => '★'.Repeat(stars) + '☆'.Repeat(6 - stars));
 
-    // FIXME: ew
     public static FuncValueConverter<int, int?> PlayerLevelToExpRequirement { get; }
         = new(lvl => LOCATOR.GetService<IDataSource<GameConstants>>()!.Values.MostRecent(null).First()?.GetExpRequirementForNextLevel(lvl));
 

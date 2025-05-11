@@ -93,7 +93,10 @@
                                         SelectedDate="{Binding Setup.InitialDate, Mode=TwoWay}" />
                   </DataValidationErrors>
 
-                  <Button Grid.Column="3" Grid.Row="1" Classes="accent" Content="Now" Command="{Binding SetInitialDateToTodayCommand}" />
+                  <Button Grid.Column="3" Grid.Row="1" Command="{Binding SetInitialDateToTodayCommand}"
+                          ToolTip.Tip="Set start date to the current date/time">
+                    <fa:SymbolIcon Symbol="GoToToday" FontSize="20" />
+                  </Button>
               </Grid>
             </StackPanel>
 
@@ -136,7 +139,7 @@
                             Value="{Binding Setup.DailySanityRegenEfficiency}"
                             ToolTip.Tip="How much of the daily 240 regen you usually end up spending (on average).
 For example, if you log in once a day and your cap is 180, put in 180." />
-              <StackPanel Spacing="2" ToolTip.Tip="Determines your sanity efficiency in doing the weekly Annihilation.&#10;The current rotating map is always the most efficient at 125 san/week.">
+              <StackPanel Spacing="2" ToolTip.Tip="Determines your sanity efficiency in doing the weekly Annihilation.&#10;The current rotating map is always the most efficient at 124 san/week.">
                 <Label Content="Annihilation Map" Target="AnniMap" />
                 <ComboBox Name="AnniMap" Classes="EnumPicker"
                           ItemsSource="{x:Static vm:ResourcePlannerSettings.AnnihilationMaps}"

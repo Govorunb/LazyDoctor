@@ -36,16 +36,16 @@
             </StackPanel>
           </Button>
           <!-- grouped to wrap together -->
-          <StackPanel Orientation="Horizontal" Spacing="4">
+          <StackPanel Orientation="Horizontal" Spacing="2">
             <Button Name="ParseClipboardButton" Classes="accent">
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <fa:SymbolIcon Symbol="Paste" />
                 <TextBlock Text="From clipboard" />
               </StackPanel>
             </Button>
-            <CheckBox Name="MonitorClipboardToggle"
-                      Content="Auto" ToolTip.Tip="Trigger when clipboard contents change"
-                      IsChecked="{Binding Prefs.Recruitment.MonitorClipboard, Mode=TwoWay}" />
+            <ToggleButton Name="MonitorClipboardToggle"
+                          Content="Auto" ToolTip.Tip="Activate whenever clipboard contents change"
+                          IsChecked="{Binding Prefs.Recruitment.MonitorClipboard, Mode=TwoWay}" />
           </StackPanel>
           <TextBlock Name="PasteError" VerticalAlignment="Center"
                      Text="{Binding PasteError}"

@@ -2,6 +2,7 @@ using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Test.Utilities;
 
+[TestClass]
 public sealed class TestCartesianProduct
 {
     public static readonly TheoryData<IEnumerable<IEnumerable<int>>, IEnumerable<IEnumerable<int>>> Cases =

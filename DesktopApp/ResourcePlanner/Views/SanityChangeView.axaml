@@ -19,12 +19,11 @@
   <Border Padding="0 0 12 0" ToolTip.Tip="{Binding Details}">
     <Control.Styles>
       <Style Selector="TextBlock">
-        <!-- TODO: theming (dark/light, red for gain in cn, etc) -->
         <Style Selector="^.Loss">
-          <Setter Property="Foreground" Value="Red" />
+          <Setter Property="Foreground" Value="{DynamicResource LossBrush}" />
         </Style>
         <Style Selector="^.Gain">
-          <Setter Property="Foreground" Value="DarkGreen" />
+          <Setter Property="Foreground" Value="{DynamicResource GainBrush}" />
         </Style>
       </Style>
       <Style Selector="TextBlock#Comment.HasTooltip">

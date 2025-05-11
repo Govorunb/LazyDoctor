@@ -3,6 +3,8 @@ using DesktopApp.Utilities;
 namespace DesktopApp.Test.Utilities;
 
 using DateRangeData = (DateTime from, DateTime to, TimeSpan interval, bool endBoundIsInclusive);
+
+[TestClass]
 public sealed class TestDateRange
 {
     private static readonly DateTime _epoch = DateTime.UnixEpoch;
