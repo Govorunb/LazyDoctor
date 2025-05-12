@@ -2,14 +2,9 @@ using Serilog.Core;
 
 namespace DesktopApp.Settings;
 
-[JsonClass]
-public class ReactiveLogLevel : ReactiveObjectBase
+public sealed class ReactiveLogLevel : ReactiveObjectBase
 {
-    // ReSharper disable once CollectionNeverQueried.Global // used in UI
-    public static readonly SeriLogLevel[] LogLevels = Enum.GetValues<SeriLogLevel>();
-
-    [JsonIgnore]
-    public LoggingLevelSwitch Switch { get; set; }
+    private LoggingLevelSwitch Switch { get; }
 
     public SeriLogLevel Level
     {
@@ -17,29 +12,14 @@ public class ReactiveLogLevel : ReactiveObjectBase
         set => Switch.MinimumLevel = value;
     }
 
-    public SeriLogLevel DefaultLevel { get; }
-
-    public ReactiveLogLevel(LoggingLevelSwitch switcher)
+    public ReactiveLogLevel(LoggingLevelSwitch? switcher = null)
     {
-        DefaultLevel = switcher.MinimumLevel;
+        switcher ??= new();
         Switch = switcher;
-        IDisposable? notifySubscription = null;
-        this.WhenAnyValue(t => t.Switch)
-            .Subscribe(sw =>
-            {
-                notifySubscription?.Dispose();
-                notifySubscription = this.NotifyProperty(nameof(Level),
-                    Observable.FromEventPattern<LoggingLevelSwitchChangedEventArgs>(
-                        eh => sw.MinimumLevelChanged += eh,
-                        eh => sw.MinimumLevelChanged -= eh)
-                );
-                this.RaisePropertyChanged(nameof(Level));
-            });
-    }
-
-    [JsonConstructor]
-    public ReactiveLogLevel(SeriLogLevel level = SeriLogLevel.Information)
-        : this(new LoggingLevelSwitch(level))
-    {
+        this.NotifyProperty(nameof(Level),
+            Observable.FromEventPattern<LoggingLevelSwitchChangedEventArgs>(
+                eh => switcher.MinimumLevelChanged += eh,
+                eh => switcher.MinimumLevelChanged -= eh)
+        );
     }
 }

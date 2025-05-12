@@ -15,10 +15,10 @@ public sealed class TimeUtilsService : ServiceBase
     public TimeUtilsService(UserPrefs prefs)
     {
         _prefs = prefs;
-        prefs.WhenAnyValue(p => p.General!.ServerTimezone)
+        prefs.WhenAnyValue(p => p.General.ServerTimezone)
             .Subscribe(tz => LocalToServerTime = -TimeZoneInfo.Local.BaseUtcOffset + tz)
             .DisposeWith(this);
-        prefs.WhenAnyValue(p => p.General!.ServerReset, p => p.General!.ServerTimezone)
+        prefs.WhenAnyValue(p => p.General.ServerReset, p => p.General.ServerTimezone)
             .Subscribe(pair =>
             {
                 var (reset, timezone) = pair;
@@ -45,7 +45,7 @@ public sealed class TimeUtilsService : ServiceBase
         {
             DateTimeKind.Local => dateTime.ToUniversalTime(),
             DateTimeKind.Utc => dateTime,
-            DateTimeKind.Unspecified => dateTime.Subtract(_prefs.General!.ServerTimezone).WithKind(DateTimeKind.Utc),
+            DateTimeKind.Unspecified => dateTime.Subtract(_prefs.General.ServerTimezone).WithKind(DateTimeKind.Utc),
             _ => throw new ArgumentException($"Invalid DateTimeKind {dateTime.Kind}", nameof(dateTime)),
         };
     }
@@ -54,7 +54,7 @@ public sealed class TimeUtilsService : ServiceBase
         return dateTime.Kind switch
         {
             DateTimeKind.Local => dateTime.Add(LocalToServerTime).WithKind(DateTimeKind.Unspecified),
-            DateTimeKind.Utc => dateTime.Add(_prefs.General!.ServerTimezone).WithKind(DateTimeKind.Unspecified),
+            DateTimeKind.Utc => dateTime.Add(_prefs.General.ServerTimezone).WithKind(DateTimeKind.Unspecified),
             DateTimeKind.Unspecified => dateTime, // unspecified is used for server
             _ => throw new ArgumentException($"Invalid DateTimeKind {dateTime.Kind}", nameof(dateTime)),
         };
@@ -67,7 +67,7 @@ public sealed class TimeUtilsService : ServiceBase
         {
             DateTimeKind.Local => curTime - LocalResetTime,
             DateTimeKind.Utc => curTime - UtcResetTime,
-            DateTimeKind.Unspecified => curTime - _prefs.General!.ServerReset,
+            DateTimeKind.Unspecified => curTime - _prefs.General.ServerReset,
             _ => throw new ArgumentException($"Invalid DateTimeKind {dt.Kind}", nameof(dt)),
         };
     }

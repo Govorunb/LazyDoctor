@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Reactive;
-using System.Reactive.Threading.Tasks;
 using DesktopApp.Data;
 using DesktopApp.Data.GitHub;
 
@@ -45,7 +44,7 @@ public class SettingsPage : PageBase
             RefreshCooldownLeft = _refreshCooldown.ToString("mm\\:ss", CultureInfo.InvariantCulture);
         }, this.WhenAnyValue(t => t.RefreshCooldownLeft).Select(cd => cd is null));
         RefreshDataSource.Execute().Subscribe();
-        OpenLogsFolder = ReactiveCommand.CreateFromTask(() => PlatformOpenFolder.Handle(AppData.GetFullPath("logs/")).ToTask());
+        OpenLogsFolder = ReactiveCommand.CreateFromObservable(() => PlatformOpenFolder.Handle(AppData.GetFullPath("logs/")));
     }
 }
 

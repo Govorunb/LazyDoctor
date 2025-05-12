@@ -57,7 +57,7 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
             await _prefs.Loaded.FirstAsync();
 
             var i = f.Sender.Stars - 1;
-            var prefsFilters = _prefs.Recruitment!.RarityFilters.AsSpan();
+            var prefsFilters = _prefs.Recruitment.RarityFilters.AsSpan();
             Debug.Assert(i < prefsFilters.Length, "Added extra filter UI element (why?) but forgot to update prefs");
             if (prefsFilters[i] != f.Value)
             {
@@ -106,7 +106,7 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
 
     private void SetFilters()
     {
-        RarityFilters = _prefs.Recruitment!.RarityFilters.Select((ft, i) => new RarityFilter { Stars = i + 1, Filter = ft }).ToList();
+        RarityFilters = _prefs.Recruitment.RarityFilters.Select((ft, i) => new RarityFilter { Stars = i + 1, Filter = ft }).ToList();
     }
 
     public const int MaxTagsSelected = 5;

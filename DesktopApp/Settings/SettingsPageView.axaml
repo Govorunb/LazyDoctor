@@ -71,8 +71,8 @@
                            Description="Click to open logs folder"
                            IsClickEnabled="True" ActionIconSource="Open" Command="{Binding OpenLogsFolder}">
         <fa:SettingsExpander.Footer>
-          <ComboBox ItemsSource="{x:Static vm:ReactiveLogLevel.LogLevels}"
-                    SelectedItem="{Binding Prefs.General.FileLogLevel.Level, Mode=TwoWay}" Margin="16 0" />
+          <ComboBox ItemsSource="{x:Static vm:SettingsPageView.LogLevels}"
+                    SelectedItem="{Binding Prefs.General.FileLogLevel, Mode=TwoWay}" Margin="16 0" />
         </fa:SettingsExpander.Footer>
       </fa:SettingsExpander>
     </StackPanel>

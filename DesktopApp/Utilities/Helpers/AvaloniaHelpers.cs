@@ -15,6 +15,7 @@ public static class AvaloniaHelpers
             var success = await topLevel.Launcher.LaunchUriAsync(new($"file://{ctx.Input}"));
             if (!success)
                 throw new InvalidOperationException($"Could not open {ctx.Input} - operation failed or not supported");
+            ctx.SetOutput(Unit.Default);
         };
     }
 

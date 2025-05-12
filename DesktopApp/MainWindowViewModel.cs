@@ -21,7 +21,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 
         prefs.Loaded.Subscribe(_ =>
         {
-            var pageId = prefs.Data?.SelectedPage;
+            var pageId = prefs.Data.SelectedPage;
             if (pageId == SelectedPage?.PageId)
                 return;
             var idx = pages.Index()
@@ -30,7 +30,8 @@ public sealed class MainWindowViewModel : ViewModelBase
             SelectedPage = pages[idx];
         });
         this.WhenAnyValue(t => t.SelectedPage)
-            .Subscribe(p => prefs.Data!.SelectedPage = p!.PageId);
+            .WhereNotNull()
+            .Subscribe(p => prefs.Data.SelectedPage = p.PageId);
     }
 
     public RecruitPage RecruitPage { get; }

@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Reactive;
 using DesktopApp.Data;
 using DesktopApp.Data.Stages;
@@ -19,8 +18,8 @@ public class ResourcePlannerPage : PageBase, IValidatableViewModel
     private readonly UserPrefs _prefs;
     private readonly TimeUtilsService _timeUtils;
 
-    public ResourcePlannerPrefsData? Prefs => _prefs.Planner;
-    public ResourcePlannerSettings? Setup => Prefs?.Setup;
+    public ResourcePlannerPrefsData Prefs => _prefs.Planner;
+    public ResourcePlannerSettings Setup => Prefs.Setup;
     [Reactive]
     internal GameConstants? GameConst { get; private set; }
 
@@ -71,19 +70,19 @@ public class ResourcePlannerPage : PageBase, IValidatableViewModel
         this.NotifyProperty(nameof(Prefs), _prefs.Loaded).DisposeWith(this);
         this.NotifyProperty(nameof(Setup), _prefs.Loaded).DisposeWith(this);
         prefsLoaded
-            .Do(_ => Setup?.RaisePropertyChanged(nameof(Setup.InitialDate)))
-            .Subscribe(_ => _resultsList.Reset(Prefs?.Results ?? []))
+            .Do(_ => Setup.RaisePropertyChanged(nameof(Setup.InitialDate)))
+            .Subscribe(_ => _resultsList.Reset(Prefs.Results))
             .DisposeWith(this);
 
-        this.WhenAnyValue(t => t.Setup!.InitialDate)
+        this.WhenAnyValue(t => t.Setup.InitialDate)
             .Select(MidnightToReset)
-            .BindTo(this, t => t.Setup!.InitialDate);
-        this.WhenAnyValue(t => t.Setup!.TargetDate)
+            .BindTo(this, t => t.Setup.InitialDate);
+        this.WhenAnyValue(t => t.Setup.TargetDate)
             .Select(MidnightToReset)
-            .BindTo(this, t => t.Setup!.TargetDate);
+            .BindTo(this, t => t.Setup.TargetDate);
 
         CalculateCommand = ReactiveCommand.Create(Simulate, prefsLoaded);
-        SetInitialDateToTodayCommand = ReactiveCommand.Create(void () => Setup!.InitialDate = DateTime.Now, prefsLoaded);
+        SetInitialDateToTodayCommand = ReactiveCommand.Create(void () => Setup.InitialDate = DateTime.Now, prefsLoaded);
 
         _resultsList.Connect()
             .Bind(out _results)
@@ -113,17 +112,17 @@ public class ResourcePlannerPage : PageBase, IValidatableViewModel
                 : _results.FirstOrDefault(d2 => d2.Start.Date == d.Date))
             .Subscribe(d => SelectedDay = d);
 
-        this.ValidationRule(t => t.Setup!.TargetStageCode,
-            this.WhenAnyValue(t => t.Setup!.TargetStageCode)
+        this.ValidationRule(t => t.Setup.TargetStageCode,
+            this.WhenAnyValue(t => t.Setup.TargetStageCode)
                 .ToUnit()
                 .Merge(sched.StagesRepo.Values.ToUnit())
-                .Select(_ => _sched.StagesRepo.GetByCode(Setup?.TargetStageCode) is { })
+                .Select(_ => _sched.StagesRepo.GetByCode(Setup.TargetStageCode) is { })
                 .Prepend(false),
             v => v,
-            _ => $"Stage '{Setup?.TargetStageCode}' not found");
+            _ => string.IsNullOrWhiteSpace(Setup.TargetStageCode) ? "Target stage is required" : $"Stage '{Setup.TargetStageCode}' not found");
 
-        this.ValidationRule(t => t.Setup!.TargetDate,
-            this.WhenAnyValue(t => t.Setup!.TargetDate, t => t.Setup!.InitialDate)
+        this.ValidationRule(t => t.Setup.TargetDate,
+            this.WhenAnyValue(t => t.Setup.TargetDate, t => t.Setup.InitialDate)
                 .Select(p => p.Item1 > p.Item2),
             "Target date must be after initial date"
         );
@@ -131,17 +130,16 @@ public class ResourcePlannerPage : PageBase, IValidatableViewModel
             .Select(s => s.IsValid ? null : s.Text.ToSingleLine("; "))
             .Subscribe(t => Errors = t);
 
-        this.WhenAnyValue(t => t.Setup!.InitialExpData.Exp, t => t.GameConst)
-            .Where(pair => pair is (>0, { MaxPlayerLevel: var maxLvl }) && Setup!.InitialExpData.Level == maxLvl)
-            .Subscribe(_ => Setup!.InitialExpData.Exp = 0)
+        this.WhenAnyValue(t => t.Setup.InitialExpData.Exp, t => t.GameConst)
+            .Where(pair => pair is (>0, { MaxPlayerLevel: var maxLvl }) && Setup.InitialExpData.Level == maxLvl)
+            .Subscribe(_ => Setup.InitialExpData.Exp = 0)
             .DisposeWith(this);
     }
 
     private void Simulate()
     {
-        if (Prefs is null || GameConst is null)
+        if (GameConst is null)
             return;
-        Debug.Assert(Setup is {});
 
         var sim = new PlannerSimulation(_prefs, _timeUtils, _sched, GameConst);
         _resultsList.Reset(Prefs.Results = sim.Results);

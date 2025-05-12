@@ -35,7 +35,7 @@ public static class StampedeLock<TKey, TValue>
             task = valueFactory();
             _openRequests.TryAdd(key, task);
         }
-        LogHost.Default.Debug($"StampedeLock[{typeof(TKey).Name}:{typeof(TValue).Name}] - {(isMainRequest ? "main request" : "waiting")} for {key}");
+        LogHost.Default.Debug($"{TypeName} - {(isMainRequest ? "main request" : "waiting")} for {key}");
 
         var result = await task!;
         if (isMainRequest)
@@ -57,6 +57,8 @@ public static class StampedeLock<TKey, TValue>
     public static void SetMainRequest(TKey key, Task<TValue> task)
     {
         _openRequests[key] = task;
-        LogHost.Default.Debug($"StampedeLock[{typeof(TKey).Name}:{typeof(TValue).Name}] - overriding {key}");
+        LogHost.Default.Debug($"{TypeName} - overriding {key}");
     }
+
+    private static string TypeName => $"StampedeLock<{typeof(TKey).Name}, {typeof(TValue).Name}>";
 }

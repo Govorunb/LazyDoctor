@@ -64,7 +64,7 @@ public sealed partial class RecruitPageView : ReactiveUserControl<RecruitPage>, 
 
     private void OnClipboardUpdated(object? s, object? e) // both always null
     {
-        if (ViewModel?.Prefs.Recruitment?.MonitorClipboard != true)
+        if (ViewModel?.Prefs.Recruitment.MonitorClipboard != true)
             return;
 
         _pasted.OnNext(Unit.Default);

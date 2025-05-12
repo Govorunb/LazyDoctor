@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using DesktopApp.Common.OCR;
 using DesktopApp.Data;
@@ -30,32 +31,16 @@ internal static class SplatHelpers
 
         _registered = true; // re-entry
 
-        LogHost.Default.Warn($"Registering {nameof(SplatHelpers)}");
+        Debug.WriteLine($"Registering {nameof(SplatHelpers)}");
 
         // infra/plumbing
         SplatRegistrations.RegisterConstant(TimeProvider.System); // for unit tests, register the mock TimeProvider after this one
+        RegisterLogging();
         SplatRegistrations.RegisterLazySingleton<IAppData, AppData>();
         SplatRegistrations.RegisterLazySingleton<UserPrefs>();
         SplatRegistrations.RegisterLazySingleton<TimeUtilsService>();
         SplatRegistrations.RegisterLazySingleton<GithubAkavache>();
         SplatRegistrations.RegisterLazySingleton<GithubDataAdapter>();
-
-        // TODO: move this out
-        // + figure out load order w/ log level prefs, there's some places where we log before prefs are loaded (e.g. while loading prefs)
-        // in the future, prefs will always load before data sources (they will depend on prefs for which repo to use)
-        if (!ModeDetector.InUnitTestRunner() && !Avalonia.Controls.Design.IsDesignMode)
-        {
-            var fileLogLevelSwitch = new LoggingLevelSwitch();
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.Console(formatProvider: CultureInfo.CurrentCulture)
-                .WriteTo.File(AppData.GetFullPath("logs/.log"),
-                    formatProvider: CultureInfo.CurrentCulture,
-                    rollingInterval: RollingInterval.Day,
-                    levelSwitch: fileLogLevelSwitch)
-                .CreateLogger();
-            SERVICES.UseSerilogFullLogger();
-        }
 
         SplatRegistrations.RegisterLazySingleton<WinRtOCR>();
 
@@ -91,6 +76,24 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<MainWindowViewModel>();
 
         SplatRegistrations.SetupIOC();
+    }
+
+    private static void RegisterLogging()
+    {
+        var fileLogLevelSwitch = new LoggingLevelSwitch();
+        SERVICES.RegisterConstant(fileLogLevelSwitch, "file");
+        if (ModeDetector.InUnitTestRunner() || Avalonia.Controls.Design.IsDesignMode)
+            return;
+
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Console(formatProvider: CultureInfo.CurrentCulture)
+            .WriteTo.File(AppData.GetFullPath("logs/.log"),
+                formatProvider: CultureInfo.CurrentCulture,
+                rollingInterval: RollingInterval.Day,
+                levelSwitch: fileLogLevelSwitch)
+            .CreateLogger();
+        SERVICES.UseSerilogFullLogger();
     }
 
     private static void RegisterTable<TTable>(string path)

@@ -16,7 +16,8 @@ namespace DesktopApp.Data;
     //      should not deserialize to null if it's not present in an older prefs.json
     PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate,
     IgnoreReadOnlyProperties = true,
-    IgnoreReadOnlyFields = true
+    IgnoreReadOnlyFields = true,
+    UseStringEnumConverter = true
 )]
 // all classes marked with [JsonClass] are checked for a matching [JsonSerializable] attribute here
 [JsonSerializable(typeof(RawTagData))]
@@ -41,6 +42,4 @@ namespace DesktopApp.Data;
 [JsonSerializable(typeof(StageData))]
 [JsonSerializable(typeof(Zone))]
 [JsonSerializable(typeof(PlayerExpData))]
-[JsonSerializable(typeof(ReactiveLogLevel))]
-[JsonSerializable(typeof(PlannerSimulation))]
 public sealed partial class JsonSourceGenContext : JsonSerializerContext;

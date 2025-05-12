@@ -13,6 +13,6 @@ public class ResourcePlannerPrefsData : ReactiveObjectBase
         this.NotifyProperty(nameof(Setup), Setup.Changed);
     }
 
-    public bool SetupExpanded { get; set; }
+    public bool SetupExpanded { get; set; } = true;
     public bool ResultsExpanded { get; set; }
 }
