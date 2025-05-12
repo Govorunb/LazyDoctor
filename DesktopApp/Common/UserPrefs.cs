@@ -135,7 +135,6 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
         catch (Exception e)
         {
             // also display to user
-            // FIXME: gamedata doesn't load
             this.Log().Error(e, "Failed to load preferences");
         }
 

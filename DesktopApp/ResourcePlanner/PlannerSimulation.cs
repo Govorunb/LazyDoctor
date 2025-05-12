@@ -160,33 +160,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
             }
             var repeating = repeat;
             repeat = false;
-            // anni is done on closed days
-            // e.g.:
-            // - today is Monday (closed), Tuesday will be open; san cap is 180
-            // +240 regen
-            // -180 saved (takes prio)
-            // -50 used for anni
-            // -10 surplus (waste)
-            // saving takes prio except in one single case: when the rest of the week is all open
-            // e.g. if target stage is open all week due to CC, just do anni immediately on Monday
-            if (_anniSanityLeft > 0)
-            {
-                // anni *must* be done by end of week
-                var isSunday = serverDayOfWeek == System.DayOfWeek.Sunday;
-                // normally we do it on closed days, but if there are no closed days left this week then anni takes priority over the target stage
-                // FIXME: if target date is before sunday, don't force anni on last day (it can be done after farming ends)
-                if (isSunday || Results.Skip(day + 1)
-                        .TakeWhile(d => _timeUtils.ToServerTime(d.Start).DayOfWeek != System.DayOfWeek.Monday)
-                        .All(d => d.IsTargetStageOpen))
-                {
-                    sanLog.Log(-_anniSanityLeft,
-                        "Annihilation (forced)",
-                        isSunday ? "Last day before anni resets"
-                            : $"Farming {_targetStage.Code} on all remaining days of the week");
-                    GainExp(_anniSanityLeft * 10); // anni is always 10x
-                    _anniSanityLeft = 0;
-                }
-            }
+            SimForcedAnni();
 
             if (today.IsTargetStageOpen)
             {
@@ -227,6 +201,42 @@ public sealed class PlannerSimulation : ReactiveObjectBase
         today.FinishExpData = expData;
         return;
 
+        void SimForcedAnni()
+        {
+            // prefer to do anni on closed days; saving sanity for tomorrow generally takes prio
+            // anni is forced:
+            // - on Sundays (for obvious reasons)
+            // - when the rest of the week is all open (e.g. if target stage is open all week due to CC)
+            //   - except if it's the last week and the target date is before Sunday, meaning anni can be done after farming ends
+            if (_anniSanityLeft <= 0)
+                return;
+
+            var isSunday = serverDayOfWeek == System.DayOfWeek.Sunday;
+            var noMoreClosedDays = false;
+
+            if (!isSunday)
+            {
+                var restOfWeek = Results.Skip(day + 1)
+                    .TakeWhile(d => _timeUtils.ToServerTime(d.Start).DayOfWeek != System.DayOfWeek.Monday)
+                    .ToList();
+                var lastDay = restOfWeek[^1];
+                // if not, we also know it's the last week (not-last weeks always end on sunday because there's at least one more week)
+                var lastDayIsSunday = _timeUtils.ToServerTime(lastDay.Start).DayOfWeek == System.DayOfWeek.Sunday;
+                noMoreClosedDays = lastDayIsSunday && restOfWeek.All(d => d.IsTargetStageOpen);
+            }
+
+            var forceAnni = isSunday || noMoreClosedDays;
+            if (!forceAnni)
+                return;
+
+            sanLog.Log(-_anniSanityLeft,
+                "Annihilation (forced)",
+                isSunday ? "Last day before anni resets"
+                    : $"Farming {_targetStage.Code} on all remaining days of the week");
+            GainExp(_anniSanityLeft * 10); // anni is always 10x
+            _anniSanityLeft = 0;
+        }
+
         void SimOpenDay(bool repeating)
         {
             // banked sanity is used aggressively as early as possible
@@ -266,7 +276,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
 
             // save some sanity for tomorrow (unless today is the last day)
             // subtracting it first makes things a lot easier
-            // teeeeechnically, there's an edge case where you could:
+            // technically, there's an edge case where you could:
             // - spend sanity as surplus
             // - level up from it (where, if saved, you otherwise wouldn't)
             // - still have enough to save the full amount, but now you might have 1 higher sanity cap or something
