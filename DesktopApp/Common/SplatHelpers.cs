@@ -13,6 +13,7 @@ using DesktopApp.Settings;
 using Serilog;
 using Serilog.Core;
 using Splat.Serilog;
+using Constants = DesktopApp.Data.Constants;
 
 namespace DesktopApp.Common;
 
@@ -36,6 +37,7 @@ internal static class SplatHelpers
         // infra/plumbing
         SplatRegistrations.RegisterConstant(TimeProvider.System); // for unit tests, register the mock TimeProvider after this one
         RegisterLogging();
+
         SplatRegistrations.RegisterLazySingleton<IAppData, AppData>();
         SplatRegistrations.RegisterLazySingleton<UserPrefs>();
         SplatRegistrations.RegisterLazySingleton<TimeUtilsService>();
@@ -82,13 +84,13 @@ internal static class SplatHelpers
     {
         var fileLogLevelSwitch = new LoggingLevelSwitch();
         SERVICES.RegisterConstant(fileLogLevelSwitch, "file");
-        if (ModeDetector.InUnitTestRunner() || Avalonia.Controls.Design.IsDesignMode)
+        if (Constants.IsDev)
             return;
 
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.Console(formatProvider: CultureInfo.CurrentCulture)
-            .WriteTo.File(AppData.GetFullPath("logs/.log"),
+            .WriteTo.File(AppData.GetFullPath($"{Constants.LogsAppDataPath}/.log"),
                 formatProvider: CultureInfo.CurrentCulture,
                 rollingInterval: RollingInterval.Day,
                 levelSwitch: fileLogLevelSwitch)

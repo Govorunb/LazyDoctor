@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reactive;
+using System.Reactive.Subjects;
 using System.Text.Json;
 using DesktopApp.Data;
 using DesktopApp.Recruitment;
@@ -12,8 +13,6 @@ namespace DesktopApp.Common;
 [PublicAPI]
 public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 {
-    private const string PrefsFileName = "prefs.json";
-
     [JsonClass, EditorBrowsable(EditorBrowsableState.Never)]
     public sealed class UserPrefsData : ReactiveObjectBase
     {
@@ -39,15 +38,17 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
     }
 
     private readonly IAppData _appData;
+    private readonly ReplaySubject<PrefsLoadIssue> _issueSubj = new(1);
 
     [Reactive]
-    public UserPrefsData Data { get; set; } = new();
+    public UserPrefsData Data { get; private set; } = new();
     public Version Version => Data.Version;
     public RecruitmentPrefsData Recruitment => Data.Recruitment;
     public ResourcePlannerPrefsData Planner => Data.Planner;
     public GeneralPrefsData General => Data.General;
     public IObservable<Unit> Loaded { get; }
-    public bool ReadOnly { get; private set; } = true;
+    public IObservable<PrefsLoadIssue> LoadIssues => _issueSubj.AsObservable().OnMainThread();
+    public bool ReadOnly { get; set; } = true;
 
     public UserPrefs(IAppData appData)
     {
@@ -56,7 +57,8 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 
         Loaded = this.ObservableForProperty(t => t.Data)
             .ToUnit()
-            .ReplayCold(1);
+            .ReplayCold(1)
+            .OnMainThread();
         var dataChanged = this.WhenAnyValue(t => t.Data).Publish().AutoConnect();
         this.NotifyProperty(nameof(Recruitment), dataChanged);
         this.NotifyProperty(nameof(General), dataChanged);
@@ -89,13 +91,13 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 
         Debug.Assert(Data is { });
         Data.Version = App.Version;
+        this.Log().Debug("Saving preferences");
 #pragma warning disable IL2026 // Type is used (whole assembly is rooted, too)
 #pragma warning disable IL3050 // type resolver will use source generated code
         var json = JsonSerializer.Serialize(Data, UserPrefsData.SerializerOptions);
 #pragma warning restore IL3050 // RequiresDynamicCode
 #pragma warning restore IL2026 // RequiresUnreferencedCode
-        this.Log().Debug("Saving preferences");
-        await _appData.WriteFile(PrefsFileName, json);
+        await _appData.WriteFile(Constants.PrefsAppDataPath, json);
         this.Log().Info("Wrote preferences");
     }
 
@@ -112,37 +114,34 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
             }
             else if (data.Version > App.Version)
             {
-                // TODO: notification/dialog to display to user
-
-                // actions - continue/revert to default (+ whether to load read-only)
-                // for warnings (newer version/unknown properties):
-                //  - continue/revert buttons
-                //  - read-only checkbox
-                // errors can't continue (can only use defaults) so 2 buttons ("safe mode" aka "use defaults, read-only", reset prefs)
-                // + button to open prefs.json in default editor
-                //  - another modal with a "Done editing" button that reloads prefs
-                //  - (or direct user to restart the app)
-                this.Log().Warn($"Preferences version {data.Version} is newer than current app version ({App.Version}), loading in read-only mode");
+                this.Log().Warn($"Preferences version {data.Version} is newer than current app version ({App.Version})");
                 ReadOnly = true;
+                _issueSubj.OnNext(new(PrefsLoadIssueKind.Warning, $"""
+                  The prefs file is for a newer version ({data.Version}) than the app ({App.Version}).
+                  To avoid breaking the prefs, it's recommended to load in read-only mode.
+                  """));
             }
             else if (data.UnknownProperties.Count > 0)
             {
-                // display to user
-                this.Log().Warn("Prefs contain unknown properties (possibly from a future version) - loading in read-only mode to reduce the impact of any incompatibilities");
+                this.Log().Warn("Prefs contain unknown properties (possibly from a future version)");
                 ReadOnly = true;
+                _issueSubj.OnNext(new(PrefsLoadIssueKind.Warning, """
+                  The prefs file contains unknown properties.
+                  This is generally weird and shouldn't happen without manual editing.
+                  To limit the impact of any incompatibilities, it's recommended to load in read-only mode.'
+                  """, $"Unknown properties: [{string.Join(", ", Data.UnknownProperties.Keys)}]"));
             }
         }
         catch (Exception e)
         {
-            // also display to user
             this.Log().Error(e, "Failed to load preferences");
+            _issueSubj.OnNext(new(PrefsLoadIssueKind.Error, "The preferences failed to load.", $"{e}\n{e.StackTrace}"));
         }
 
         if (data is null)
             return Data;
 
-        // FIXME: temp
-        ReadOnly |= Avalonia.Controls.Design.IsDesignMode;
+        ReadOnly |= Constants.IsDev;
 
         data = UserPrefsMigrations.RunMigrations(data);
         Data = data;
@@ -152,7 +151,7 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 
     private async Task<UserPrefsData?> ReloadData()
     {
-        var json = await _appData.ReadFile(PrefsFileName);
+        var json = await _appData.ReadFile(Constants.PrefsAppDataPath);
         if (json is null)
             return null;
 
@@ -167,6 +166,11 @@ public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
         loaded.Planner ??= new();
         // ReSharper restore NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         return loaded;
+    }
+
+    public void ResetToDefaults()
+    {
+        Data = new();
     }
 
     private static void SetIfNotNull<T>(ref T field, T? value)
@@ -227,4 +231,22 @@ file static class UserPrefsMigrations
         data.Log().Info($"Finished migrations from {initialVersion} to {data.Version}");
         return data;
     }
+}
+
+public enum PrefsLoadIssueKind { Warning, Error }
+
+/// <summary>
+/// Reprensents a problem that occurred while loading the prefs.
+/// </summary>
+/// <param name="Kind">
+/// Whether the problem is a warning (i.e. the user can choose to continue with the loaded prefs)
+/// or an error (i.e. prefs could not be loaded, and the user can only revert to defaults).
+/// </param>
+/// <param name="Message">Message to display to the user.</param>
+/// <param name="Details">Additional details, e.g. an exception stack trace.</param>
+[PublicAPI]
+public sealed record PrefsLoadIssue(PrefsLoadIssueKind Kind, string Message, string? Details = null)
+{
+    public bool IsWarning => Kind == PrefsLoadIssueKind.Warning;
+    public bool IsError => Kind == PrefsLoadIssueKind.Error;
 }

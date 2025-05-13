@@ -137,4 +137,25 @@ public static class ReactiveExtensions
 
     public static IObservable<bool> And(this IObservable<bool> first, IObservable<bool> second)
         => first.CombineLatest(second).Select(p => p.First && p.Second);
+
+    public static IDisposable RegisterHandler<TIn, TOut>(this Interaction<TIn, TOut> interaction, Func<TIn, TOut> handler)
+        => interaction.RegisterHandler(ctx => ctx.SetOutput(handler(ctx.Input)));
+    public static IDisposable RegisterHandler<TIn, TOut>(this Interaction<TIn, TOut> interaction, Func<TIn, Task<TOut>> handler)
+        => interaction.RegisterHandler(async ctx => ctx.SetOutput(await handler(ctx.Input)));
+    public static IDisposable RegisterHandler<TOut>(this Interaction<Unit, TOut> interaction, Func<TOut> handler)
+        => interaction.RegisterHandler(ctx => ctx.SetOutput(handler()));
+    public static IDisposable RegisterHandler<TOut>(this Interaction<Unit, TOut> interaction, Func<Task<TOut>> handler)
+        => interaction.RegisterHandler(async ctx => ctx.SetOutput(await handler()));
+    public static IDisposable RegisterHandler<TIn>(this Interaction<TIn, Unit> interaction, Action<TIn> handler)
+        => interaction.RegisterHandler(ctx =>
+        {
+            handler(ctx.Input);
+            ctx.SetOutput(Unit.Default);
+        });
+    public static IDisposable RegisterHandler<TIn>(this Interaction<TIn, Unit> interaction, Func<TIn, Task> handler)
+        => interaction.RegisterHandler(async ctx =>
+        {
+            await handler(ctx.Input);
+            ctx.SetOutput(Unit.Default);
+        });
 }

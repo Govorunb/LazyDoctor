@@ -1,3 +1,4 @@
+using System.Globalization;
 using Avalonia.Data.Converters;
 using DesktopApp.Data;
 
@@ -13,7 +14,7 @@ internal static class FuncConverters
         = new(lvl => LOCATOR.GetService<IDataSource<GameConstants>>()!.Values.MostRecent(null).First()?.GetExpRequirementForNextLevel(lvl));
 
     public static FuncValueConverter<double, string> DoubleWithPlusPrefix { get; }
-        = new (utcOffset => (utcOffset >= 0 ? "+" : "") + utcOffset.ToString("N0"));
+        = new (utcOffset => (utcOffset >= 0 ? "+" : "") + utcOffset.ToString("N0", CultureInfo.InvariantCulture));
 
     public static FuncValueConverter<int, string> IntWithPlusPrefix { get; }
         = new (utcOffset => (utcOffset >= 0 ? "+" : "") + utcOffset);

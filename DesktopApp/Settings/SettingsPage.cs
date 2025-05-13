@@ -44,7 +44,8 @@ public class SettingsPage : PageBase
             RefreshCooldownLeft = _refreshCooldown.ToString("mm\\:ss", CultureInfo.InvariantCulture);
         }, this.WhenAnyValue(t => t.RefreshCooldownLeft).Select(cd => cd is null));
         RefreshDataSource.Execute().Subscribe();
-        OpenLogsFolder = ReactiveCommand.CreateFromObservable(() => PlatformOpenFolder.Handle(AppData.GetFullPath("logs/")));
+        OpenLogsFolder = ReactiveCommand.CreateFromObservable(() => PlatformOpenFolder.Handle(AppData.GetFullPath(Constants.LogsAppDataPath)));
+        // TODO: open prefs file, reload prefs
     }
 }
 

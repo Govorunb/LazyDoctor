@@ -15,7 +15,7 @@ public sealed class GithubAkavache : ReactiveObjectBase
 
         _timeProvider = timeProvider;
 
-        BlobCache = appData.GetBlobCache("gamedata_cache");
+        BlobCache = appData.GetBlobCache(Constants.GamedataCacheAppDataPath);
         BlobCache.Vacuum().Subscribe();
     }
 

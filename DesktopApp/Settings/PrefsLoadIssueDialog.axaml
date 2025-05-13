@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="DesktopApp.Settings.PrefsLoadIssueDialog"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             xmlns:prefs="using:DesktopApp.Common"
+             xmlns:util="using:DesktopApp.Utilities.Helpers"
+             xmlns:app="using:DesktopApp"
+             x:DataType="prefs:PrefsLoadIssue">
+  <Panel Name="DialogContainerPanel"
+         HorizontalAlignment="Stretch"
+         VerticalAlignment="Stretch">
+    <fa:TaskDialog Name="Dialog"
+                   DataContext="{Binding #DialogContainerPanel.DataContext}"
+                   x:DataType="prefs:PrefsLoadIssue"
+                   Classes.Warning="{Binding IsWarning}"
+                   Classes.Error="{Binding IsError}">
+      <Control.Styles>
+        <Style Selector="fa|TaskDialog.Warning">
+          <Setter Property="IconSource" Value="{StaticResource WarningIconSource}" />
+          <Setter Property="Header" Value="Prefs load warning" />
+        </Style>
+        <Style Selector="fa|TaskDialog.Error">
+          <Setter Property="IconSource" Value="{StaticResource ErrorIconSource}" />
+          <Setter Property="Header" Value="Prefs load error" />
+        </Style>
+      </Control.Styles>
+      <StackPanel Orientation="Vertical" Spacing="8">
+        <TextBlock Text="{Binding Message}" />
+        <Expander Header="Details" IsVisible="{Binding Details.Length, FallbackValue=False}">
+          <ScrollViewer>
+            <TextBlock Text="{Binding Details}" />
+          </ScrollViewer>
+        </Expander>
+        <CheckBox Name="ReadOnlyCheckBox" IsChecked="True"
+                  Content="Load read-only" ToolTip.Tip="Prevents overwriting your current prefs file for this app session." />
+      </StackPanel>
+      <fa:TaskDialog.Commands>
+        <fa:TaskDialogCommand Text="Edit prefs file" Description="Open the prefs file in your default editor. Don't forget to save the file after editing."
+                              ClosesOnInvoked="False"
+                              IconSource="Code" />
+        <fa:TaskDialogCommand Text="Report bug" Description="Please include the contents of your prefs file in the issue description."
+                              ClosesOnInvoked="False"
+                              IconSource="{StaticResource BugIconSource}"
+                              Command="{x:Static util:AvaloniaHelpers.OpenUrlCommand}">
+          <fa:TaskDialogCommand.CommandParameter>
+            <MultiBinding>
+              <Binding Source="{x:Static app:App.Author}" />
+              <Binding Source="{x:Static app:App.Product}" />
+              <MultiBinding.StringFormat>https://github.com/{0}/{1}/issues/new</MultiBinding.StringFormat>
+            </MultiBinding>
+          </fa:TaskDialogCommand.CommandParameter>
+        </fa:TaskDialogCommand>
+      </fa:TaskDialog.Commands>
+      <fa:TaskDialog.Buttons>
+        <fa:TaskDialogButton Text="Retry" DialogResult="Retry" />
+        <fa:TaskDialogButton Text="Continue" DialogResult="Yes" IsEnabled="{Binding IsWarning}" IsDefault="{Binding IsWarning}" />
+        <fa:TaskDialogButton Text="Use defaults" DialogResult="No" IsDefault="{Binding !IsWarning}" />
+      </fa:TaskDialog.Buttons>
+    </fa:TaskDialog>
+  </Panel>
+</UserControl>

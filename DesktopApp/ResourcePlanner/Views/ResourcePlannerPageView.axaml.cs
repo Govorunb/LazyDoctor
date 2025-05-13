@@ -11,8 +11,8 @@ public sealed partial class ResourcePlannerPageView : ReactiveUserControl<Resour
         InitializeComponent();
         this.WhenActivated(_ =>
         {
-            this.BindValidation(ViewModel, vm => vm.Setup!.TargetStageCode, v => v.StageErrors);
-            this.BindValidation(ViewModel, vm => vm.Setup!.TargetDate, v => v.DateErrors);
+            this.BindValidation(ViewModel, vm => vm.Setup.TargetStageCode, v => v.StageErrors);
+            this.BindValidation(ViewModel, vm => vm.Setup.TargetDate, v => v.DateErrors);
         });
     }
 

@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
@@ -7,11 +8,16 @@ namespace DesktopApp;
 [PublicAPI]
 public sealed class App : Application
 {
-    public static readonly Version Version = typeof(App).Assembly.GetName().Version ?? new();
+    public static Version Version => AssemblyInfo.Version;
+    public static string? Author => AssemblyInfo.Author;
+    public static string? Product => AssemblyInfo.Product;
 
     public new static App? Current => (App?)Application.Current;
     public IClassicDesktopStyleApplicationLifetime? DesktopLifetime => ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+    public ISingleViewApplicationLifetime? SingleLifetime => ApplicationLifetime as ISingleViewApplicationLifetime;
     public MainWindow? MainWindow => DesktopLifetime?.MainWindow as MainWindow;
+    public Control? MainView => SingleLifetime?.MainView;
+    public TopLevel? Toplevel => MainWindow ?? MainView as TopLevel;
 
     public override void Initialize()
     {

@@ -7,17 +7,18 @@
         xmlns:fa="using:FluentAvalonia.UI.Controls"
         x:Class="DesktopApp.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="LazyDoctor">
-  <fa:NavigationView Name="Nav"
-                     Content="{Binding $self.((Control)SelectedItem).DataContext}"
-                     DataContext="{Binding SettingsPage}"
-                     PaneDisplayMode="Top">
-    <fa:NavigationView.MenuItems>
-      <fa:NavigationViewItem IconSource="People" Content="Recruitment"
-                             DataContext="{Binding $parent[vm:MainWindow].ViewModel.RecruitPage}" />
-      <fa:NavigationViewItem IconSource="Calendar" Content="Planner"
-                             DataContext="{Binding $parent[vm:MainWindow].ViewModel.ResourcePlannerPage}" />
-    </fa:NavigationView.MenuItems>
-  </fa:NavigationView>
+        Icon="/Assets/avalonia-logo.ico">
+  <Panel>
+    <fa:NavigationView Name="Nav"
+                       Content="{Binding $self.((Control)SelectedItem).DataContext}"
+                       DataContext="{Binding SettingsPage}"
+                       PaneDisplayMode="Top">
+      <fa:NavigationView.MenuItems>
+        <fa:NavigationViewItem IconSource="People" Content="Recruitment"
+                               DataContext="{Binding $parent[vm:MainWindow].ViewModel.RecruitPage}" />
+        <fa:NavigationViewItem IconSource="Calendar" Content="Planner"
+                               DataContext="{Binding $parent[vm:MainWindow].ViewModel.ResourcePlannerPage}" />
+      </fa:NavigationView.MenuItems>
+    </fa:NavigationView>
+  </Panel>
 </Window>

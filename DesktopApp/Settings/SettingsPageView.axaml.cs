@@ -14,7 +14,7 @@ public partial class SettingsPageView : ReactiveUserControl<SettingsPage>
         this.WhenActivated(d =>
         {
             ViewModel!.PlatformOpenFolder
-                .RegisterHandler(AvaloniaHelpers.OpenInDefaultEditor(this))
+                .RegisterHandler(AvaloniaHelpers.OpenInDefaultEditor)
                 .DisposeWith(d);
         });
     }

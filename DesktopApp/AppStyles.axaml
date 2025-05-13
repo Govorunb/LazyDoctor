@@ -2,11 +2,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="using:System"
         xmlns:fa="using:FluentAvalonia.UI.Controls">
-  <Design.PreviewWith>
-    <Border Padding="20">
-      <!-- Add Controls for Previewer Here -->
-    </Border>
-  </Design.PreviewWith>
+  <Styles.Resources>
+    <ResourceDictionary>
+      <!-- Larger dialog area to display more content -->
+      <x:Double x:Key="TaskDialogMaxWidth">1200</x:Double>
+      <x:Double x:Key="TaskDialogMaxHeight">800</x:Double>
+      <!-- Left padding down from 60 to 58 to align with subheader/content -->
+      <Thickness x:Key="TaskDialogHeaderPadding">58 9 12 9</Thickness>
+    </ResourceDictionary>
+  </Styles.Resources>
 
   <Style Selector=":is(Button).Danger">
     <Setter Property="Background" Value="{DynamicResource DangerBackground}" />
@@ -148,5 +152,30 @@
   </Style>
   <Style Selector="DataValidationErrors">
     <Setter Property="Theme" Value="{DynamicResource TooltipDataValidationErrors}" />
+  </Style>
+
+  <Style Selector="fa|TaskDialog">
+    <Style Selector="^ /template/ ContentPresenter#ContentPresenter">
+      <Setter Property="Padding" Value="40 0" />
+    </Style>
+    <Style Selector="^ /template/ TextBlock#SubHeaderText">
+      <Setter Property="Padding" Value="40 0" />
+    </Style>
+  </Style>
+
+  <Style Selector="fa|ContentDialog">
+    <Style Selector="^:not(:primary,:secondary,:close) /template/ Grid#DialogSpace > Border">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="^ /template/ Button">
+      <Setter Property="Padding" Value="4" />
+      <Setter Property="MinWidth" Value="64" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <!-- IsTabStop needs to be False to properly cycle focus (otherwise focus gets stuck) -->
+      <Style Selector="^:disabled">
+        <Setter Property="IsTabStop" Value="False" />
+      </Style>
+    </Style>
   </Style>
 </Styles>

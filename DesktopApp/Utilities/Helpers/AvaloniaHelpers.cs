@@ -1,26 +1,23 @@
 using System.Reactive;
-using Avalonia;
-using Avalonia.Controls;
 
 namespace DesktopApp.Utilities.Helpers;
 
 public static class AvaloniaHelpers
 {
-    public static Func<IInteractionContext<string, Unit>, Task> OpenInDefaultEditor(Visual? visual)
-    {
-        return async ctx =>
-        {
-            var topLevel = GetTopLevel(visual)
-                   ?? throw new InvalidOperationException("Could not find UI top level");
-            var success = await topLevel.Launcher.LaunchUriAsync(new($"file://{ctx.Input}"));
-            if (!success)
-                throw new InvalidOperationException($"Could not open {ctx.Input} - operation failed or not supported");
-            ctx.SetOutput(Unit.Default);
-        };
-    }
+    public static ReactiveCommand<string, Unit> OpenFileCommand { get; }
+        = ReactiveCommand.CreateFromTask<string>(OpenInDefaultEditor);
+    public static ReactiveCommand<string, Unit> OpenUrlCommand { get; }
+        = ReactiveCommand.CreateFromTask<string>(OpenInDefaultBrowser);
 
-    internal static TopLevel? GetTopLevel(Visual? visual)
-        => visual is { }
-            ? TopLevel.GetTopLevel(visual)
-            : App.Current?.MainWindow;
+    public static Task OpenInDefaultEditor(string path) => Open($"file://{path}");
+    public static Task OpenInDefaultBrowser(string url) => Open(url);
+
+    private static async Task Open(string uri)
+    {
+        var topLevel = App.Current?.Toplevel
+            ?? throw new InvalidOperationException("Could not find top level");
+        var success = await topLevel.Launcher.LaunchUriAsync(new(uri));
+        if (!success)
+            throw new InvalidOperationException($"Could not open {uri} - operation failed or not supported");
+    }
 }
