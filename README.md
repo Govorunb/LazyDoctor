@@ -40,12 +40,30 @@ When new operators are added to recruitment... I don't want to have to do anythi
 
 So, the app automatically pulls the most recent data from [Kengxxiao's data repository](https://github.com/Kengxxiao/ArknightsGameData_YoStar/tree/main/en_US). It also picks up any new tags, though new tags should get added basically never (`Elemental` is the only tag added post-release so far).
 
+### Resource Planner
+
+Have you ever wondered how many Guard chips you would have if you farmed nothing but Guard chips for three straight weeks? Is it 61? Or maybe 63? What an exciting question.
+
+It all started with this [spreadsheet](https://docs.google.com/spreadsheets/d/17pi3KdViPWyNmGcCdPMmZzlS1sFKgOiftdiAheA8Qr0/edit), motivated by not knowing whether I'll be able to farm up enough red certs from AP-5 to buy out the 6★ tokens before they rotate out of the shop. Well, never again.
+
+This planner simulates a very normal being whose sole purpose is to dump as much sanity as humanly possible into a single supply stage of your choosing. It takes into account things like:
+- When the stage is open (including always-open periods like CC[^1])
+- Saving sanity for tomorrow if today the stage is closed but tomorrow it's open (it adds up!)
+- Banked sanity from potions or OP (including usual reoccurring gains like potions from weekly missions and the daily potion from monthly card)
+- A bunch of extra details like EXP gains/leveling up, annihilation, etc.
+
+[^1]: The data for these periods usually doesn't appear until very close to/after the event starts. So, you should probably re-calculate the sim when the event comes out.
+
+The sim is probably not *completely* optimal, but I'd argue you still get way better results with this planner than without. Just don't forget to set an alarm to spend sanity ;)
+
+#### Updates
+
+Everything about the game data mentioned in the Recruitment Calculator section above applies here as well. If the schedule for the stages suddenly changes, the planner will automatically pull those changes.
+
 ## Roadmap
 Right now these are all from spreadsheets I made over the years - I just need to find the time and motivation to port them over.
 - IS relic tracker/completion checklist (spreadsheets - [IS2](https://docs.google.com/spreadsheets/d/1XjMUNHfIUqqRiXLNeKoioEg64PneYOUGhHBHw58fNDg/edit), [IS3](https://docs.google.com/spreadsheets/d/1g7PBeaU0BrAJ25g8Xj43Jyu11zZUXCbK44XimNgAc8w/edit), [IS4](https://docs.google.com/spreadsheets/d/1ulX-GO5D9PM9_5tX_gnzgLyp7_W7zslFQBiYg9vFqSY/edit))
 	- Rawdogging the relic collection process is like licking sandpaper
 - Pulls calculator+ ([spreadsheet](https://docs.google.com/spreadsheets/d/1JbBpZoj2q6gf7VtKlZArBx-e4UuNR1UEjS7AlCXTmME/edit) - based on [u/lhc987's spreadsheet](https://docs.google.com/spreadsheets/d/12nugJxtTLFafudEJ_NrFuEm2X4VHrfCRkbyzMxia63A/edit))
-    - It's a pain to maintain it even with me only checking in basically once every three months
+    - It's a pain to maintain it even with me only checking in basically once every ~~three~~ six months
     - Probably not going to be ported over unless I manage to automate pulling data for future events (if you have/know of an available API, feel free to open an issue)
-- Red cert planner ([spreadsheet](https://docs.google.com/spreadsheets/d/17pi3KdViPWyNmGcCdPMmZzlS1sFKgOiftdiAheA8Qr0/edit))
-    - The 6★ tokens in red cert shop only rotate every 500 years, so this calculator isn't very useful to begin with
