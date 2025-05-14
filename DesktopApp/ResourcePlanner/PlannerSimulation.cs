@@ -220,7 +220,7 @@ public sealed class PlannerSimulation : ReactiveObjectBase
                     .TakeWhile(d => _timeUtils.ToServerTime(d.Start).DayOfWeek != System.DayOfWeek.Monday)
                     .ToList();
                 // if not, we also know it's the last week (not-last weeks always end on sunday because there's at least one more week)
-                var lastDayIsSunday = restOfWeek.Count == 0 || _timeUtils.ToServerTime(restOfWeek[^1].Start).DayOfWeek == System.DayOfWeek.Sunday;
+                var lastDayIsSunday = restOfWeek.Count > 0 && _timeUtils.ToServerTime(restOfWeek[^1].Start).DayOfWeek == System.DayOfWeek.Sunday;
                 noMoreClosedDays = lastDayIsSunday && restOfWeek.All(d => d.IsTargetStageOpen);
             }
 
