@@ -161,6 +161,16 @@ For example, if you log in once a day and your cap is 180, put in 180." />
             <TextBlock FontSize="22" IsVisible="{Binding !!Results.Count}">
               Total target stage runs: <Run Text="{Binding TotalTargetStageRuns}" />
             </TextBlock>
+            <StackPanel IsVisible="{Binding !!TotalTargetStageRuns}" Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="If the target stage drops (on average)" />
+              <fa:NumberBox Value="{Binding TargetDropAmtPerRun, Mode=TwoWay}"
+                            Minimum="0" SmallChange="0.5" LargeChange="10"
+                            ToolTip.Tip="Use fractional values to represent percentages&#10;(e.g. a specific class chip would be 0.5 for a 50% rate)" />
+              <TextBlock Text="of your desired item, you will end up with" />
+              <TextBlock Text="{Binding TotalTargetDropAmt, FallbackValue='N/A', StringFormat=F00}" FontSize="18"
+                         ToolTip.Tip="Actual amount may vary based on your luck. Increasing the total run count will smooth out statistical variances." />
+              <TextBlock Text="of your desired drop." />
+            </StackPanel>
           </StackPanel>
         </Border>
         <Expander Header="Details" IsExpanded="{Binding Prefs.ResultsExpanded}" IsVisible="{Binding !!Results.Count}">

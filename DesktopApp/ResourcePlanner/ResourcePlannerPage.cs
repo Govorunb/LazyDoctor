@@ -42,6 +42,10 @@ public class ResourcePlannerPage : PageBase, IValidatableViewModel
     public PlannerDay? SelectedDay { get; private set; }
     [Reactive]
     public int TotalTargetStageRuns { get; private set; }
+    [Reactive]
+    public double TargetDropAmtPerRun { get; set; }
+    [Reactive]
+    public double TotalTargetDropAmt { get; private set; }
 
     [Reactive]
     private bool DayDateIsEnd { get; set; }
@@ -134,6 +138,10 @@ public class ResourcePlannerPage : PageBase, IValidatableViewModel
             .Where(pair => pair is (>0, { MaxPlayerLevel: var maxLvl }) && Setup.InitialExpData.Level == maxLvl)
             .Subscribe(_ => Setup.InitialExpData.Exp = 0)
             .DisposeWith(this);
+
+        this.WhenAnyValue(t => t.TargetDropAmtPerRun, t => t.TotalTargetStageRuns)
+            .Select(pair => pair.Item1 * pair.Item2)
+            .Subscribe(amt => TotalTargetDropAmt = amt);
     }
 
     private void Simulate()
