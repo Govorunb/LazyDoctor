@@ -163,7 +163,7 @@ For example, if you log in once a day and your cap is 180, put in 180." />
             </TextBlock>
             <StackPanel IsVisible="{Binding !!TotalTargetStageRuns}" Orientation="Horizontal" Spacing="8">
               <TextBlock Text="If the target stage drops (on average)" />
-              <fa:NumberBox Value="{Binding TargetDropAmtPerRun, Mode=TwoWay}"
+              <fa:NumberBox Value="{Binding Prefs.TargetDropAmtPerRun, Mode=TwoWay}"
                             Minimum="0" SmallChange="0.5" LargeChange="10"
                             ToolTip.Tip="Use fractional values to represent percentages&#10;(e.g. a specific class chip would be 0.5 for a 50% rate)" />
               <TextBlock Text="of your desired item, you will end up with" />

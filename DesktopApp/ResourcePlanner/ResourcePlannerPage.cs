@@ -43,8 +43,6 @@ public class ResourcePlannerPage : PageBase, IValidatableViewModel
     [Reactive]
     public int TotalTargetStageRuns { get; private set; }
     [Reactive]
-    public double TargetDropAmtPerRun { get; set; }
-    [Reactive]
     public double TotalTargetDropAmt { get; private set; }
 
     [Reactive]
@@ -139,7 +137,7 @@ public class ResourcePlannerPage : PageBase, IValidatableViewModel
             .Subscribe(_ => Setup.InitialExpData.Exp = 0)
             .DisposeWith(this);
 
-        this.WhenAnyValue(t => t.TargetDropAmtPerRun, t => t.TotalTargetStageRuns)
+        this.WhenAnyValue(t => t.Prefs.TargetDropAmtPerRun, t => t.TotalTargetStageRuns)
             .Select(pair => pair.Item1 * pair.Item2)
             .Subscribe(amt => TotalTargetDropAmt = amt);
     }

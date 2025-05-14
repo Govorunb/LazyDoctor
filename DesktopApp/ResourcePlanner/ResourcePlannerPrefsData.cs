@@ -7,6 +7,8 @@ public class ResourcePlannerPrefsData : ReactiveObjectBase
     public ResourcePlannerSettings Setup { get; set; } = new();
     [Reactive]
     public List<PlannerDay> Results { get; set; } = [];
+    [Reactive]
+    public double TargetDropAmtPerRun { get; set; } = 1;
 
     public ResourcePlannerPrefsData()
     {
