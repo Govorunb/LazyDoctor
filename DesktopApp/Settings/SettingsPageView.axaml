@@ -5,6 +5,8 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
              xmlns:vm="using:DesktopApp.Settings"
+             xmlns:util="using:DesktopApp.Utilities.Helpers"
+             xmlns:data="using:DesktopApp.Data"
              x:Class="DesktopApp.Settings.SettingsPageView"
              x:DataType="vm:SettingsPage">
   <Design.DataContext>
@@ -75,6 +77,11 @@
                     SelectedItem="{Binding Prefs.General.FileLogLevel, Mode=TwoWay}" Margin="16 0" />
         </fa:SettingsExpander.Footer>
       </fa:SettingsExpander>
+      <fa:SettingsExpanderItem IconSource="Code"
+                               Content="Open GitHub repository" Description="Visit the project's GitHub page to give feedback or contribute"
+                               IsClickEnabled="True" ActionIconSource="Open"
+                               Command="{x:Static util:AvaloniaHelpers.OpenUrlCommand}"
+                               CommandParameter="{x:Static data:Constants.GitHubRepoLink}" />
     </StackPanel>
   </Border>
 </UserControl>

@@ -13,4 +13,6 @@ public static class Constants
     public const string PrefsAppDataPath = "prefs.json";
     public const string LogsAppDataPath = "logs";
     public const string GamedataCacheAppDataPath = "gamedata_cache";
+
+    public static readonly string GitHubRepoLink = $"https://github.com/{App.Author}/{App.Product}";
 }
