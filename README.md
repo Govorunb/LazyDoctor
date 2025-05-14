@@ -42,11 +42,14 @@ So, the app automatically pulls the most recent data from [Kengxxiao's data repo
 
 ### Resource Planner
 
-Have you ever wondered how many Guard chips you would have if you farmed nothing but Guard chips for three straight weeks? Is it 61? Or maybe 63? What an exciting question.
+Have you ever wondered how many Guard chips you would have if you farmed nothing but Guard chips for three weeks straight? Is it 61? Or maybe 63? What an exciting question.
+
+![image](https://github.com/user-attachments/assets/ac4f0076-eab6-45ea-91c5-ff1143807d1f)
 
 It all started with this [spreadsheet](https://docs.google.com/spreadsheets/d/17pi3KdViPWyNmGcCdPMmZzlS1sFKgOiftdiAheA8Qr0/edit), motivated by not knowing whether I'll be able to farm up enough red certs from AP-5 to buy out the 6★ tokens before they rotate out of the shop. Well, never again.
 
-This planner simulates a very normal being whose sole purpose is to dump as much sanity as humanly possible into a single supply stage of your choosing. It takes into account things like:
+This planner simulates a very normal being whose sole purpose is to dump as much sanity as humanly possible into a single supply stage of your choosing.<br/>
+It takes into account things like:
 - When the stage is open (including always-open periods like CC[^1])
 - Saving sanity for tomorrow if today the stage is closed but tomorrow it's open (it adds up!)
 - Banked sanity from potions or OP (including usual reoccurring gains like potions from weekly missions and the daily potion from monthly card)
