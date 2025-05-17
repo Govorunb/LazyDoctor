@@ -47,6 +47,7 @@ public class RecruitPage : PageBase
         filter.AllResults.WhenCountChanged()
             .CombineLatest(Results.WhenCountChanged(), (a, b) => a - b)
             .Subscribe(v => RowsHidden = v);
+        this.NotifyProperty(nameof(RarityFilters), filter.WhenAnyValue(t => t.RarityFilters));
 
         // show PasteError only for a few seconds
         this.WhenAnyValue(t => t.PasteError)

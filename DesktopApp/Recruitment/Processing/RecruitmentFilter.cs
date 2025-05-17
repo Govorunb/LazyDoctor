@@ -106,7 +106,9 @@ public sealed class RecruitmentFilter : ReactiveObjectBase
 
     private void SetFilters()
     {
-        RarityFilters = _prefs.Recruitment.RarityFilters.Select((ft, i) => new RarityFilter { Stars = i + 1, Filter = ft }).ToList();
+        RarityFilters = _prefs.Recruitment.RarityFilters
+            .Select((ft, i) => new RarityFilter { Stars = i + 1, Filter = ft })
+            .ToList();
     }
 
     public const int MaxTagsSelected = 5;
