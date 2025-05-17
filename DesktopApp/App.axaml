@@ -24,4 +24,9 @@
         <!-- always include our styles last -->
         <StyleInclude Source="/AppStyles.axaml" />
     </Application.Styles>
+    <!--<TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="/Assets/sanity.ico" IsVisible="True" />
+        </TrayIcons>
+    </TrayIcon.Icons>-->
 </Application>

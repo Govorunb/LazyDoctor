@@ -7,7 +7,7 @@
         xmlns:fa="using:FluentAvalonia.UI.Controls"
         x:Class="DesktopApp.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico">
+        Icon="/Assets/sanity.ico">
   <Panel>
     <fa:NavigationView Name="Nav"
                        Content="{Binding $self.((Control)SelectedItem).DataContext}"

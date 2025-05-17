@@ -16,6 +16,7 @@
         <Authors>Govorunb</Authors>
         <Product>$(Title)</Product>
         <Version>0.2.0</Version>
+        <ApplicationIcon>Assets/sanity.ico</ApplicationIcon>
 
         <Company>$(Authors)</Company>
         <AssemblyName>$(Title)</AssemblyName>

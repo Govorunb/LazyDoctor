@@ -6,7 +6,7 @@
              xmlns:opd="using:DesktopApp.Data.Operators"
              xmlns:op="using:DesktopApp.Common.Operators"
              x:DataType="opd:Operator"
-             x:Class="DesktopApp.Common.Operators.OperatorView">
+             x:Class="DesktopApp.Recruitment.Views.OperatorView">
   <Design.DataContext>
     <opd:Operator Name="Beagle" Rarity="TIER_2" JsonClass="TANK" />
   </Design.DataContext>
