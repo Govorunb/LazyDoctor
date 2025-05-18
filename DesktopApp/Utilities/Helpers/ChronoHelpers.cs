@@ -20,8 +20,10 @@ internal static class ChronoHelpers
     /// </summary>
     public static TimeSpan Normalize(this TimeSpan time)
     {
-        while (time < TimeSpan.Zero) time += TimeSpan.FromDays(1);
-        while (time >= TimeSpan.FromDays(1)) time -= TimeSpan.FromDays(1);
+        if (time.Days != 0)
+            time -= TimeSpan.FromDays(time.Days);
+        if (time.Ticks < 0)
+            time += TimeSpan.FromDays(1);
         return time;
     }
 
