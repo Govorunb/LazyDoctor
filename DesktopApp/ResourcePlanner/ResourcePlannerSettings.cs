@@ -6,8 +6,6 @@ namespace DesktopApp.ResourcePlanner;
 [JsonClass]
 public sealed class ResourcePlannerSettings : ViewModelBase
 {
-    public static readonly AnnihilationMap[] AnnihilationMaps = Enum.GetValues<AnnihilationMap>();
-
     [Reactive]
     public DateTime InitialDate { get; set; } = DateTime.Now;
     // TODO: dedicated prefs space for player data (stats, inventory, base rotation or something idk)

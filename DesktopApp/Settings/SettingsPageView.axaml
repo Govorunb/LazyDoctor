@@ -7,6 +7,8 @@
              xmlns:vm="using:DesktopApp.Settings"
              xmlns:util="using:DesktopApp.Utilities.Helpers"
              xmlns:data="using:DesktopApp.Data"
+             xmlns:ext="using:DesktopApp.Utilities.Markup"
+             xmlns:seri="using:Serilog.Events"
              x:Class="DesktopApp.Settings.SettingsPageView"
              x:DataType="vm:SettingsPage">
   <Design.DataContext>
@@ -73,7 +75,7 @@
                            Description="Click to open logs folder"
                            IsClickEnabled="True" ActionIconSource="Open" Command="{Binding OpenLogsFolder}">
         <fa:SettingsExpander.Footer>
-          <ComboBox ItemsSource="{x:Static vm:SettingsPageView.LogLevels}"
+          <ComboBox ItemsSource="{ext:EnumValues {x:Type seri:LogEventLevel}}"
                     SelectedItem="{Binding Prefs.General.FileLogLevel, Mode=TwoWay}" Margin="16 0" />
         </fa:SettingsExpander.Footer>
       </fa:SettingsExpander>

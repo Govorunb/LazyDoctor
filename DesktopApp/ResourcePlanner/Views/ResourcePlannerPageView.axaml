@@ -7,6 +7,7 @@
              xmlns:v="using:DesktopApp.ResourcePlanner.Views"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
              xmlns:conv="using:DesktopApp.Utilities.Converters"
+             xmlns:ext="using:DesktopApp.Utilities.Markup"
              x:Class="DesktopApp.ResourcePlanner.Views.ResourcePlannerPageView"
              x:DataType="vm:ResourcePlannerPage">
   <Design.DataContext>
@@ -142,7 +143,7 @@ For example, if you log in once a day and your cap is 180, put in 180." />
               <StackPanel Spacing="2" ToolTip.Tip="Determines your sanity efficiency in doing the weekly Annihilation.&#10;The current rotating map is always the most efficient at 124 san/week.">
                 <Label Content="Annihilation Map" Target="AnniMap" />
                 <ComboBox Name="AnniMap" Classes="EnumPicker"
-                          ItemsSource="{x:Static vm:ResourcePlannerSettings.AnnihilationMaps}"
+                          ItemsSource="{ext:EnumValues {x:Type vm:AnnihilationMap}}"
                           SelectedValue="{Binding Setup.AnnihilationMap}"/>
               </StackPanel>
             </StackPanel>

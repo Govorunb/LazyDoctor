@@ -13,9 +13,6 @@ namespace DesktopApp.Recruitment.Views;
 
 public sealed partial class RecruitPageView : ReactiveUserControl<RecruitPage>, IDisposable
 {
-    // ReSharper disable once CollectionNeverQueried.Global // used in UI
-    public static readonly FilterType[] FilterTypes = Enum.GetValues<FilterType>();
-
     private MainWindow? Window => TopLevel.GetTopLevel(this) as MainWindow;
     private IDisposable? _pasteHandlerSubscription;
     private readonly Subject<Unit> _pasted = new();
