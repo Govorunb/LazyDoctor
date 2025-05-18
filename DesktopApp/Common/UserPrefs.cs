@@ -14,7 +14,7 @@ namespace DesktopApp.Common;
 public sealed class UserPrefs : DataSource<UserPrefs.UserPrefsData>
 {
     [JsonClass, EditorBrowsable(EditorBrowsableState.Never)]
-    public sealed class UserPrefsData : ReactiveObjectBase
+    public sealed class UserPrefsData : ModelBase
     {
         public Version Version { get; set; } = App.Version;
         public string Language { get; set; } = "en_US";

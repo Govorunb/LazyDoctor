@@ -8,7 +8,7 @@ using DynamicData.Binding;
 
 namespace DesktopApp.Recruitment.Processing;
 
-public sealed class RecruitmentFilter : ReactiveObjectBase
+public sealed class RecruitmentFilter : ServiceBase
 {
     private static readonly Dictionary<string, List<Operator>> _resultsCache = [];
 

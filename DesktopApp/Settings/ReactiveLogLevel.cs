@@ -2,7 +2,7 @@ using Serilog.Core;
 
 namespace DesktopApp.Settings;
 
-public sealed class ReactiveLogLevel : ReactiveObjectBase
+public sealed class ReactiveLogLevel : ModelBase
 {
     private LoggingLevelSwitch Switch { get; }
 

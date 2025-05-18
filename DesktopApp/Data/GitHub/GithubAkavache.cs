@@ -3,7 +3,7 @@ using ReactiveMarbles.CacheDatabase.Core;
 
 namespace DesktopApp.Data.GitHub;
 
-public sealed class GithubAkavache : ReactiveObjectBase
+public sealed class GithubAkavache : ServiceBase
 {
     private readonly TimeProvider _timeProvider;
     public IBlobCache BlobCache { get; }

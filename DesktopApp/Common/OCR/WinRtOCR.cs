@@ -6,7 +6,7 @@ using Windows.Storage.Streams;
 
 namespace DesktopApp.Common.OCR;
 
-public sealed class WinRtOCR : ReactiveObjectBase, IOCR<string>
+public sealed class WinRtOCR : ServiceBase, IOCR<string>
 {
     // thanks to https://ziviz.us/tools/win32errors.html
     private static readonly Dictionary<uint, string> _comExceptionMessages = new()

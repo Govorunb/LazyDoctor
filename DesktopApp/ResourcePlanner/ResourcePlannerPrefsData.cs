@@ -1,7 +1,7 @@
 namespace DesktopApp.ResourcePlanner;
 
 [JsonClass]
-public class ResourcePlannerPrefsData : ReactiveObjectBase
+public class ResourcePlannerPrefsData : ModelBase
 {
     [Reactive]
     public ResourcePlannerSettings Setup { get; set; } = new();

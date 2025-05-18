@@ -4,7 +4,7 @@ using Constants = DesktopApp.Data.Constants;
 namespace DesktopApp.Settings;
 
 [JsonClass]
-public sealed class GeneralPrefsData : ReactiveObjectBase
+public sealed class GeneralPrefsData : ModelBase
 {
     [Reactive]
     public bool ManualRefreshAcknowledged { get; set; }

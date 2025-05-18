@@ -5,7 +5,7 @@ using DesktopApp.Data.Stages;
 
 namespace DesktopApp.ResourcePlanner;
 
-public sealed class PlannerSimulation : ReactiveObjectBase
+public sealed class PlannerSimulation : ServiceBase
 {
     public List<PlannerDay> Results { get; }
 

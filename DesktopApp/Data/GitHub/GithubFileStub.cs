@@ -1,7 +1,7 @@
 namespace DesktopApp.Data.GitHub;
 
 [JsonClass]
-public sealed class GithubFileStub : ReactiveObjectBase
+public sealed class GithubFileStub : ModelBase
 {
     public string? Encoding { get; set; }
     public string? Type { get; set; }

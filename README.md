@@ -2,13 +2,6 @@
 
 This is a Windows app I made to simplify my daily maintenance tasks in Arknights.
 
-Tech stack:
-- [Avalonia](https://avaloniaui.net) (with [FluentAvalonia](https://github.com/amwx/FluentAvalonia)) as frontend (plus [HotAvalonia](https://github.com/Kir-Antipov/HotAvalonia) to save on iteration time)
-- [ReactiveUI](https://www.reactiveui.net/) + [DynamicData](https://github.com/reactivemarbles/DynamicData) for view/viewmodel bindings and collections plumbing
-- [ReactiveMarbles.CacheDatabase](https://github.com/reactivemarbles/CacheDatabase) (really just [Akavache](https://github.com/reactiveui/Akavache) but this reimplementation lets me use System.Text.Json)
-- [GitHub API](https://docs.github.com/en/rest/repos/contents) to fetch/update game data
-- [WinRT](https://en.wikipedia.org/wiki/Windows_Runtime) for OCR and clipboard access
-
 ## Features
 ### Recruitment Calculator
 Classic recruitment calculator. I don't want to remember tag combinations, my brain is busy being full of air.
@@ -40,6 +33,8 @@ When new operators are added to recruitment... I don't want to have to do anythi
 
 So, the app automatically pulls the most recent data from [Kengxxiao's data repository](https://github.com/Kengxxiao/ArknightsGameData_YoStar/tree/main/en_US). It also picks up any new tags, though new tags should get added basically never (`Elemental` is the only tag added post-release so far).
 
+---
+
 ### Resource Planner
 
 Have you ever wondered how many Guard chips you would have if you farmed nothing but Guard chips for three weeks straight? Is it 61? Or maybe 63? What an exciting question.
@@ -63,10 +58,20 @@ The sim is probably not *completely* optimal, but I'd argue you still get way be
 
 Everything about the game data mentioned in the Recruitment Calculator section above applies here as well. If the schedule for the stages suddenly changes, the planner will automatically pull those changes.
 
-## Roadmap
+---
+
+## Development
+### Roadmap
 Right now these are all from spreadsheets I made over the years - I just need to find the time and motivation to port them over.
 - IS relic tracker/completion checklist (spreadsheets - [IS2](https://docs.google.com/spreadsheets/d/1XjMUNHfIUqqRiXLNeKoioEg64PneYOUGhHBHw58fNDg/edit), [IS3](https://docs.google.com/spreadsheets/d/1g7PBeaU0BrAJ25g8Xj43Jyu11zZUXCbK44XimNgAc8w/edit), [IS4](https://docs.google.com/spreadsheets/d/1ulX-GO5D9PM9_5tX_gnzgLyp7_W7zslFQBiYg9vFqSY/edit))
 	- Rawdogging the relic collection process is like licking sandpaper
 - Pulls calculator+ ([spreadsheet](https://docs.google.com/spreadsheets/d/1JbBpZoj2q6gf7VtKlZArBx-e4UuNR1UEjS7AlCXTmME/edit) - based on [u/lhc987's spreadsheet](https://docs.google.com/spreadsheets/d/12nugJxtTLFafudEJ_NrFuEm2X4VHrfCRkbyzMxia63A/edit))
     - It's a pain to maintain it even with me only checking in basically once every ~~three~~ six months
     - Probably not going to be ported over unless I manage to automate pulling data for future events (if you have/know of an available API, feel free to open an issue)
+
+### Tech stack
+- [Avalonia](https://avaloniaui.net) (with [FluentAvalonia](https://github.com/amwx/FluentAvalonia)) as frontend (plus [HotAvalonia](https://github.com/Kir-Antipov/HotAvalonia) to save on iteration time)
+- [ReactiveUI](https://www.reactiveui.net/) + [DynamicData](https://github.com/reactivemarbles/DynamicData) for view/viewmodel bindings and collections plumbing
+- [ReactiveMarbles.CacheDatabase](https://github.com/reactivemarbles/CacheDatabase) (really just [Akavache](https://github.com/reactiveui/Akavache) but this reimplementation lets me use System.Text.Json)
+- [GitHub API](https://docs.github.com/en/rest/repos/contents) to fetch/update game data
+- [WinRT](https://en.wikipedia.org/wiki/Windows_Runtime) for OCR and clipboard access

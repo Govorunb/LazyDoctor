@@ -1,28 +1,20 @@
 using System.Net;
-using System.Reflection;
 using ReactiveMarbles.CacheDatabase.Core;
 
 namespace DesktopApp.Data.GitHub;
 
-public sealed class GithubDataAdapter : ReactiveObjectBase
+public sealed class GithubDataAdapter : ServiceBase
 {
     private readonly GithubAkavache _cache;
     private readonly UserPrefs _prefs;
-    private const string RepoCN = "ArknightsGameData";
-    private const string RepoGlobal = "ArknightsGameData_YoStar";
-    private const string RepoOwner = "Kengxxiao";
 
-    private static readonly string _userAgent;
+    // TODO: user prefs
+    private const string RepoCN = "Kengxxiao/ArknightsGameData";
+    private const string RepoGlobal = "Kengxxiao/ArknightsGameData_YoStar";
+
+    private static readonly string _userAgent = $"{AssemblyInfo.Author}-{AssemblyInfo.Product}";
 
     private readonly IBlobCache _blobCache;
-
-    static GithubDataAdapter()
-    {
-        var thisAssembly = typeof(GithubDataAdapter).Assembly;
-        var author = thisAssembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company;
-        var product = thisAssembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product;
-        _userAgent = $"{author}-{product}";
-    }
 
     private readonly HttpClient _client;
     private readonly Dictionary<string, IDataSource> _dataSources = [];
@@ -41,7 +33,7 @@ public sealed class GithubDataAdapter : ReactiveObjectBase
         _client.DefaultRequestHeaders.UserAgent.ParseAdd($"{_userAgent}/{App.Version}");
         _client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
         var token = Environment.GetEnvironmentVariable("GH_TOKEN");
-        _client.DefaultRequestHeaders.Authorization = token is {}
+        _client.DefaultRequestHeaders.Authorization = token is { }
             ? new("Bearer", token)
             // 304s are supposed to not count against your ratelimit but they actually do :)
             // unless there's an Authorization header present - with seemingly literally anything in it :) :)
@@ -53,8 +45,11 @@ public sealed class GithubDataAdapter : ReactiveObjectBase
         var repo = lang == "zh_CN" ? RepoCN : RepoGlobal;
         var path = $"{lang}/gamedata/{file}";
 
-        var url = $"https://api.github.com/repos/{RepoOwner}/{repo}/contents/{path}";
-        var res = await StampedeLock<string, byte[]?>.CombineConcurrent(url, async () =>
+        var url = $"https://api.github.com/repos/{repo}/contents/{path}";
+        var res = await StampedeLock<string, byte[]?>.CombineConcurrent(url, RequestFile);
+        return res.Result;
+
+        async Task<byte[]?> RequestFile()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, url);
 
@@ -99,9 +94,7 @@ public sealed class GithubDataAdapter : ReactiveObjectBase
             var rawContents = await _blobCache.DownloadUrl(githubFile.DownloadUrl!, HttpMethod.Get, GithubAkavache.DefaultExpiration);
 
             return rawContents;
-        });
-
-        return res.Result;
+        }
     }
 
     public GithubDataSource<T> GetDataSource<T>(string path)

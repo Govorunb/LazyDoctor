@@ -1,5 +1,3 @@
 ﻿namespace DesktopApp.Common;
 
-public class ViewModelBase : ReactiveObjectBase
-{
-}
+public class ViewModelBase : ModelBase;

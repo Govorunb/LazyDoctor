@@ -1,7 +1,7 @@
 namespace DesktopApp.Recruitment;
 
 [JsonClass]
-public sealed class RecruitmentPrefsData : ReactiveObjectBase
+public sealed class RecruitmentPrefsData : ModelBase
 {
     [Reactive]
     // assuming >3h50m, which removes 1&2stars from the pool
