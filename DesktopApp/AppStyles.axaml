@@ -16,33 +16,24 @@
     <Setter Property="Background" Value="{DynamicResource DangerBackground}" />
     <!-- there has to be a better way... really wish styles/templates/themes in avalonia worked better than this -->
     <Style Selector="^:disabled">
-      <!-- ava button -->
-      <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource DangerBackgroundDisabled}" />
-      </Style>
-      <!-- FA command bar button -->
-      <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-        <Setter Property="Background" Value="{DynamicResource DangerBackgroundDisabled}" />
+      <!-- ava button, FA command bar button -->
+      <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter,
+                       ^ /template/ Border#AppBarButtonInnerBorder">
+        <Setter Property="Button.Background" Value="{DynamicResource DangerBackgroundDisabled}" />
       </Style>
     </Style>
     <Style Selector="^:pointerover">
-      <!-- ava button -->
-      <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource DangerBackgroundHover}" />
-      </Style>
-      <!-- FA command bar button -->
-      <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-        <Setter Property="Background" Value="{DynamicResource DangerBackgroundHover}" />
+      <!-- ava button, FA command bar button -->
+      <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter,
+                       ^ /template/ Border#AppBarButtonInnerBorder">
+        <Setter Property="Button.Background" Value="{DynamicResource DangerBackgroundHover}" />
       </Style>
     </Style>
     <Style Selector="^:pressed">
-      <!-- ava button -->
-      <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource DangerBackgroundPressed}" />
-      </Style>
-      <!-- FA command bar button -->
-      <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-        <Setter Property="Background" Value="{DynamicResource DangerBackgroundPressed}" />
+      <!-- ava button, FA command bar button -->
+      <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter,
+                       ^ /template/ Border#AppBarButtonInnerBorder">
+        <Setter Property="Button.Background" Value="{DynamicResource DangerBackgroundPressed}" />
       </Style>
     </Style>
   </Style>
@@ -52,13 +43,10 @@
   <Style Selector=":is(Button).accent">
     <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
 
-    <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-      <Setter Property="Background" Value="{DynamicResource AccentButtonBackground}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource AccentButtonBorderBrush}" />
-    </Style>
-    <Style Selector="^ /template/ Viewbox#ContentViewBox > ContentPresenter#Content">
-      <Setter Property="Background" Value="{DynamicResource AccentButtonBackground}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource AccentButtonBorderBrush}" />
+    <Style Selector="^ /template/ Border#AppBarButtonInnerBorder,
+                     ^ /template/ Viewbox#ContentViewBox > ContentPresenter#Content">
+      <Setter Property="Button.Background" Value="{DynamicResource AccentButtonBackground}" />
+      <Setter Property="Button.BorderBrush" Value="{DynamicResource AccentButtonBorderBrush}" />
     </Style>
 
     <Style Selector="^:pointerover">

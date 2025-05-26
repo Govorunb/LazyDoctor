@@ -44,7 +44,14 @@ internal static class SplatHelpers
         SplatRegistrations.RegisterLazySingleton<GithubAkavache>();
         SplatRegistrations.RegisterLazySingleton<GithubDataAdapter>();
 
+        // theoretically manual OCR (with OpenCvSharp) could be better with enough time investment since we know text layout/constraints
+        // but until something else requires OpenCV, there's very little ROI on the >50MB dependency
+#if USE_OPENCV
+        SplatRegistrations.RegisterLazySingleton<IRecruitTagsOCR, OpenCvTagsOCR>();
+#else
         SplatRegistrations.RegisterLazySingleton<WinRtOCR>();
+        SplatRegistrations.RegisterLazySingleton<IRecruitTagsOCR, WinRtTagsOCR>();
+#endif
 
         // data sources
         // could be registered with an attribute but that needs a whole source gen (aot/generics)
@@ -62,14 +69,6 @@ internal static class SplatHelpers
         // processing
         SplatRegistrations.RegisterLazySingleton<TagParsingUtils>();
         SplatRegistrations.RegisterLazySingleton<RecruitmentFilter>();
-
-        // theoretically manual OCR (with OpenCvSharp) could be better with enough time investment since we know text layout/constraints
-        // but until something else requires OpenCV, there's very little ROI on the >50MB dependency
-#if USE_OPENCV
-        SplatRegistrations.RegisterLazySingleton<IRecruitTagsOCR, OpenCvTagsOCR>();
-#else
-        SplatRegistrations.RegisterLazySingleton<IRecruitTagsOCR, WinRtTagsOCR>();
-#endif
 
         // view models
         SplatRegistrations.RegisterLazySingleton<RecruitPage>();
