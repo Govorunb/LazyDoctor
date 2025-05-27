@@ -3,6 +3,7 @@
     <PropertyGroup>
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     </PropertyGroup>
 
     <ItemGroup>

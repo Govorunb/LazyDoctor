@@ -1,3 +1,4 @@
+using System.Globalization;
 using DesktopApp.Utilities.Helpers;
 
 namespace DesktopApp.Test.Utilities;
@@ -9,7 +10,7 @@ public sealed class TestTimeSpanNormalize
 
     public record struct TimeSpanData(TimeSpan TimeSpan)
     {
-        public TimeSpanData(string s) : this(TimeSpan.Parse(s))
+        public TimeSpanData(string s) : this(TimeSpan.Parse(s, CultureInfo.InvariantCulture))
         {
         }
 

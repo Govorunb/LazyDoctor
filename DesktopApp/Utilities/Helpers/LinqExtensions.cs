@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using ZLinq;
 
 namespace DesktopApp.Utilities.Helpers;
 
@@ -47,14 +48,16 @@ public static class LinqExtensions
         List<List<T>> acc = [[]];
         foreach (var source in sources)
         {
+#pragma warning disable CA1859 // analyzer misfire, could be any collection coming in
             if (source is not ICollection<T> itemsColl)
                 itemsColl = source.ToList();
+#pragma warning restore CA1859 // Use concrete collection type for improved performance
             if (itemsColl.Count == 0)
                 continue;
             var newAcc = new List<List<T>>(acc.Count * itemsColl.Count);
             foreach (var accItem in acc)
             {
-                newAcc.AddRange(itemsColl.Select(t => accItem.Append(t).ToList()));
+                newAcc.AddRange(itemsColl.Select(t => accItem.AsValueEnumerable().Append(t).ToList()));
             }
 
             acc = newAcc;
