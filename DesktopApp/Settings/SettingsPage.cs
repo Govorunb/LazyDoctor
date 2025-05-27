@@ -11,6 +11,8 @@ public class SettingsPage : PageBase
 
     private static readonly TimeSpan _refreshCooldown = TimeSpan.FromMinutes(1);
     private static readonly TimeSpan _refreshCooldownTextUpdateInterval = TimeSpan.FromSeconds(1);
+
+    private readonly TimeProvider _time;
     public UserPrefs Prefs { get; }
 
     [Reactive]
@@ -28,6 +30,7 @@ public class SettingsPage : PageBase
         AssertDI(time);
         AssertDI(data);
         Prefs = prefs;
+        _time = time;
 
         Observable.Interval(_refreshCooldownTextUpdateInterval)
             .ToUnit()
@@ -40,12 +43,17 @@ public class SettingsPage : PageBase
         RefreshDataSource = ReactiveCommand.CreateFromTask(async () =>
         {
             await data.ReloadAll();
-            LastRefresh = time.GetLocalNow();
-            RefreshCooldownLeft = _refreshCooldown.ToString("mm\\:ss", CultureInfo.InvariantCulture);
+            OnRefresh();
         }, this.WhenAnyValue(t => t.RefreshCooldownLeft).Select(cd => cd is null));
-        RefreshDataSource.Execute().Subscribe();
+        OnRefresh();
         OpenLogsFolder = ReactiveCommand.CreateFromObservable(() => PlatformOpenFolder.Handle(AppData.GetFullPath(Constants.LogsAppDataPath)));
         // TODO: open prefs file, reload prefs
+    }
+
+    private void OnRefresh()
+    {
+        LastRefresh = _time.GetLocalNow();
+        RefreshCooldownLeft = _refreshCooldown.ToString("mm\\:ss", CultureInfo.InvariantCulture);
     }
 }
 
@@ -55,4 +63,3 @@ internal sealed class DesignSettingsPage()
         LOCATOR.GetService<TimeProvider>()!,
         LOCATOR.GetService<GithubDataAdapter>()!
     );
-
