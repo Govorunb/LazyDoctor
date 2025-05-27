@@ -2,6 +2,7 @@ using System.Diagnostics;
 using DesktopApp.Data;
 using DesktopApp.Data.Player;
 using DesktopApp.Data.Stages;
+using Serilog;
 
 namespace DesktopApp.ResourcePlanner;
 
@@ -14,7 +15,6 @@ public sealed class PlannerSimulation : ServiceBase
     private readonly TimeUtilsService _timeUtils;
 
     private readonly StageData _targetStage;
-    private readonly List<DateTime> _days;
     private int _anniSanityLeft;
     private int _bankedSanity;
     private readonly DateTime _simStart;
@@ -31,6 +31,9 @@ public sealed class PlannerSimulation : ServiceBase
         AssertDI(prefs.Planner.Setup);
         AssertDI(sched);
         AssertDI(gameConst);
+
+        var beginTimestamp = TimeProvider.System.GetTimestamp();
+
         _setup = prefs.Planner.Setup;
         _gameConst = gameConst;
         _timeUtils = timeUtils;
@@ -40,13 +43,11 @@ public sealed class PlannerSimulation : ServiceBase
 
         _simStart = _setup.InitialDate.WithKind(DateTimeKind.Local);
         _simEnd = _setup.TargetDate.WithKind(DateTimeKind.Local);
-        if (_simEnd < _simStart)
+        if (_simEnd <= _simStart)
         {
             Results = [];
-            _days = [];
             return;
         }
-
 
         // each day lasts until the next reset
         // if initial datetime is before today's reset, second day will overlap with first
@@ -57,25 +58,26 @@ public sealed class PlannerSimulation : ServiceBase
                         + _setup.OpBudget * 135
                         + _setup.ExtraSanity;
 
-        _days = secondDayStart.Range(_simEnd, TimeSpan.FromDays(1))
-            .Prepend(_simStart).ToList();
-        Results = new List<PlannerDay>(_days.Count);
-        for (var i = 0; i < _days.Count-1; i++)
-        {
-            var start = _days[i];
-            Results.Add(new()
+        var days = secondDayStart.Range(_simEnd, TimeSpan.FromDays(1))
+            .Prepend(_simStart);
+        Results = days.SkipLast(1)
+            .Select(start => new PlannerDay
             {
                 Start = start,
                 End = start.AddDays(1).AddSeconds(-1),
-                IsTargetStageOpen = sched.IsOpen(_setup.TargetStageCode, start),
-            });
-        }
+                IsTargetStageOpen = sched.IsZoneOpen(_targetStage.ZoneId, start),
+            })
+            .ToList();
 
         var initialDay = Results[0];
         initialDay.StartingSanityValue = _setup.CurrentSanity;
         initialDay.StartingExpData = _setup.InitialExpData;
         initialDay.End = secondDayStart.AddSeconds(-1);
+        var setupTime = TimeProvider.System.GetElapsedTime(beginTimestamp);
         SimulateFrom(0);
+        var simTime = TimeProvider.System.GetElapsedTime(beginTimestamp);
+        Log.Debug("Simulating {ResultsCount} days took {SimTimeTotalMilliseconds:0}ms ({SetupTimeTotalMilliseconds:0}ms setup)",
+            Results.Count, simTime.TotalMilliseconds, setupTime.TotalMilliseconds);
     }
 
     public PlannerDay? GetDay(DateTime date)
@@ -121,11 +123,13 @@ public sealed class PlannerSimulation : ServiceBase
         }
 
         var sanLog = today.SanityLog;
+        using var _ = today.SuppressChangeNotifications();
+        using var _1 = sanLog.SuppressChangeNotifications();
         var natRegen = _setup.DailySanityRegenEfficiency;
         if (day == 0)
         {
             // first day is partial
-            var part = (_days.ElementAt(1) - _days.First()).TotalDays;
+            var part = (today.End - today.Start).TotalDays;
             natRegen = (int)Math.Floor(natRegen * part);
         }
         if (today.StartingSanityValue > 0)

@@ -1,4 +1,4 @@
 ﻿using BenchmarkDotNet.Running;
 using Scratchpad.Benchmarks;
 
-BenchmarkRunner.Run<ListVsDictionaryLookup>();
+BenchmarkRunner.Run<DateRangeVsZLinqRange>();

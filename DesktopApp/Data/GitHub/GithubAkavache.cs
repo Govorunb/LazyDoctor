@@ -39,7 +39,7 @@ public sealed class GithubAkavache : ServiceBase
     /// <summary>
     /// The default expiration is 2 weeks + anywhere from 0 to 2 days (chosen randomly to stagger refreshes).
     /// </summary>
-    public static TimeSpan DefaultExpiration => TimeSpan.FromDays(14) + TimeSpan.FromDays(2 * Random.Shared.NextDouble());
+    public static TimeSpan DefaultExpiration => TimeSpan.FromDays(14 + 2 * Random.Shared.NextDouble());
 
     public async Task SetAsync(string url, HttpResponse cachedResponse)
     {

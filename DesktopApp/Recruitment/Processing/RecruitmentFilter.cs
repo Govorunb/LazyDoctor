@@ -5,6 +5,7 @@ using DesktopApp.Data.Operators;
 using DesktopApp.Data.Recruitment;
 using DynamicData;
 using DynamicData.Binding;
+using ZLinq;
 
 namespace DesktopApp.Recruitment.Processing;
 
@@ -107,6 +108,7 @@ public sealed class RecruitmentFilter : ServiceBase
     private void SetFilters()
     {
         RarityFilters = _prefs.Recruitment.RarityFilters
+            .AsValueEnumerable()
             .Select((ft, i) => new RarityFilter { Stars = i + 1, Filter = ft })
             .ToList();
     }
@@ -173,15 +175,14 @@ public sealed class RecruitmentFilter : ServiceBase
             row.ShownOperators.Remove(op);
 
         // remaining Requires must be unfulfilled
-        return row.ShownOperators.Count > 0 && !filter.Any(f => f is FilterType.Require);
+        return row.ShownOperators.Count > 0 && !filter.AsValueEnumerable().Any(f => f is FilterType.Require);
     }
 
     private IEnumerable<ResultRow> Update(IReadOnlyList<Tag> tags)
     {
-        var powerSet = tags.GetPowerSet().ToList();
-        return powerSet
+        return tags.GetPowerSet()
             .Select(GetFilterResult)
-            .Where(r => r is { })!;
+            .WhereNotNull();
     }
 
     private ResultRow? GetFilterResult(IEnumerable<Tag> tags)
@@ -190,7 +191,9 @@ public sealed class RecruitmentFilter : ServiceBase
         if (tagList.Count == 0)
             return null;
 
-        var key = string.Join(',', tagList.Select(t => t.Name));
+        var key = tagList.AsValueEnumerable()
+            .Select(t => t.Name)
+            .JoinToString(',');
 
         var operators = _resultsCache.GetOrAdd(key, ValueFactory);
         if (operators.Count == 0)
@@ -203,6 +206,7 @@ public sealed class RecruitmentFilter : ServiceBase
             Debug.Assert(_recruitableOps is { }, "recruitable ops pool not loaded yet");
 
             return _recruitableOps.Value
+                .AsValueEnumerable()
                 .Where(op => Match(op, tagList))
                 .ToList();
         }

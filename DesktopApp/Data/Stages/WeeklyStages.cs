@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using DynamicData;
+using ZLinq;
 
 namespace DesktopApp.Data.Stages;
 
@@ -35,11 +36,14 @@ public sealed class WeeklyStages : ServiceBase
             .Subscribe();
     }
 
-    public bool IsOpen(StageData? stage, DateTime date)
+    public bool IsStageOpen(string stageCode, DateTime date)
+        => IsStageOpen(StagesRepo.GetByCode(stageCode), date);
+    public bool IsStageOpen(StageData? stage, DateTime date)
+        => IsZoneOpen(stage?.ZoneId, date);
+    public bool IsZoneOpen(string? zoneId, DateTime date)
     {
-        if (stage is null || _zt is null) return false;
-
-        if (!_zt.WeeklySchedule.TryGetValue(stage.ZoneId, out var schedule))
+        if (zoneId is null || _zt is null) return false;
+        if (!_zt.WeeklySchedule.TryGetValue(zoneId, out var schedule))
             return true;
 
         var day = _timeUtils.ToServerTime(date).DayOfWeek.ToEuropean();
@@ -47,15 +51,13 @@ public sealed class WeeklyStages : ServiceBase
             return true;
 
         var utcTime = _timeUtils.ToUtc(date);
-        return StagesRepo.ForceOpenSchedule.AsEnumerable()
+        return StagesRepo.ForceOpenSchedule.AsValueEnumerable()
             // they're already ordered by date asc, so it's faster to iterate from end
             .Reverse()
             // in fact, we should never ever have to check more than two items
             .TakeWhile(fop => fop.EndsAt >= utcTime)
-            .Any(fop => fop.StartsAt <= utcTime && fop.ZoneList.Contains(stage.ZoneId));
+            .Any(fop => fop.StartsAt <= utcTime && fop.ZoneList.Contains(zoneId));
     }
-    public bool IsOpen(string stageCode, DateTime date)
-        => IsOpen(StagesRepo.GetByCode(stageCode), date);
-    public IEnumerable<StageData> GetOpen(DateTime dateTime)
-        => StagesList.Items.Where(s => IsOpen(s.Code, dateTime));
+    public IEnumerable<StageData> GetOpenStages(DateTime dateTime)
+        => StagesList.Items.Where(s => IsStageOpen(s.Code, dateTime));
 }

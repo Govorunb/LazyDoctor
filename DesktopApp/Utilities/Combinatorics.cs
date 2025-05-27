@@ -4,22 +4,24 @@ public static class Combinatorics
 {
     public static IEnumerable<IEnumerable<T>> GetPowerSet<T>(this IReadOnlyList<T> list)
     {
-        var max = 1 << list.Count;
+        if (list.Count > 63)
+            throw new InvalidOperationException("Too many items");
+        var max = 1UL << list.Count;
 
-        for (var mask = 0; mask < max; mask++)
+        for (var mask = 0UL; mask < max; mask++)
         {
             yield return Subset(list, mask);
         }
 
-        static IEnumerable<T> Subset(IReadOnlyList<T> list, int mask)
+        static IEnumerable<T> Subset(IReadOnlyList<T> list, ulong mask)
         {
-            uint i = 0;
-            uint indexBit = 1;
+            var i = 0;
+            var indexBit = 1UL;
             while (i < list.Count)
             {
                 if ((mask & indexBit) != 0)
                 {
-                    yield return list[(int)i];
+                    yield return list[i];
                 }
 
                 i++;

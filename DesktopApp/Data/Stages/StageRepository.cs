@@ -1,4 +1,5 @@
 using System.Collections.Frozen;
+using ZLinq;
 
 namespace DesktopApp.Data.Stages;
 
@@ -54,7 +55,7 @@ public sealed class StageRepository : DataSource<IReadOnlyCollection<StageData>>
     private IReadOnlyCollection<StageData> StagesUpdated(StageTable table)
     {
         _byId = table.Stages.ToFrozenDictionary();
-        _byCode = StagesByCode(table.Stages.Values).ToFrozenDictionary(s => s.Code);
+        _byCode = StagesByCode(table.Stages.Values);
         StageTable = table;
         ForceOpenSchedule = table.ForceOpenTable
             .OrderBy(pair => pair.Key)
@@ -64,18 +65,21 @@ public sealed class StageRepository : DataSource<IReadOnlyCollection<StageData>>
         return _byId.Values;
     }
 
-    private IEnumerable<StageData> StagesByCode(IEnumerable<StageData> source)
+    private FrozenDictionary<string, StageData> StagesByCode(IEnumerable<StageData> source)
     {
         // stage codes were really not meant to be used as keys
-        return source.GroupBy(s => s.Code)
+        return source
+            .AsValueEnumerable()
+            .GroupBy(s => s.Code)
             .Select(g => (g.Key, g
+                .AsValueEnumerable()
                 // event and main story CMs (through ch9) have stage IDs end in "#f#"
                 .Where(stage => !stage.StageId.EndsWith("#f#", StringComparison.Ordinal))
                 // from ch10 onwards, the "diffGroup" field is used (H-stages are "TOUGH" but have "stageType": "SUB")
                 // ... except for 11-20, the single other stage that uses "SUB"
                 .Where(stage => !(stage.DifficultyGroup is "EASY" or "TOUGH" && stage.LevelId.StartsWith("Obt/Main/", StringComparison.Ordinal)))
                 // Children of Ursus share their SV- prefix with Under Tides (very cool)
-                // keep Under Tides since it's the only one whose stages are actually available
+                // keep Under Tides since CoU's stages aren't available
                 .Where(stage => stage.ZoneId != "act10d5_zone1")
                 // the rest are:
                 // - TN-x (trials for navigator)
@@ -92,7 +96,8 @@ public sealed class StageRepository : DataSource<IReadOnlyCollection<StageData>>
                 _ when _expectedNonUniqueCodes.Contains(g.Key) => null,
                 _ => ((StageData?)null).AndLog(this, LogLevel.Info, $"Stage {g.Key} has {g.Item2.Count} duplicates - did not filter to 1"),
             })
-            .WhereNotNull();
+            .WhereNotNull()
+            .ToFrozenDictionary(s => s.Code);
     }
 
     // initializing the FrozenSet directly with a collection expression:

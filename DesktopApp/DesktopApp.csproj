@@ -90,6 +90,7 @@
         <PackageReference Include="Serilog.Sinks.File" />
         <PackageReference Include="Splat.DependencyInjection.SourceGenerator" PrivateAssets="all" />
         <PackageReference Include="Splat.Serilog" />
+        <PackageReference Include="ZLinq" />
 
         <!-- HotAvalonia includes an older version of Xaml.Loader -->
         <PackageReference Include="Avalonia.Markup.Xaml.Loader" Condition="'$(Configuration)' == 'Debug'" PrivateAssets="all" />

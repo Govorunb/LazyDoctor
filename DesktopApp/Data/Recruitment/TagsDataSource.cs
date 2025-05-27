@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using DesktopApp.Recruitment;
 using DynamicData;
 using DynamicData.Binding;
+using ZLinq;
 
 namespace DesktopApp.Data.Recruitment;
 
@@ -50,15 +51,18 @@ public sealed class TagsDataSource : DataSource<Tag[]>
     private Tag[] Process(GachaTable table)
     {
         UnknownTags.Clear();
-        UnknownTags.AddRange(
-            table.RecruitmentTags?
-                .Select(raw => raw.TagName!)
-                .Where(name => !_excludedTags.Contains(name))
-                .Select(name => new Tag(name, "Affix"))
-            ?? []
-        );
+        if (table.RecruitmentTags is { })
+        {
+            UnknownTags.AddRange(
+                table.RecruitmentTags
+                    .Select(raw => raw.TagName!)
+                    .Where(name => !_excludedTags.Contains(name))
+                    .Select(name => new Tag(name, "Affix"))
+            );
+        }
 
         var allTags = EmbeddedTagsData.GetKnownTags()
+            .AsValueEnumerable()
             .Concat(UnknownTags)
             .ToArray();
 

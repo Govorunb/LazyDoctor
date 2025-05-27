@@ -17,12 +17,19 @@ public sealed class TestDateRange
         ((_epoch, _epoch.Add(_day), _day, true), 2),
         ((_epoch, _epoch.Add(_day + _minute), _day, false), 2),
         ((_epoch, _epoch.Add(_day + _minute), _day, true), 2),
+        ((_epoch, _epoch.Add(_day * 10), _minute, true), 14401),
     ];
 
     [Theory]
     [MemberData(nameof(CountCases))]
     public void TestDateRangeCount(DateRangeData range, int expected)
     {
-        Assert.Equal(((DateRange)range).Count, expected);
+        var dateRange = (DateRange)range;
+        Assert.Equal(expected, dateRange.Count);
+
+        var manualCount = 0; // .Count() tries to get non-enumerated, defeating the whole point
+        foreach (var _ in dateRange)
+            manualCount++;
+        Assert.True(manualCount == dateRange.Count, $"Count property and manual count differ: {dateRange.Count} != {manualCount}");
     }
 }

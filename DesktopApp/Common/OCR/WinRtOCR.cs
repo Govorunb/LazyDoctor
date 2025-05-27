@@ -3,6 +3,7 @@ using Windows.Globalization;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Windows.Storage.Streams;
+using ZLinq;
 
 namespace DesktopApp.Common.OCR;
 
@@ -56,6 +57,7 @@ public sealed class WinRtOCR : ServiceBase, IOCR<string>
         {
             var winRtOcrResult = await engine.RecognizeAsync(bitmap);
             var components = winRtOcrResult.Lines
+                .AsValueEnumerable()
                 .SelectMany(l => l.Words)
                 .Select(word => new OCRResultComponent(word.Text, word.BoundingRect.ToAvaRect()))
                 .ToArray();

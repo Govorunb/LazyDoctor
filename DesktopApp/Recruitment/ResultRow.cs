@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using DesktopApp.Data.Operators;
 
 namespace DesktopApp.Recruitment;
@@ -6,12 +7,12 @@ public class ResultRow : ViewModelBase
 {
     public required List<Tag> Tags { get; init; }
     public required List<Operator> Operators { get; init; }
-    private List<Operator>? _shownOps;
 
+    [field: MaybeNull]
     public List<Operator> ShownOperators
     {
-        get => _shownOps ?? Operators;
-        set => _shownOps = value;
+        get => field ?? Operators;
+        set;
     }
 
     public int MinimumRarity => Operators.Count == 0 ? 0 : Operators.Min(o => o.RarityStars);

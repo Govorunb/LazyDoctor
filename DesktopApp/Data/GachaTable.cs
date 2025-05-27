@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using DesktopApp.Data.Recruitment;
+using ZLinq;
 
 namespace DesktopApp.Data;
 
@@ -37,8 +38,9 @@ public sealed class GachaTable
         {
             ReadOnlySpan<char> slice = buf[..stars];
             var starsIdx = span.IndexOf(slice, StringComparison.Ordinal);
-            Debug.Assert(span[starsIdx + stars + 1] != '★', "Found extra stars, this means we skipped a previous iteration");
-            span = span[(starsIdx + stars + 1)..]; // \n (literal)
+            Debug.Assert(slice.AsValueEnumerable().All(c => c == '★'), $"Took less than {stars} stars: '{slice}'");
+            Debug.Assert(span[starsIdx + stars + 1] != '★', $"Found more than {stars} stars");
+            span = span[(starsIdx + stars + 1)..]; // +1 for line break
 
             while (true)
             {

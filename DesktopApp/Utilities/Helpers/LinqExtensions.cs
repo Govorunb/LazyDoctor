@@ -47,13 +47,14 @@ public static class LinqExtensions
         List<List<T>> acc = [[]];
         foreach (var source in sources)
         {
-            var items = source.ToArray();
-            if (items.Length == 0)
+            if (source is not ICollection<T> itemsColl)
+                itemsColl = source.ToList();
+            if (itemsColl.Count == 0)
                 continue;
-            var newAcc = new List<List<T>>(acc.Count * items.Length);
+            var newAcc = new List<List<T>>(acc.Count * itemsColl.Count);
             foreach (var accItem in acc)
             {
-                newAcc.AddRange(items.Select(t => accItem.Append(t).ToList()));
+                newAcc.AddRange(itemsColl.Select(t => accItem.Append(t).ToList()));
             }
 
             acc = newAcc;

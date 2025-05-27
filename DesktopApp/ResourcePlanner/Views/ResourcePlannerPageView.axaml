@@ -82,7 +82,7 @@
                     <CalendarDatePicker Margin="0 0 8 0"
                                         Name="TargetDatePicker"
                                         SelectedDate="{Binding Setup.TargetDate, Mode=TwoWay}"
-                                        DisplayDateStart="{Binding Setup.InitialDate}"
+                                        DisplayDateStart="2020-01-01" DisplayDateEnd="2049-12-31"
                                         DisplayDate="{Binding Setup.TargetDate, Mode=TwoWay}" />
                   </DataValidationErrors>
 
@@ -91,6 +91,7 @@
                                         Owner="{Binding #InitialDatePicker}">
                     <CalendarDatePicker Margin="0 0 8 0"
                                         Name="InitialDatePicker"
+                                        DisplayDateStart="2020-01-01" DisplayDateEnd="2049-12-31"
                                         SelectedDate="{Binding Setup.InitialDate, Mode=TwoWay}" />
                   </DataValidationErrors>
 
