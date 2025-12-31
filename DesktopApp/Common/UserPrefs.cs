@@ -236,7 +236,7 @@ file static class UserPrefsMigrations
 public enum PrefsLoadIssueKind { Warning, Error }
 
 /// <summary>
-/// Reprensents a problem that occurred while loading the prefs.
+/// Represents a problem that occurred while loading the prefs.
 /// </summary>
 /// <param name="Kind">
 /// Whether the problem is a warning (i.e. the user can choose to continue with the loaded prefs)
